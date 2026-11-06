@@ -2038,7 +2038,13 @@ function abrirPlayerVideo(idExercicio) {
   if (!dados) return;
 
   // Guarda de qual tela o usuário abriu o vídeo (Minha Saúde do Gari ou Aprenda do Morador)
-  if (EstadoApp.telaAtual === 'screen-learn' || idExercicio.startsWith('descarte_')) {
+  const ehVideoMorador =
+    EstadoApp.telaAtual === 'screen-learn' ||
+    EstadoApp.perfilAtual === 'morador' ||
+    idExercicio.startsWith('descarte_') ||
+    idExercicio === 'editorial_conscientizacao';
+
+  if (ehVideoMorador) {
     telaOrigemVideo = 'screen-learn';
   } else {
     telaOrigemVideo = 'screen-health';
@@ -2052,9 +2058,27 @@ function abrirPlayerVideo(idExercicio) {
   document.getElementById('video-categoria-badge').textContent = dados.categoria;
   document.getElementById('player-titulo-header').textContent = dados.titulo;
 
+  // Oculta o cronômetro ("10s por lado" e botão "Iniciar Cronômetro") em toda a visão do Morador / Aprenda
+  const timerBox = document.getElementById('exercise-timer');
+  const btnTimerToggle = document.getElementById('btn-timer-toggle');
+  const controlsGrid = document.querySelector('#screen-video-player .exercise-controls');
+  const stepsHeading = document.querySelector('#screen-video-player .steps-card h4');
+
+  if (ehVideoMorador) {
+    if (timerBox) timerBox.style.display = 'none';
+    if (btnTimerToggle) btnTimerToggle.style.display = 'none';
+    if (controlsGrid) controlsGrid.style.gridTemplateColumns = '1fr';
+    if (stepsHeading) stepsHeading.textContent = 'Passo a passo importante:';
+  } else {
+    if (timerBox) timerBox.style.display = 'block';
+    if (btnTimerToggle) btnTimerToggle.style.display = 'flex';
+    if (controlsGrid) controlsGrid.style.gridTemplateColumns = '1fr 1fr';
+    if (stepsHeading) stepsHeading.textContent = 'Como fazer o movimento correto:';
+  }
+
   const btnConcluir = document.querySelector('.btn-concluir-exercicio');
   if (btnConcluir) {
-    btnConcluir.textContent = telaOrigemVideo === 'screen-learn'
+    btnConcluir.textContent = ehVideoMorador
       ? '✅ Concluir Vídeo Educativo (+10 ELOs)'
       : '✅ Concluir Exercício (+10 ELOs)';
   }
