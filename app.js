@@ -134,6 +134,15 @@ function navegarPara(idTelaDestino) {
   const todasTelas = document.querySelectorAll('.screen');
   todasTelas.forEach(tela => tela.classList.remove('active'));
 
+  const frame = document.querySelector('.mobile-frame');
+  if (frame) {
+    if (idTelaDestino === 'screen-admin-dashboard') {
+      frame.classList.add('desktop-mode');
+    } else {
+      frame.classList.remove('desktop-mode');
+    }
+  }
+
   const telaDestino = document.getElementById(idTelaDestino);
   if (telaDestino) {
     telaDestino.classList.add('active');
@@ -146,7 +155,12 @@ function navegarPara(idTelaDestino) {
   // Atualiza a barra de navegação inferior
   const bottomNav = document.getElementById('bottom-navbar');
   if (bottomNav) {
-    if (idTelaDestino === 'screen-splash' || idTelaDestino === 'screen-roles') {
+    if (
+      idTelaDestino === 'screen-splash' ||
+      idTelaDestino === 'screen-roles' ||
+      idTelaDestino === 'screen-auth' ||
+      idTelaDestino === 'screen-admin-dashboard'
+    ) {
       bottomNav.style.display = 'none';
     } else {
       bottomNav.style.display = 'flex';
@@ -835,11 +849,143 @@ function filtrarVideosSaude(categoria, botao) {
   falarTexto(`Filtrando lista de exercícios por ${categoria}.`);
 }
 
+/* --------------------------------------------------------------------------
+   9. FASE 4: PAINEL WEB DA CONCESSIONÁRIA / PREFEITURA (B2B & ESG)
+   -------------------------------------------------------------------------- */
+function abrirPainelGestor() {
+  navegarPara('screen-admin-dashboard');
+  sincronizarPainelAdmin();
+  falarTexto("Painel executivo da Concessionária e Prefeitura aberto. Dados sincronizados com o Supabase PostgreSQL.");
+}
+
+function fecharPainelGestor() {
+  irParaHome();
+}
+
+async function sincronizarPainelAdmin() {
+  // 1. Renderiza usuários do banco (Supabase + Local)
+  const containerUsers = document.getElementById('admin-users-container');
+  let listaPerfis = Object.values(BancoUsuarios);
+
+  if (typeof supabaseConectado !== 'undefined' && supabaseConectado && supabaseClient) {
+    try {
+      const { data: perfisNuvem } = await supabaseClient
+        .from('profiles')
+        .select('*')
+        .order('pontos_elos', { ascending: false });
+
+      if (perfisNuvem && perfisNuvem.length > 0) {
+        listaPerfis = perfisNuvem.map(p => ({
+          nome: p.nome,
+          email: p.email,
+          perfil: p.perfil,
+          rota: p.rota_ou_bairro || 'Ipiranga',
+          pontosElos: p.pontos_elos,
+          checkins: p.total_checkins || 0
+        }));
+      }
+
+      // 2. Busca ocorrências reais salvas na nuvem
+      const { data: ocorrenciasNuvem } = await supabaseClient
+        .from('ocorrencias')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(8);
+
+      if (ocorrenciasNuvem && ocorrenciasNuvem.length > 0) {
+        renderizarTabelaOcorrenciasAdmin(ocorrenciasNuvem);
+        const totalCortantes = ocorrenciasNuvem.filter(o => o.is_risco_cortante).length;
+        const kpiAlertas = document.getElementById('admin-kpi-alertas');
+        if (kpiAlertas) kpiAlertas.textContent = 7 + totalCortantes;
+      }
+    } catch (err) {
+      console.warn("Sincronização admin usando cache local:", err);
+    }
+  }
+
+  if (containerUsers) {
+    containerUsers.innerHTML = listaPerfis.map(u => `
+      <div class="admin-user-chip">
+        <div>
+          <strong>${u.perfil === 'trabalhador' ? '👷🏽‍♂️' : '🏡'} ${u.nome}</strong>
+          <span>${u.rota || 'Ipiranga'} • ${u.checkins || 0} check-ins</span>
+        </div>
+        <span class="admin-user-elos">⭐ ${u.pontosElos} ELOs</span>
+      </div>
+    `).join('');
+  }
+}
+
+function renderizarTabelaOcorrenciasAdmin(ocorrencias) {
+  const tbody = document.getElementById('admin-ocorrencias-tbody');
+  if (!tbody) return;
+
+  const linhasNuvem = ocorrencias.map(oc => {
+    const isRisco = oc.is_risco_cortante || (oc.tipo_problema && oc.tipo_problema.includes('Vidro'));
+    const badgeTipo = isRisco
+      ? `<span class="risk-pill">⚠️ ${oc.tipo_problema}</span>`
+      : `🗑️ ${oc.tipo_problema}`;
+
+    const stClass = oc.status === 'Resolvida' ? 'st-ok' : oc.status === 'Em atendimento' ? 'st-atend' : 'st-analise';
+    const btnAcao = oc.status === 'Resolvida'
+      ? `<span class="done-check">✔ Protegido</span>`
+      : `<button class="btn-table-act" onclick="avancarStatusOcorrencia(this, '${oc.protocolo}')">Notificar Frota</button>`;
+
+    return `
+      <tr>
+        <td><strong>${oc.protocolo}</strong></td>
+        <td>${oc.endereco}</td>
+        <td>${badgeTipo}</td>
+        <td><span class="status-pill ${stClass}">${oc.status || 'Em análise'}</span></td>
+        <td>${btnAcao}</td>
+      </tr>
+    `;
+  }).join('');
+
+  tbody.innerHTML = linhasNuvem;
+}
+
+async function avancarStatusOcorrencia(botao, protocolo) {
+  const tr = botao.closest('tr');
+  if (!tr) return;
+
+  const statusSpan = tr.querySelector('.status-pill');
+  let novoStatus = 'Em atendimento';
+
+  if (statusSpan) {
+    if (statusSpan.textContent.trim() === 'Em análise') {
+      novoStatus = 'Em atendimento';
+      statusSpan.textContent = 'Em atendimento';
+      statusSpan.className = 'status-pill st-atend';
+      botao.textContent = 'Concluir';
+      falarTexto("Frota notificada com sucesso. Caminhão da rota alertado sobre o risco.");
+    } else {
+      novoStatus = 'Resolvida';
+      statusSpan.textContent = 'Resolvida';
+      statusSpan.className = 'status-pill st-ok';
+      botao.outerHTML = '<span class="done-check">✔ Protegido</span>';
+      falarTexto("Ocorrência concluída e arquivada com segurança.");
+    }
+  }
+
+  // Atualiza no Supabase PostgreSQL se houver protocolo
+  if (protocolo && typeof supabaseConectado !== 'undefined' && supabaseConectado && supabaseClient) {
+    try {
+      await supabaseClient
+        .from('ocorrencias')
+        .update({ status: novoStatus })
+        .eq('protocolo', protocolo);
+    } catch (e) {
+      console.warn("Aviso ao atualizar status no Supabase:", e);
+    }
+  }
+}
+
 // Inicialização ao carregar a página
 document.addEventListener('DOMContentLoaded', () => {
   atualizarDadosInterfaceUsuario();
   atualizarDisplaysPontos();
   renderizarMensagens();
-  console.log("Sistema ELO pronto com Banco de Dados e Autenticação de Usuários.");
+  console.log("Sistema ELO completo (Fases 1 a 4 + Supabase PostgreSQL) inicializado.");
 });
 

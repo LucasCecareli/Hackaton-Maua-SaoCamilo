@@ -24,7 +24,11 @@
         <span class="logo-circle"></span>
         <span class="logo-text">ELO</span>
       </div>
-      <div class="header-actions">
+      <div class="header-actions" style="display: flex; align-items: center; gap: 8px;">
+        <!-- Botão de Alternância Rápida para o Painel Web B2B/Prefeitura -->
+        <button class="btn-admin-toggle" id="btn-header-admin" title="Abrir Painel Web da Concessionária/Prefeitura" onclick="abrirPainelGestor()">
+          📊 Gestão Web
+        </button>
         <!-- Botão de Acessibilidade de Leitura por Voz -->
         <button class="btn-voice-toggle" id="btn-global-voice" title="Ler tela em voz alta" aria-label="Ouvir tela" onclick="lerTelaAtual()">
           🔊
@@ -146,6 +150,9 @@
               <button class="btn-demo-chip" onclick="preencherLoginDemo('mariana@elo.com', 'morador')">
                 👩🏻 Mariana (Moradora)
               </button>
+              <button class="btn-demo-chip" onclick="abrirPainelGestor()">
+                📊 Painel Web Concessionária / Prefeitura (B2B & ESG)
+              </button>
             </div>
           </div>
         </div>
@@ -176,6 +183,16 @@
               <div class="role-info">
                 <h3>Sou Trabalhador(a)</h3>
                 <p>Faço parte da coleta e quero cuidar da minha saúde, aprender e me conectar.</p>
+              </div>
+              <div class="role-arrow">❯</div>
+            </div>
+
+            <!-- Card Gestor / Prefeitura (Fase 4) -->
+            <div class="role-card card-gestor" onclick="abrirPainelGestor()">
+              <div class="role-icon">📊</div>
+              <div class="role-info">
+                <h3>Concessionária / Prefeitura (Web)</h3>
+                <p>Painel de gestão ocupacional (SST), mapa de riscos e indicadores ESG.</p>
               </div>
               <div class="role-arrow">❯</div>
             </div>
@@ -992,6 +1009,184 @@
           <button class="btn btn-primary btn-purple" onclick="enviarMensagemMorador()">
             Enviar Mensagem ao Mural da Equipe 💌
           </button>
+        </div>
+      </section>
+
+      <!-- ============================================================== -->
+      <!-- TELA 13: PAINEL WEB CONCESSIONÁRIA / PREFEITURA (FASE 4 B2B)   -->
+      <!-- ============================================================== -->
+      <section class="screen" id="screen-admin-dashboard">
+        <div class="admin-topbar">
+          <div class="admin-brand">
+            <span class="admin-badge-live">🟢 SUPABASE LIVE</span>
+            <div>
+              <h2>Central ELO • Gestão Ocupacional (SST) & Limpeza Urbana</h2>
+              <p>Painel Executivo B2B/B2G • Concessionária & Prefeitura de São Paulo (Subprefeitura Ipiranga)</p>
+            </div>
+          </div>
+          <div class="admin-actions">
+            <button class="btn-admin-action" onclick="sincronizarPainelAdmin()">
+              🔄 Atualizar Dados da Nuvem
+            </button>
+            <button class="btn-admin-mobile" onclick="fecharPainelGestor()">
+              📱 Voltar para Visão App Mobile
+            </button>
+          </div>
+        </div>
+
+        <div class="admin-body">
+          <!-- Linha 1: 4 KPIs Executivos (Negócios, Saúde e ESG) -->
+          <div class="admin-kpi-grid">
+            <div class="admin-kpi-card kpi-green">
+              <div class="kpi-header">
+                <span>Índice de Bem-Estar da Frota</span>
+                <span class="kpi-icon">💚</span>
+              </div>
+              <div class="kpi-value" id="admin-kpi-bemestar">89%</div>
+              <div class="kpi-foot">Meta ESG superada • <strong>-34% afastamentos INSS</strong></div>
+            </div>
+
+            <div class="admin-kpi-card kpi-blue">
+              <div class="kpi-header">
+                <span>Check-ins de Saúde (Mês)</span>
+                <span class="kpi-icon">📋</span>
+              </div>
+              <div class="kpi-value" id="admin-kpi-checkins">142</div>
+              <div class="kpi-foot">Adesão voluntária de <strong>92% das equipes</strong></div>
+            </div>
+
+            <div class="admin-kpi-card kpi-red">
+              <div class="kpi-header">
+                <span>Alertas de Vidro / Cortantes</span>
+                <span class="kpi-icon">⚠️</span>
+              </div>
+              <div class="kpi-value" id="admin-kpi-alertas">7</div>
+              <div class="kpi-foot"><strong>Zero acidentes</strong> de corte nas rotas alertadas</div>
+            </div>
+
+            <div class="admin-kpi-card kpi-amber">
+              <div class="kpi-header">
+                <span>Economia Estimada (ROI SST)</span>
+                <span class="kpi-icon">💰</span>
+              </div>
+              <div class="kpi-value">R$ 54,2 mil</div>
+              <div class="kpi-foot">Redução de turnover, horas extras e FAP/SAT</div>
+            </div>
+          </div>
+
+          <!-- Linha 2: Duas Colunas Widescreen (Saúde São Camilo vs Operação Mauá) -->
+          <div class="admin-main-grid">
+            
+            <!-- Coluna Esquerda: Saúde Mental e Ocupacional (São Camilo) -->
+            <div class="admin-panel">
+              <div class="panel-header">
+                <h3>🏥 Monitoramento Clínico & Psicossocial (São Camilo)</h3>
+                <span class="panel-tag">Dados Anonimizados (LGPD)</span>
+              </div>
+
+              <!-- Termômetro Emocional da Equipe -->
+              <div class="chart-section">
+                <h4>Distribuição do Check-in Emocional (Últimos 7 dias)</h4>
+                <div class="bar-chart">
+                  <div class="bar-row">
+                    <span class="bar-label">😄 Muito bem / Bem</span>
+                    <div class="bar-track"><div class="bar-fill fill-green" style="width: 68%;">68%</div></div>
+                  </div>
+                  <div class="bar-row">
+                    <span class="bar-label">😐 Mais ou menos</span>
+                    <div class="bar-track"><div class="bar-fill fill-yellow" style="width: 21%;">21%</div></div>
+                  </div>
+                  <div class="bar-row">
+                    <span class="bar-label">😫 Cansado / Alerta</span>
+                    <div class="bar-track"><div class="bar-fill fill-red" style="width: 11%;">11%</div></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Mapa de Queixas Físicas / Ergonomia -->
+              <div class="chart-section">
+                <h4>Mapeamento de Desconforto Físico Pós-Turno</h4>
+                <div class="pain-stats-grid">
+                  <div class="pain-stat-box">
+                    <strong>42%</strong>
+                    <span>Lombar e Costas</span>
+                  </div>
+                  <div class="pain-stat-box">
+                    <strong>31%</strong>
+                    <span>Pernas e Joelhos</span>
+                  </div>
+                  <div class="pain-stat-box">
+                    <strong>19%</strong>
+                    <span>Ombros e Punhos</span>
+                  </div>
+                  <div class="pain-stat-box">
+                    <strong>8%</strong>
+                    <span>Sem queixas</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Protocolo de Encaminhamento São Camilo -->
+              <div class="clinical-alert-box">
+                <div class="alert-badge">🩺 Protocolo Ativo SESMT + São Camilo</div>
+                <p><strong>Rota 14 (Ipiranga):</strong> 2 coletores relataram dores moderadas na lombar após turno chuvoso. Alongamento focado de 5 min enviado automaticamente aos aparelhos e 1 vaga de fisioterapia preventiva liberada via ELOs.</p>
+              </div>
+            </div>
+
+            <!-- Coluna Direita: Ocorrências de Rua & Engajamento no Supabase -->
+            <div class="admin-panel">
+              <div class="panel-header">
+                <h3>📍 Ocorrências e Riscos na Via (Supabase Tempo Real)</h3>
+                <span class="panel-tag">Integração Cidadão ➔ Frota</span>
+              </div>
+
+              <div class="admin-table-wrapper">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Protocolo</th>
+                      <th>Localização</th>
+                      <th>Tipo / Risco</th>
+                      <th>Status</th>
+                      <th>Ação</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-ocorrencias-tbody">
+                    <tr>
+                      <td><strong>ELO-849201</strong></td>
+                      <td>Rua Silva Bueno, 310</td>
+                      <td><span class="risk-pill">⚠️ Vidro Quebrado</span></td>
+                      <td><span class="status-pill st-analise">Em análise</span></td>
+                      <td><button class="btn-table-act" onclick="avancarStatusOcorrencia(this)">Notificar Frota</button></td>
+                    </tr>
+                    <tr>
+                      <td><strong>ELO-731940</strong></td>
+                      <td>Rua dos Patriotas, 482</td>
+                      <td>🗑️ Lixo Acumulado</td>
+                      <td><span class="status-pill st-atend">Em atendimento</span></td>
+                      <td><button class="btn-table-act" onclick="avancarStatusOcorrencia(this)">Concluir</button></td>
+                    </tr>
+                    <tr>
+                      <td><strong>ELO-610422</strong></td>
+                      <td>Av. Nazaré, 1020</td>
+                      <td><span class="risk-pill">⚠️ Descarte Cortante</span></td>
+                      <td><span class="status-pill st-ok">Resolvida</span></td>
+                      <td><span class="done-check">✔ Protegido</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Resumo da Equipe Cadastrada no Supabase -->
+              <div class="panel-subheader">
+                <h4>👷🏽‍♂️ Trabalhadores & Moradores Sincronizados no Banco (`profiles`)</h4>
+              </div>
+              <div class="admin-users-list" id="admin-users-container">
+                <!-- Preenchido dinamicamente pelo Supabase / EstadoApp -->
+              </div>
+            </div>
+
+          </div>
         </div>
       </section>
 
