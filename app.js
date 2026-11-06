@@ -5,10 +5,54 @@
  * ============================================================================
  */
 
+// ============================================================================
+// BANCO DE DADOS LOCAL DE USUÁRIOS (DATABASE ENGINE E AUTH)
+// Explicação para a banca:
+// Camada de persistência local simulando um Backend as a Service (Supabase/Firebase)
+// permitindo login individual, múltiplos trabalhadores e persistência de dados.
+// ============================================================================
+const BancoUsuariosPadrao = {
+  "carlos@elo.com": {
+    nome: "Carlos Silva",
+    email: "carlos@elo.com",
+    senha: "123456",
+    perfil: "trabalhador",
+    rota: "Rota 14 - Bairro Ipiranga",
+    pontosElos: 340,
+    checkins: 12,
+    alongamentos: 8,
+    alertas: 4,
+    vouchers: [
+      { titulo: "Café com Pão na Chapa", local: "Padaria Estrela do Ipiranga", codigo: "ELO-7492", status: "Pronto para Usar", icone: "☕" },
+      { titulo: "Sessão de Fisioterapia", local: "Clínica Integrada São Camilo", codigo: "SPSC-1104", status: "Agendado", icone: "🏥" }
+    ]
+  },
+  "mariana@elo.com": {
+    nome: "Mariana Souza",
+    email: "mariana@elo.com",
+    senha: "123456",
+    perfil: "morador",
+    rota: "Rua dos Patriotas - Ipiranga",
+    pontosElos: 80,
+    checkins: 4,
+    alongamentos: 2,
+    alertas: 3,
+    vouchers: []
+  }
+};
+
+// Carrega ou inicializa o banco no LocalStorage
+let BancoUsuarios = JSON.parse(localStorage.getItem('elo_banco_usuarios')) || BancoUsuariosPadrao;
+
+function salvarBancoUsuarios() {
+  localStorage.setItem('elo_banco_usuarios', JSON.stringify(BancoUsuarios));
+}
+
 // Estado Global da Aplicação
 const EstadoApp = {
-  perfilAtual: localStorage.getItem('elo_perfil') || null,
-  pontosElos: parseInt(localStorage.getItem('elos_saldo')) || 340,
+  usuarioLogado: JSON.parse(localStorage.getItem('elo_usuario_sessao')) || BancoUsuarios["carlos@elo.com"],
+  perfilAtual: localStorage.getItem('elo_perfil') || 'trabalhador',
+  pontosElos: 340,
   telaAtual: 'screen-splash',
   checkinDoDia: {
     humor: null,
@@ -29,6 +73,12 @@ const EstadoApp = {
     }
   ]
 };
+
+// Sincroniza dados do usuário logado na inicialização
+if (EstadoApp.usuarioLogado) {
+  EstadoApp.pontosElos = EstadoApp.usuarioLogado.pontosElos || 340;
+  EstadoApp.perfilAtual = EstadoApp.usuarioLogado.perfil || 'trabalhador';
+}
 
 /* --------------------------------------------------------------------------
    1. ACESSIBILIDADE POR VOZ (Web Speech API)
@@ -146,7 +196,193 @@ function irParaHome() {
 }
 
 /* --------------------------------------------------------------------------
-   3. CHECK-IN DE SAÚDE (BEM-ESTAR DO TRABALHADOR)
+   3. AUTENTICAÇÃO COM E-MAIL (LOGIN & CADASTRO)
+   -------------------------------------------------------------------------- */
+function alternarAbaAuth(aba) {
+  const btnLogin = document.getElementById('tab-auth-login');
+  const btnCad = document.getElementById('tab-auth-register');
+  const formLogin = document.getElementById('form-auth-login');
+  const formCad = document.getElementById('form-auth-register');
+
+  if (aba === 'login') {
+    btnLogin.classList.add('active');
+    btnCad.classList.remove('active');
+    formLogin.style.display = 'flex';
+    formCad.style.display = 'none';
+    falarTexto("Aba de Login selecionada. Digite seu e-mail e senha cadastrados.");
+  } else {
+    btnCad.classList.add('active');
+    btnLogin.classList.remove('active');
+    formLogin.style.display = 'none';
+    formCad.style.display = 'flex';
+    falarTexto("Aba de Cadastro selecionada. Preencha seu nome, perfil e e-mail.");
+  }
+}
+
+function executarLogin() {
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
+  const senha = document.getElementById('login-senha').value.trim();
+
+  if (!email || !senha) {
+    alert("Por favor, preencha seu e-mail e sua senha.");
+    return;
+  }
+
+  const usuario = BancoUsuarios[email];
+
+  if (!usuario) {
+    alert("E-mail não encontrado no sistema. Clique na aba 'Criar Conta' para se cadastrar!");
+    falarTexto("E-mail não cadastrado. Crie uma nova conta.");
+    return;
+  }
+
+  if (usuario.senha !== senha) {
+    alert("Senha incorreta. Tente novamente.");
+    falarTexto("Senha incorreta. Verifique os dados digitados.");
+    return;
+  }
+
+  // Login com Sucesso
+  logarUsuario(usuario);
+}
+
+function executarCadastro() {
+  const nome = document.getElementById('cad-nome').value.trim();
+  const perfil = document.getElementById('cad-tipo-perfil').value;
+  const rota = document.getElementById('cad-rota').value.trim() || "Rota Central";
+  const email = document.getElementById('cad-email').value.trim().toLowerCase();
+  const senha = document.getElementById('cad-senha').value.trim();
+
+  if (!nome || !email || !senha) {
+    alert("Por favor, preencha Nome, E-mail e Senha para continuar.");
+    return;
+  }
+
+  if (BancoUsuarios[email]) {
+    alert("Este e-mail já está cadastrado! Faça login com sua senha.");
+    alternarAbaAuth('login');
+    return;
+  }
+
+  // Novo usuário com Bônus de Boas-Vindas
+  const novoUsuario = {
+    nome: nome,
+    email: email,
+    senha: senha,
+    perfil: perfil,
+    rota: rota,
+    pontosElos: 50, // Bônus de cadastro
+    checkins: 0,
+    alongamentos: 0,
+    alertas: 0,
+    vouchers: []
+  };
+
+  BancoUsuarios[email] = novoUsuario;
+  salvarBancoUsuarios();
+
+  alert(`🎉 Cadastro realizado com sucesso!\n\nBem-vindo(a), ${nome}!\nVocê ganhou um bônus de boas-vindas de +50 ELOs!`);
+  falarTexto(`Bem-vindo ao ELO, ${nome}! Você ganhou 50 pontos bônus de boas-vindas.`);
+
+  logarUsuario(novoUsuario);
+}
+
+function preencherLoginDemo(email, tipo) {
+  const usuario = BancoUsuarios[email];
+  if (usuario) {
+    document.getElementById('login-email').value = usuario.email;
+    document.getElementById('login-senha').value = usuario.senha;
+    logarUsuario(usuario);
+  }
+}
+
+function logarUsuario(usuario) {
+  EstadoApp.usuarioLogado = usuario;
+  EstadoApp.perfilAtual = usuario.perfil;
+  EstadoApp.pontosElos = usuario.pontosElos;
+
+  localStorage.setItem('elo_usuario_sessao', JSON.stringify(usuario));
+  localStorage.setItem('elo_perfil', usuario.perfil);
+
+  atualizarDadosInterfaceUsuario();
+
+  falarTexto(`Olá ${usuario.nome.split(' ')[0]}! Acesso confirmado. Você tem ${usuario.pontosElos} ELOs acumulados.`);
+
+  if (usuario.perfil === 'trabalhador') {
+    navegarPara('screen-home-worker');
+  } else {
+    navegarPara('screen-home-morador');
+  }
+}
+
+function executarLogout() {
+  localStorage.removeItem('elo_usuario_sessao');
+  EstadoApp.usuarioLogado = null;
+  alert("Você saiu da sua conta com sucesso!");
+  falarTexto("Sessão finalizada. Até logo!");
+  navegarPara('screen-splash');
+}
+
+function atualizarDadosInterfaceUsuario() {
+  const u = EstadoApp.usuarioLogado;
+  if (!u) return;
+
+  // Header Trabalhador
+  const hNome = document.getElementById('worker-header-nome');
+  const hRota = document.getElementById('worker-header-rota');
+  if (hNome) hNome.textContent = `Olá, ${u.nome.split(' ')[0]}!`;
+  if (hRota) hRota.textContent = `Trabalhador da coleta • ${u.rota} ❯`;
+
+  // Tela de Perfil e Progresso
+  const pNome = document.getElementById('perfil-nome');
+  const pEmail = document.getElementById('perfil-email');
+  const pRota = document.getElementById('perfil-rota');
+  const pCheckins = document.getElementById('perfil-checkins');
+  const pAlongamentos = document.getElementById('perfil-alongamentos');
+  const pAlertas = document.getElementById('perfil-alertas');
+
+  if (pNome) pNome.textContent = u.nome;
+  if (pEmail) pEmail.textContent = u.email;
+  if (pRota) pRota.textContent = u.rota;
+  if (pCheckins) pCheckins.textContent = u.checkins || 0;
+  if (pAlongamentos) pAlongamentos.textContent = u.alongamentos || 0;
+  if (pAlertas) pAlertas.textContent = u.alertas || 0;
+
+  // Renderizar Vouchers do Usuário
+  renderizarVouchersUsuario();
+
+  // Atualizar pontos
+  atualizarDisplaysPontos();
+}
+
+function renderizarVouchersUsuario() {
+  const container = document.getElementById('perfil-vouchers-list');
+  if (!container || !EstadoApp.usuarioLogado) return;
+
+  const vouchers = EstadoApp.usuarioLogado.vouchers || [];
+  if (vouchers.length === 0) {
+    container.innerHTML = `
+      <div style="text-align: center; padding: 14px; color: var(--text-muted); font-size: 0.8rem;">
+        Você ainda não resgatou vouchers. Acumule ELOs e troque por benefícios!
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = vouchers.map(v => `
+    <div class="voucher-card">
+      <div class="voucher-icon">${v.icone || '🎟️'}</div>
+      <div class="voucher-info">
+        <h5>${v.titulo}</h5>
+        <p>${v.local} • Código: <strong>${v.codigo}</strong></p>
+      </div>
+      <span class="badge-voucher-status ${v.status === 'Agendado' ? 'agendado' : ''}">${v.status}</span>
+    </div>
+  `).join('');
+}
+
+/* --------------------------------------------------------------------------
+   4. CHECK-IN DE SAÚDE (BEM-ESTAR DO TRABALHADOR)
    -------------------------------------------------------------------------- */
 function selecionarHumor(botao, humor) {
   document.querySelectorAll('.emoji-btn').forEach(btn => btn.classList.remove('selected'));
@@ -169,16 +405,29 @@ function concluirCheckin() {
     return;
   }
 
+  if (EstadoApp.usuarioLogado) {
+    EstadoApp.usuarioLogado.checkins = (EstadoApp.usuarioLogado.checkins || 0) + 1;
+  }
+
   somarPontos(10, "fazer o check-in de saúde");
   alert("Check-in concluído com sucesso! Você ganhou +10 ELOs.");
   navegarPara('screen-home-worker');
 }
 
 /* --------------------------------------------------------------------------
-   4. MEUS ELOS & RECOMPENSAS
+   5. MEUS ELOS & RECOMPENSAS
    -------------------------------------------------------------------------- */
 function somarPontos(quantidade, motivo) {
   EstadoApp.pontosElos += quantidade;
+  
+  // Salva no perfil do usuário logado
+  if (EstadoApp.usuarioLogado) {
+    EstadoApp.usuarioLogado.pontosElos = EstadoApp.pontosElos;
+    BancoUsuarios[EstadoApp.usuarioLogado.email] = EstadoApp.usuarioLogado;
+    salvarBancoUsuarios();
+    localStorage.setItem('elo_usuario_sessao', JSON.stringify(EstadoApp.usuarioLogado));
+  }
+
   localStorage.setItem('elos_saldo', EstadoApp.pontosElos);
   atualizarDisplaysPontos();
   falarTexto(`Parabéns! Você ganhou ${quantidade} ELOs por ${motivo}. Seu saldo é de ${EstadoApp.pontosElos} pontos.`);
@@ -199,11 +448,33 @@ function resgatarRecompensa(custo, itemNome) {
   }
 
   EstadoApp.pontosElos -= custo;
+  
+  // Gera código único de voucher
+  const codigoVoucher = "ELO-" + Math.floor(1000 + Math.random() * 9000);
+  const novoVoucher = {
+    titulo: itemNome,
+    local: itemNome.includes("Fisioterapia") || itemNome.includes("psicológico") ? "Clínica São Camilo" : "Parceiro da Rota",
+    codigo: codigoVoucher,
+    status: itemNome.includes("Fisioterapia") ? "Agendado" : "Pronto para Usar",
+    icone: itemNome.includes("Café") ? "☕" : itemNome.includes("Celular") ? "📱" : "🏥"
+  };
+
+  if (EstadoApp.usuarioLogado) {
+    EstadoApp.usuarioLogado.pontosElos = EstadoApp.pontosElos;
+    if (!EstadoApp.usuarioLogado.vouchers) EstadoApp.usuarioLogado.vouchers = [];
+    EstadoApp.usuarioLogado.vouchers.unshift(novoVoucher);
+
+    BancoUsuarios[EstadoApp.usuarioLogado.email] = EstadoApp.usuarioLogado;
+    salvarBancoUsuarios();
+    localStorage.setItem('elo_usuario_sessao', JSON.stringify(EstadoApp.usuarioLogado));
+  }
+
   localStorage.setItem('elos_saldo', EstadoApp.pontosElos);
   atualizarDisplaysPontos();
+  atualizarDadosInterfaceUsuario();
 
-  alert(`🎉 Recompensa resgatada com sucesso!\n\nVocê resgatou: ${itemNome}\nSeu novo saldo: ${EstadoApp.pontosElos} ELOs`);
-  falarTexto(`Parabéns! Recompensa resgatada: ${itemNome}. Código enviado para a sua equipe.`);
+  alert(`🎉 Recompensa resgatada com sucesso!\n\nVocê resgatou: ${itemNome}\nCódigo do Voucher: ${codigoVoucher}\nSeu novo saldo: ${EstadoApp.pontosElos} ELOs\n\nO voucher já está disponível na tela 'Meu Progresso'!`);
+  falarTexto(`Parabéns! Recompensa resgatada: ${itemNome}. Código do voucher gerado com sucesso.`);
 }
 
 function iniciarExercicio(nomeExercicio) {
@@ -570,8 +841,9 @@ function filtrarVideosSaude(categoria, botao) {
 
 // Inicialização ao carregar a página
 document.addEventListener('DOMContentLoaded', () => {
+  atualizarDadosInterfaceUsuario();
   atualizarDisplaysPontos();
   renderizarMensagens();
-  console.log("Sistema ELO pronto. Fases 1, 2 e 3 integradas.");
+  console.log("Sistema ELO pronto com Banco de Dados e Autenticação de Usuários.");
 });
 

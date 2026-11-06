@@ -57,10 +57,96 @@
           </div>
 
           <div class="splash-actions">
-            <button class="btn btn-primary" onclick="navegarPara('screen-roles')">
-              Começar Agora
+            <button class="btn btn-primary" onclick="navegarPara('screen-auth')">
+              Entrar ou Criar Conta
+            </button>
+            <button class="btn-link" onclick="navegarPara('screen-roles')">
+              Continuar como Convidado ❯
             </button>
             <p class="splash-subtext">Parceria Centro Universitário São Camilo & IMT</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TELA DE LOGIN & CADASTRO COM E-MAIL            -->
+      <!-- ============================================== -->
+      <section class="screen" id="screen-auth">
+        <div class="screen-header">
+          <button class="btn-back" onclick="navegarPara('screen-splash')">❮</button>
+          <h2>Acesso ao ELO</h2>
+          <button class="btn-voice-inline" onclick="falarTexto('Tela de identificação. Digite seu e-mail e senha para acessar seu progresso e recompensas.')">🔊</button>
+        </div>
+
+        <div class="auth-content">
+          <div class="auth-tabs">
+            <button class="auth-tab active" id="tab-auth-login" onclick="alternarAbaAuth('login')">Entrar</button>
+            <button class="auth-tab" id="tab-auth-register" onclick="alternarAbaAuth('cadastro')">Criar Conta</button>
+          </div>
+
+          <!-- Formulário de Login -->
+          <div id="form-auth-login" class="auth-form">
+            <div class="input-group">
+              <label class="input-label">E-mail cadastrado:</label>
+              <input type="email" id="login-email" class="form-input" placeholder="carlos@elo.com" value="carlos@elo.com">
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">Senha:</label>
+              <input type="password" id="login-senha" class="form-input" placeholder="••••••••" value="123456">
+            </div>
+
+            <button class="btn btn-primary" onclick="executarLogin()">
+              Entrar no meu Painel
+            </button>
+          </div>
+
+          <!-- Formulário de Cadastro de Novo Trabalhador/Morador -->
+          <div id="form-auth-register" class="auth-form" style="display: none;">
+            <div class="input-group">
+              <label class="input-label">Nome Completo:</label>
+              <input type="text" id="cad-nome" class="form-input" placeholder="Ex: Marcos Souza">
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">Perfil:</label>
+              <select id="cad-tipo-perfil" class="form-input">
+                <option value="trabalhador">Trabalhador da Coleta (Gari)</option>
+                <option value="morador">Morador da Cidade</option>
+              </select>
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">Rota de Coleta ou Bairro:</label>
+              <input type="text" id="cad-rota" class="form-input" placeholder="Ex: Rota 08 - Ipiranga">
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">Seu E-mail:</label>
+              <input type="email" id="cad-email" class="form-input" placeholder="marcos@elo.com">
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">Crie uma Senha:</label>
+              <input type="password" id="cad-senha" class="form-input" placeholder="Mínimo 6 caracteres">
+            </div>
+
+            <button class="btn btn-primary" onclick="executarCadastro()">
+              Cadastrar e Ganhar +50 ELOs 🎉
+            </button>
+          </div>
+
+          <!-- Acesso Rápido para a Banca do Hackathon -->
+          <div class="demo-quick-access">
+            <span class="quick-title">⚡ Acesso Rápido para Demonstração:</span>
+            <div class="quick-buttons">
+              <button class="btn-demo-chip" onclick="preencherLoginDemo('carlos@elo.com', 'trabalhador')">
+                👷🏽‍♂️ Carlos (Gari • 340 ELOs)
+              </button>
+              <button class="btn-demo-chip" onclick="preencherLoginDemo('mariana@elo.com', 'morador')">
+                👩🏻 Mariana (Moradora)
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -107,13 +193,13 @@
       <!-- TELA 3: HOME DO TRABALHADOR (CARLOS)           -->
       <!-- ============================================== -->
       <section class="screen" id="screen-home-worker">
-        <div class="profile-header worker-theme">
+        <div class="profile-header worker-theme" onclick="navegarPara('screen-worker-profile')" title="Ver meu progresso e perfil" style="cursor: pointer;">
           <div class="profile-avatar">👷🏽‍♂️</div>
           <div class="profile-meta">
-            <h2>Olá, Carlos!</h2>
-            <p>Trabalhador da coleta • Equipe Rota 14</p>
+            <h2 id="worker-header-nome">Olá, Carlos!</h2>
+            <p id="worker-header-rota">Trabalhador da coleta • Equipe Rota 14 ❯</p>
           </div>
-          <div class="badge-elos-mini" onclick="navegarPara('screen-rewards')">
+          <div class="badge-elos-mini" onclick="event.stopPropagation(); navegarPara('screen-rewards');">
             ⭐ <span class="valor-elos">340</span> ELOs
           </div>
         </div>
@@ -163,6 +249,80 @@
               <p>Mensagens de carinho do bairro e da sua família</p>
             </div>
             <span class="badge-new">Novo</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TELA: MEU PERFIL & PROGRESSO DO TRABALHADOR    -->
+      <!-- ============================================== -->
+      <section class="screen" id="screen-worker-profile">
+        <div class="screen-header">
+          <button class="btn-back" onclick="navegarPara('screen-home-worker')">❮</button>
+          <h2>Meu Progresso & Perfil</h2>
+          <button class="btn-voice-inline" onclick="falarTexto('Seu perfil e progresso no ELO. Veja seus pontos acumulados, check-ins e recompensas ativas.')">🔊</button>
+        </div>
+
+        <div class="profile-details-content">
+          <!-- Card de Identificação -->
+          <div class="worker-card-id">
+            <div class="worker-avatar-badge">👷🏽‍♂️</div>
+            <div class="worker-id-info">
+              <h3 id="perfil-nome">Carlos Silva</h3>
+              <p id="perfil-email">carlos@elo.com</p>
+              <span class="badge-role" id="perfil-rota">Rota 14 - Bairro Ipiranga</span>
+            </div>
+          </div>
+
+          <!-- Estatísticas de Progresso do Gari -->
+          <div class="stats-overview">
+            <div class="stat-card">
+              <span class="stat-val valor-elos">340</span>
+              <span class="stat-lbl">ELOs Atuais</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-val" id="perfil-checkins">12</span>
+              <span class="stat-lbl">Check-ins Feitos</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-val" id="perfil-alongamentos">8</span>
+              <span class="stat-lbl">Alongamentos</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-val" id="perfil-alertas">4</span>
+              <span class="stat-lbl">Alertas de Vidro</span>
+            </div>
+          </div>
+
+          <!-- Vouchers / Recompensas Ativas -->
+          <div class="vouchers-section">
+            <h4>🎟️ Suas Recompensas Ativas:</h4>
+            <div class="vouchers-list" id="perfil-vouchers-list">
+              <div class="voucher-card">
+                <div class="voucher-icon">☕</div>
+                <div class="voucher-info">
+                  <h5>Café com Pão na Chapa</h5>
+                  <p>Padaria Estrela do Ipiranga • Código: <strong>ELO-7492</strong></p>
+                </div>
+                <span class="badge-voucher-status">Pronto para Usar</span>
+              </div>
+
+              <div class="voucher-card">
+                <div class="voucher-icon">🏥</div>
+                <div class="voucher-info">
+                  <h5>Sessão de Fisioterapia</h5>
+                  <p>Clínica Integrada São Camilo • Código: <strong>SPSC-1104</strong></p>
+                </div>
+                <span class="badge-voucher-status agendado">Agendado</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botão Sair da Conta -->
+          <div class="logout-box">
+            <button class="btn btn-outline-danger" onclick="executarLogout()">
+              🚪 Sair da Minha Conta
+            </button>
           </div>
         </div>
       </section>
