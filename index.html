@@ -186,7 +186,10 @@
       <!-- ============================================== -->
       <section class="screen" id="screen-roles">
         <div class="roles-content">
-          <h2 class="roles-title">Bem-vindo(a) ao ELO!</h2>
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+            <h2 class="roles-title" style="margin-bottom:0;">Bem-vindo(a) ao ELO!</h2>
+            <button class="btn-voice-inline" onclick="lerTelaAtual()" title="Ouvir ou parar áudio">🔊</button>
+          </div>
           <p class="roles-subtitle">Escolha o seu perfil para personalizar sua experiência:</p>
 
           <div class="roles-cards">
@@ -242,6 +245,7 @@
           <div class="badge-elos-mini" onclick="event.stopPropagation(); navegarPara('screen-rewards');">
             ⭐ <span class="valor-elos">340</span> ELOs
           </div>
+          <button class="btn-voice-inline" onclick="event.stopPropagation(); lerTelaAtual();" title="Ouvir ou parar áudio">🔊</button>
         </div>
 
         <div class="dashboard-grid">
@@ -781,6 +785,7 @@
           <button class="btn-profile-switch" onclick="navegarPara('screen-roles')" title="Trocar Perfil">
             🔄 Trocar
           </button>
+          <button class="btn-voice-inline" onclick="lerTelaAtual()" title="Ouvir ou parar áudio">🔊</button>
         </div>
 
         <div class="dashboard-grid">
@@ -1094,6 +1099,10 @@
             </div>
           </div>
           <div class="admin-actions">
+            <button class="btn-voice-toggle" id="btn-admin-voice" title="Ativar ou parar leitura em voz alta" onclick="lerTelaAtual()">
+              <span class="voice-icon">🔊</span>
+              <span class="voice-text">Ouvir</span>
+            </button>
             <button class="btn-admin-action" onclick="sincronizarPainelAdmin()">
               🔄 Atualizar Dados da Nuvem
             </button>

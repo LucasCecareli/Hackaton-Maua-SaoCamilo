@@ -143,27 +143,27 @@ body {
   letter-spacing: -0.5px;
 }
 
-/* Botão Ouvir estilo Pill do Figma */
+/* Botão Ouvir / Controle Interativo de Voz (Verde = Falando | Vermelho = Sem Fala) */
 .btn-voice-toggle {
   background: #f0fdf4;
-  border: 1.5px solid #bbf7d0;
+  border: 1.5px solid #86efac;
   border-radius: var(--radius-full);
   padding: 6px 14px;
   height: 34px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.82rem;
+  font-weight: 700;
   color: #166534;
   cursor: pointer;
-  transition: var(--transition);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .btn-voice-toggle:hover {
   background: #dcfce7;
-  border-color: #86efac;
+  border-color: #4ade80;
 }
 
 .btn-voice-toggle .voice-icon {
@@ -172,8 +172,8 @@ body {
 }
 
 .btn-voice-toggle .voice-text {
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 700;
   letter-spacing: 0.01em;
 }
 
@@ -182,17 +182,53 @@ body {
 }
 
 .btn-voice-inline {
-  background: var(--color-green-soft);
-  border: 1px solid var(--color-green-light);
+  background: #dcfce7;
+  border: 2px solid #4ade80;
   border-radius: var(--radius-full);
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
+  color: #166534;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.2s ease;
+}
+
+/* ESTADO 1: VERDE PULSANTE — FALANDO ATIVAMENTE (Toque novamente para parar) */
+.btn-voice-toggle.voice-speaking,
+.btn-voice-inline.voice-speaking,
+.btn-speak-msg.voice-speaking,
+.btn-guide-audio.voice-speaking {
+  background: #16a34a !important;
+  border-color: #15803d !important;
+  color: #ffffff !important;
+  animation: pulseVoiceSpeaking 1.2s infinite ease-in-out;
+}
+
+@keyframes pulseVoiceSpeaking {
+  0% {
+    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.75);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(22, 163, 74, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0);
+  }
+}
+
+/* ESTADO 2: VERMELHO VIVO — SEM FALA / ÁUDIO PARADO PELO USUÁRIO */
+.btn-voice-toggle.voice-stopped,
+.btn-voice-inline.voice-stopped,
+.btn-speak-msg.voice-stopped,
+.btn-guide-audio.voice-stopped {
+  background: #ef4444 !important;
+  border-color: #b91c1c !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 10px rgba(239, 68, 68, 0.35) !important;
+  animation: none !important;
 }
 
 /* --------------------------------------------------------------------------

@@ -81,20 +81,150 @@ if (EstadoApp.usuarioLogado) {
 }
 
 /* --------------------------------------------------------------------------
-   1. ACESSIBILIDADE POR VOZ (Web Speech API)
+   1. ACESSIBILIDADE POR VOZ INTERATIVA (VERDE = FALANDO | VERMELHO = SEM FALA)
    -------------------------------------------------------------------------- */
 const suporteVoz = 'speechSynthesis' in window;
 
-function falarTexto(texto) {
+const EstadoVoz = {
+  estaFalando: false,
+  inicioFalaMs: 0,
+  estadoVisual: 'idle', // 'idle' | 'speaking' (verde) | 'stopped' (vermelho)
+  timerEstimado: null
+};
+
+function atualizarVisualBotoesVoz(estado) {
+  EstadoVoz.estadoVisual = estado;
+
+  // 1. Atualiza botões principais de topo (#btn-global-voice e #btn-admin-voice)
+  const botoesToggle = document.querySelectorAll('.btn-voice-toggle');
+  botoesToggle.forEach(btn => {
+    btn.classList.remove('voice-speaking', 'voice-stopped');
+    const icone = btn.querySelector('.voice-icon');
+    const texto = btn.querySelector('.voice-text');
+
+    if (estado === 'speaking') {
+      btn.classList.add('voice-speaking');
+      if (icone) icone.textContent = '🔊';
+      if (texto) texto.textContent = 'Falando...';
+      btn.title = 'Falando agora! Toque novamente para parar o áudio.';
+    } else if (estado === 'stopped') {
+      btn.classList.add('voice-stopped');
+      if (icone) icone.textContent = '🔇';
+      if (texto) texto.textContent = 'Sem fala';
+      btn.title = 'Áudio parado. Toque para ouvir novamente.';
+    } else {
+      if (icone) icone.textContent = '🔊';
+      if (texto) texto.textContent = 'Ouvir';
+      btn.title = 'Ler tela em voz alta';
+    }
+  });
+
+  // 2. Atualiza botões circulares (.btn-voice-inline) em todas as telas
+  const botoesInline = document.querySelectorAll('.btn-voice-inline');
+  botoesInline.forEach(btn => {
+    btn.classList.remove('voice-speaking', 'voice-stopped');
+    if (estado === 'speaking') {
+      btn.classList.add('voice-speaking');
+      btn.textContent = '🔊';
+      btn.title = 'Falando... Toque para parar';
+    } else if (estado === 'stopped') {
+      btn.classList.add('voice-stopped');
+      btn.textContent = '🔇';
+      btn.title = 'Sem fala. Toque para ouvir';
+    } else {
+      btn.textContent = '🔊';
+      btn.title = 'Ouvir tela';
+    }
+  });
+
+  // 3. Atualiza botões de recados e guia de vídeo (.btn-speak-msg e .btn-guide-audio)
+  const botoesMsg = document.querySelectorAll('.btn-speak-msg');
+  botoesMsg.forEach(btn => {
+    btn.classList.remove('voice-speaking', 'voice-stopped');
+    if (estado === 'speaking') {
+      btn.classList.add('voice-speaking');
+      btn.innerHTML = '🔊 Falando...';
+    } else if (estado === 'stopped') {
+      btn.classList.add('voice-stopped');
+      btn.innerHTML = '🔇 Sem fala';
+    } else {
+      btn.innerHTML = '🔊 Ouvir';
+    }
+  });
+
+  const botoesGuia = document.querySelectorAll('.btn-guide-audio');
+  botoesGuia.forEach(btn => {
+    btn.classList.remove('voice-speaking', 'voice-stopped');
+    if (estado === 'speaking') {
+      btn.classList.add('voice-speaking');
+      btn.innerHTML = '🔊 Falando... (Toque p/ Parar)';
+    } else if (estado === 'stopped') {
+      btn.classList.add('voice-stopped');
+      btn.innerHTML = '🔇 Sem fala (Toque p/ Ouvir)';
+    } else {
+      btn.innerHTML = '🔊 Ouvir Instruções em Voz Alta';
+    }
+  });
+}
+
+function pararFalaUsuario() {
+  if (EstadoVoz.timerEstimado) {
+    clearTimeout(EstadoVoz.timerEstimado);
+    EstadoVoz.timerEstimado = null;
+  }
+  EstadoVoz.estaFalando = false;
+  if (suporteVoz) {
+    window.speechSynthesis.cancel();
+  }
+  atualizarVisualBotoesVoz('stopped');
+}
+
+function falarTexto(texto, forcarNovaFala = false) {
+  // Se já estiver falando (Verde) e o usuário apertar novamente no botão de áudio,
+  // interrompe a fala imediatamente e muda para Vermelho ("Sem fala")!
+  if (EstadoVoz.estaFalando && !forcarNovaFala) {
+    pararFalaUsuario();
+    return;
+  }
+
+  if (EstadoVoz.timerEstimado) {
+    clearTimeout(EstadoVoz.timerEstimado);
+    EstadoVoz.timerEstimado = null;
+  }
+
+  EstadoVoz.estaFalando = true;
+  EstadoVoz.inicioFalaMs = Date.now();
+  atualizarVisualBotoesVoz('speaking');
+
+  // Tempo estimado de leitura caso o navegador não dispare onend real (ex: Chromium sem placa de som)
+  const duracaoEstimadaMs = Math.max(3000, Math.min(14000, texto.length * 65));
+  EstadoVoz.timerEstimado = setTimeout(() => {
+    if (EstadoVoz.estaFalando) {
+      EstadoVoz.estaFalando = false;
+      atualizarVisualBotoesVoz('idle');
+    }
+  }, duracaoEstimadaMs);
+
   if (!suporteVoz) {
     console.warn("Navegador sem suporte a síntese de voz.");
     return;
   }
+
   window.speechSynthesis.cancel(); // Para áudios anteriores
   const locucao = new SpeechSynthesisUtterance(texto);
   locucao.lang = 'pt-BR';
   locucao.rate = 1.0;
   locucao.pitch = 1.0;
+
+  locucao.onend = () => {
+    // Ignora disparo instantâneo (<800ms) que ocorre em ambientes sem sintetizador de voz instalado
+    if (EstadoVoz.estaFalando && (Date.now() - EstadoVoz.inicioFalaMs > 800)) {
+      EstadoVoz.estaFalando = false;
+      if (EstadoVoz.timerEstimado) clearTimeout(EstadoVoz.timerEstimado);
+      atualizarVisualBotoesVoz('idle');
+    }
+  };
+
   window.speechSynthesis.speak(locucao);
 }
 
@@ -102,14 +232,20 @@ function lerTelaAtual() {
   const tela = EstadoApp.telaAtual;
   if (tela === 'screen-splash') {
     falarTexto("Aplicativo ELO: Juntos por uma cidade melhor. Conectando quem cuida da cidade. Saúde, cuidado e reconhecimento para quem faz a diferença todos os dias. Toque no botão Começar.");
+  } else if (tela === 'screen-auth') {
+    falarTexto("Tela de acesso ao ELO. Entre com seu e-mail ou use os botões de acesso rápido abaixo para demonstração.");
   } else if (tela === 'screen-roles') {
-    falarTexto("Escolha o seu perfil: Sou Morador ou Sou Trabalhador da coleta.");
+    falarTexto("Escolha o seu perfil: Sou Morador, Sou Trabalhador da coleta ou Painel Web da Concessionária e Prefeitura.");
   } else if (tela === 'screen-home-worker') {
-    falarTexto(`Olá Carlos! Você tem ${EstadoApp.pontosElos} ELOs. Escolha uma das opções: Meu Bem-Estar, Minha Saúde, Aprender, Meus ELOs ou Minha Comunidade.`);
+    falarTexto(`Olá Carlos! Você tem ${EstadoApp.pontosElos} ELOs. Escolha uma das opções: Meu Bem-Estar, Minha Saúde, Aprender, Meus ELOs, Mapa da Rota 14 ou Minha Comunidade.`);
+  } else if (tela === 'screen-worker-profile') {
+    falarTexto(`Perfil de Carlos Silva. Você possui ${EstadoApp.pontosElos} ELOs acumulados e dois vouchers prontos para uso na padaria e na clínica São Camilo.`);
   } else if (tela === 'screen-wellbeing') {
     falarTexto("Tela de Meu Bem-Estar. Conte como você está se sentindo e se sente dores no corpo depois do trabalho.");
   } else if (tela === 'screen-health') {
     falarTexto("Minha Saúde: Exercícios rápidos de alongamento para coluna, ombros e pernas.");
+  } else if (tela === 'screen-video-player') {
+    narrarPassosVideo();
   } else if (tela === 'screen-rewards') {
     falarTexto(`Seus ELOs: Você possui ${EstadoApp.pontosElos} pontos. Troque por recargas, lanche na padaria ou consultas de fisioterapia e psicologia.`);
   } else if (tela === 'screen-community') {
@@ -119,11 +255,13 @@ function lerTelaAtual() {
   } else if (tela === 'screen-reports') {
     falarTexto("Tela de Denúncias. Informe a localização, marque se há resíduos perigosos como caco de vidro solto e envie para a equipe.");
   } else if (tela === 'screen-neighborhood') {
-    falarTexto("Meu Bairro: Veja o mapa de ocorrências e o horário que o caminhão de coleta passa na sua rua.");
+    falarTexto("Mapa do Bairro ao vivo: acompanhe o caminhão da coleta na Rota 14 pelo Ipiranga, veja o ponto de apoio da São Camilo e os alertas de vidro quebrado.");
   } else if (tela === 'screen-learn') {
     falarTexto("Aprenda: Guia de saúde e prevenção. Saiba como evitar dengue, leptospirose e como embalar vidros com segurança.");
   } else if (tela === 'screen-appreciate') {
     falarTexto("Valorize: Digite uma mensagem de incentivo para os coletores. Seu recado será lido em áudio para a equipe da sua rua.");
+  } else if (tela === 'screen-admin-dashboard') {
+    falarTexto("Painel Executivo Web da Concessionária e Prefeitura. Índice de bem-estar da frota em 89 por cento, com redução de 34 por cento nos afastamentos e monitoramento em tempo real pelo Supabase.");
   }
 }
 
@@ -131,6 +269,14 @@ function lerTelaAtual() {
    2. ROTEAMENTO SPA (TROCA DE TELAS)
    -------------------------------------------------------------------------- */
 function navegarPara(idTelaDestino) {
+  // Ao trocar de tela, encerra qualquer áudio pendente da tela anterior
+  if (EstadoVoz.estaFalando) {
+    if (EstadoVoz.timerEstimado) clearTimeout(EstadoVoz.timerEstimado);
+    EstadoVoz.estaFalando = false;
+    if (suporteVoz) window.speechSynthesis.cancel();
+    atualizarVisualBotoesVoz('idle');
+  }
+
   const todasTelas = document.querySelectorAll('.screen');
   todasTelas.forEach(tela => tela.classList.remove('active'));
 
