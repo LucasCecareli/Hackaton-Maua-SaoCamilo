@@ -2418,6 +2418,11 @@ body {
   transition: max-width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Oculta controles de áudio no Painel Web da Prefeitura */
+.mobile-frame.desktop-mode .header-actions {
+  display: none !important;
+}
+
 .admin-topbar {
   background: linear-gradient(135deg, #0f172a, #1e293b);
   color: #ffffff;

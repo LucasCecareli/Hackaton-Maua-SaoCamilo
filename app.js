@@ -329,6 +329,12 @@ function alternarSomGlobal() {
 }
 
 function falarTexto(texto, forcarAtivacao = false) {
+  // No Painel da Prefeitura (ou aba Prefeitura), o áudio fica totalmente desativado
+  const abaPrefAtiva = EstadoApp.telaAtual === 'screen-auth' && document.getElementById('tab-auth-prefeitura')?.classList.contains('active');
+  if (EstadoApp.telaAtual === 'screen-admin-dashboard' || abaPrefAtiva) {
+    return;
+  }
+
   if (forcarAtivacao) {
     EstadoVoz.somLigado = true;
   }
@@ -418,8 +424,6 @@ function lerTelaAtual(forcarAtivacao = false) {
     falarTexto("Valorize: Digite uma mensagem de incentivo para os coletores. Seu recado será lido em áudio para a equipe da sua rua.");
   } else if (tela === 'screen-evaluate-waste') {
     falarTexto("Avaliar Descarte da Rua. Escolha se o lixo deste endereço estava seguro e bem embalado. Sua aprovação gera pontos para o morador ter desconto na conta de água e luz.");
-  } else if (tela === 'screen-admin-dashboard') {
-    falarTexto("Painel Executivo Web da Concessionária e Prefeitura. Índice de bem-estar da frota em 89 por cento, com redução de 34 por cento nos afastamentos e monitoramento em tempo real pelo Supabase.");
   }
 }
 
@@ -439,11 +443,16 @@ function navegarPara(idTelaDestino) {
   todasTelas.forEach(tela => tela.classList.remove('active'));
 
   const frame = document.querySelector('.mobile-frame');
+  const headerActions = document.querySelector('#main-header .header-actions');
   if (frame) {
     if (idTelaDestino === 'screen-admin-dashboard') {
       frame.classList.add('desktop-mode');
+      pararFalaUsuario();
+      if (headerActions) headerActions.style.display = 'none';
     } else {
       frame.classList.remove('desktop-mode');
+      const abaPrefAtiva = idTelaDestino === 'screen-auth' && document.getElementById('tab-auth-prefeitura')?.classList.contains('active');
+      if (headerActions) headerActions.style.display = abaPrefAtiva ? 'none' : 'flex';
     }
   }
 
@@ -661,17 +670,22 @@ function alternarAbaAuth(aba) {
   if (formCad) formCad.style.display = 'none';
   if (formPref) formPref.style.display = 'none';
 
+  const headerActions = document.querySelector('#main-header .header-actions');
+
   if (aba === 'login') {
     if (btnLogin) btnLogin.classList.add('active');
     if (formLogin) formLogin.style.display = 'flex';
+    if (headerActions) headerActions.style.display = 'flex';
     falarTexto("Aba de Login selecionada. Digite seu e-mail e senha cadastrados.");
   } else if (aba === 'prefeitura') {
     if (btnPref) btnPref.classList.add('active');
     if (formPref) formPref.style.display = 'flex';
-    falarTexto("Aba exclusiva da Prefeitura selecionada. Informe o e-mail corporativo, senha e o token institucional.");
+    pararFalaUsuario();
+    if (headerActions) headerActions.style.display = 'none';
   } else {
     if (btnCad) btnCad.classList.add('active');
     if (formCad) formCad.style.display = 'flex';
+    if (headerActions) headerActions.style.display = 'flex';
     falarTexto("Aba de Cadastro selecionada. Preencha seu nome, CPF, perfil e e-mail.");
   }
 }
@@ -724,7 +738,6 @@ function executarLoginPrefeitura() {
 
   if (!emailValido || !senhaValida || !tokenValido) {
     alert("❌ Credencial Institucional Inválida!\n\nApenas gestores autorizados da Prefeitura com Token válido (PREF-IPIRANGA) têm permissão para visualizar o Painel de Gestão.");
-    falarTexto("Acesso negado. Verifique o e-mail corporativo, senha e token institucional.");
     return;
   }
 
@@ -953,7 +966,6 @@ function logarUsuario(usuario) {
     }
     navegarPara('screen-admin-dashboard');
     sincronizarPainelAdmin();
-    falarTexto("Credencial da Prefeitura validada. Bem-vindo ao Painel Executivo de Gestão.");
   } else if (usuario.perfil === 'trabalhador') {
     falarTexto(`Olá ${usuario.nome.split(' ')[0]}! Acesso confirmado. Você tem ${usuario.pontosElos} ELOs acumulados.`);
     navegarPara('screen-home-worker');
@@ -964,6 +976,7 @@ function logarUsuario(usuario) {
 }
 
 function executarLogout() {
+  const eraPrefeitura = EstadoApp.telaAtual === 'screen-admin-dashboard' || EstadoApp.perfilAtual === 'prefeitura';
   localStorage.removeItem('elo_usuario_sessao');
   EstadoApp.usuarioLogado = null;
   EstadoApp.perfilAtual = null;
@@ -972,7 +985,9 @@ function executarLogout() {
     if (el) el.value = '';
   });
   alert("Você saiu da sua conta com sucesso!");
-  falarTexto("Sessão finalizada. Até logo!");
+  if (!eraPrefeitura) {
+    falarTexto("Sessão finalizada. Até logo!");
+  }
   navegarPara('screen-splash');
 }
 
@@ -2108,7 +2123,6 @@ function abrirPainelGestor() {
 
   navegarPara('screen-admin-dashboard');
   sincronizarPainelAdmin();
-  falarTexto("Painel executivo da Concessionária e Prefeitura aberto. Dados sincronizados com o Supabase PostgreSQL.");
 }
 
 function fecharPainelGestor() {
@@ -2307,7 +2321,6 @@ function acionarAmbulatorioGari(emailGari, botao) {
     `Quadro Clínico: ${gari.queixaClinica || 'Avaliação Ocupacional'}\n\n` +
     `Encaminhamento registrado junto ao Ambulatório de Saúde Ocupacional e Fisioterapia do Centro Universitário São Camilo.`
   );
-  falarTexto(`Protocolo clínico São Camilo ativado para o coletor ${gari.nome}.`);
 }
 
 function renderizarTabelaOcorrenciasAdmin(ocorrencias) {
@@ -2352,13 +2365,11 @@ async function avancarStatusOcorrencia(botao, protocolo) {
       statusSpan.textContent = 'Em atendimento';
       statusSpan.className = 'status-pill st-atend';
       botao.textContent = 'Concluir';
-      falarTexto("Frota notificada com sucesso. Caminhão da rota alertado sobre o risco.");
     } else {
       novoStatus = 'Resolvida';
       statusSpan.textContent = 'Resolvida';
       statusSpan.className = 'status-pill st-ok';
       botao.outerHTML = '<span class="done-check">✔ Protegido</span>';
-      falarTexto("Ocorrência concluída e arquivada com segurança.");
     }
   }
 
