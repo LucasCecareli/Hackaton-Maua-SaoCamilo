@@ -32,21 +32,21 @@ const BancoUsuariosPadrao = {
     email: "mariana@elo.com",
     senha: "123456",
     perfil: "morador",
-    rota: "Rua dos Patriotas - Ipiranga",
+    rota: "Rua dos Patriotas, 482 - Ipiranga",
     pontosElos: 180,
     checkins: 6,
     alongamentos: 5,
     alertas: 3,
     vouchers: [
-      { titulo: "Vale R$ 15 na Feira Livre", local: "Feira Orgânica do Ipiranga", codigo: "ELO-3921", status: "Pronto para Usar", icone: "🍎" },
-      { titulo: "Muda de Planta + Adubo Orgânico", local: "Viveiro Municipal Ipiranga", codigo: "VMI-8802", status: "Pronto para Usar", icone: "🌱" }
+      { titulo: "Desconto R$ 15 na Conta de Água", local: "Sabesp • Fatura Residencial", codigo: "SABESP-4829", status: "Pronto para Usar", icone: "💧" },
+      { titulo: "Desconto R$ 20 na Conta de Energia", local: "Enel • EcoEnergia Residencial", codigo: "ENEL-9104", status: "Pronto para Usar", icone: "⚡" }
     ]
   }
 };
 
 // Carrega ou inicializa o banco no LocalStorage
 let BancoUsuarios = JSON.parse(localStorage.getItem('elo_banco_usuarios')) || BancoUsuariosPadrao;
-if (BancoUsuarios["mariana@elo.com"] && (!BancoUsuarios["mariana@elo.com"].vouchers || BancoUsuarios["mariana@elo.com"].vouchers.length === 0)) {
+if (BancoUsuarios["mariana@elo.com"]) {
   BancoUsuarios["mariana@elo.com"].vouchers = BancoUsuariosPadrao["mariana@elo.com"].vouchers;
   if (BancoUsuarios["mariana@elo.com"].pontosElos < 100) BancoUsuarios["mariana@elo.com"].pontosElos = 180;
 }
@@ -267,6 +267,8 @@ function lerTelaAtual() {
     falarTexto("Aprenda: Guia de saúde e prevenção. Saiba como evitar dengue, leptospirose e como embalar vidros com segurança.");
   } else if (tela === 'screen-appreciate') {
     falarTexto("Valorize: Digite uma mensagem de incentivo para os coletores. Seu recado será lido em áudio para a equipe da sua rua.");
+  } else if (tela === 'screen-evaluate-waste') {
+    falarTexto("Avaliar Descarte da Rua. Escolha se o lixo deste endereço estava seguro e bem embalado. Sua aprovação gera pontos para o morador ter desconto na conta de água e luz.");
   } else if (tela === 'screen-admin-dashboard') {
     falarTexto("Painel Executivo Web da Concessionária e Prefeitura. Índice de bem-estar da frota em 89 por cento, com redução de 34 por cento nos afastamentos e monitoramento em tempo real pelo Supabase.");
   }
@@ -413,6 +415,59 @@ function alternarDetalheAprendizado(cardEl, textoFala) {
   }
   if (textoFala) {
     falarTexto(textoFala);
+  }
+}
+
+function registrarAvaliacaoEndereco(statusAvaliacao) {
+  const selectEl = document.getElementById('eval-endereco-select');
+  const valorBruto = selectEl ? selectEl.value : "Rua dos Patriotas, 482 - Ipiranga|mariana@elo.com|Mariana Souza";
+  const [endereco, emailMorador, nomeMorador] = valorBruto.split('|');
+  const histList = document.getElementById('eval-history-list');
+
+  if (statusAvaliacao === 'aprovado') {
+    // 1. Credita +50 ELOs para o morador daquele endereço (para abater na conta de Água/Luz/IPTU)
+    if (emailMorador && BancoUsuarios[emailMorador]) {
+      BancoUsuarios[emailMorador].pontosElos = (BancoUsuarios[emailMorador].pontosElos || 180) + 50;
+      salvarBancoUsuarios();
+      SupabaseService.atualizarPontos(emailMorador, BancoUsuarios[emailMorador].pontosElos);
+    }
+
+    // 2. Credita +15 ELOs para o Gari avaliador
+    somarPontos(15, `validar o descarte seguro em ${endereco}`, true);
+
+    if (histList) {
+      const item = document.createElement('div');
+      item.style.cssText = 'padding:8px 10px; background:#f0fdf4; border-radius:8px; border-left:4px solid #22c55e;';
+      item.innerHTML = `<strong>🟢 ${endereco.split('-')[0].trim()}</strong> (${nomeMorador}) — Descarte Seguro • <em>+50 ELOs p/ conta de Água/Luz do morador!</em>`;
+      histList.prepend(item);
+    }
+
+    alert(`✅ Descarte Seguro Validado!\n\n📍 Endereço: ${endereco}\n🏡 Morador(a): ${nomeMorador} recebeu +50 ELOs (para desconto na conta de Água/Luz/IPTU)!\n👷🏽‍♂️ Você recebeu +15 ELOs pela avaliação na rota!`);
+    falarTexto(`Descarte seguro confirmado em ${endereco}. O morador ganhou 50 ELOs para desconto na conta de água e luz, e você ganhou 15 ELOs!`);
+  } else if (statusAvaliacao === 'atencao') {
+    somarPontos(10, `registrar orientação educativa em ${endereco}`, true);
+
+    if (histList) {
+      const item = document.createElement('div');
+      item.style.cssText = 'padding:8px 10px; background:#fefce8; border-radius:8px; border-left:4px solid #eab308;';
+      item.innerHTML = `<strong>🟡 ${endereco.split('-')[0].trim()}</strong> — Lixo misturado • <em>Dica educativa enviada ao endereço</em>`;
+      histList.prepend(item);
+    }
+
+    alert(`🟡 Orientação enviada ao endereço!\n\n📍 ${endereco}\nO morador receberá um aviso educativo sobre como separar e reforçar os sacos.\n👷🏽‍♂️ Você recebeu +10 ELOs!`);
+    falarTexto(`Orientação educativa enviada para ${endereco}. Você ganhou 10 ELOs.`);
+  } else if (statusAvaliacao === 'perigo') {
+    somarPontos(15, `alertar risco de corte em ${endereco}`, true);
+
+    if (histList) {
+      const item = document.createElement('div');
+      item.style.cssText = 'padding:8px 10px; background:#fef2f2; border-radius:8px; border-left:4px solid #ef4444;';
+      item.innerHTML = `<strong>🔴 ${endereco.split('-')[0].trim()}</strong> — Vidro solto / Risco de corte • <em>Bônus bloqueado e alerta no mapa</em>`;
+      histList.prepend(item);
+    }
+
+    alert(`🔴 Alerta de Risco Registrado!\n\n📍 ${endereco}\nO bônus de desconto deste endereço foi bloqueado hoje e um alerta de cuidado com vidro foi fixado no mapa da equipe.\n👷🏽‍♂️ Você recebeu +15 ELOs!`);
+    falarTexto(`Alerta de vidro solto registrado em ${endereco}. Equipe avisada e você ganhou 15 ELOs.`);
   }
 }
 

@@ -285,7 +285,17 @@
             </div>
           </div>
 
-          <!-- Card 5: Mapa da Rota & Alertas de Risco -->
+          <!-- Card 5: Avaliar Descarte por Endereço (Gera Desconto de Água/Luz ao Morador) -->
+          <div class="dash-card card-evaluate full-width" onclick="navegarPara('screen-evaluate-waste')" style="border: 1.5px solid #86efac; background: #f0fdf4;">
+            <div class="dash-card-icon">🏠</div>
+            <div class="dash-card-text">
+              <h3>Avaliar Descarte da Rua</h3>
+              <p>Valide o lixo do endereço e gere desconto de água/luz ao morador</p>
+            </div>
+            <span class="badge-new" style="background: #16a34a;">+15 ELOs</span>
+          </div>
+
+          <!-- Card 6: Mapa da Rota & Alertas de Risco -->
           <div class="dash-card card-neighborhood full-width" onclick="navegarPara('screen-neighborhood')">
             <div class="dash-card-icon">🗺️</div>
             <div class="dash-card-text">
@@ -295,7 +305,7 @@
             <span class="badge-new" style="background: #ef4444;">GPS</span>
           </div>
 
-          <!-- Card 6: Minha Comunidade -->
+          <!-- Card 7: Minha Comunidade -->
           <div class="dash-card card-community full-width" onclick="navegarPara('screen-community')">
             <div class="dash-card-icon">👥</div>
             <div class="dash-card-text">
@@ -303,6 +313,78 @@
               <p>Mensagens de carinho do bairro e da sua família</p>
             </div>
             <span class="badge-new">Novo</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TELA: AVALIAR DESCARTE POR ENDEREÇO (GARI)     -->
+      <!-- ============================================== -->
+      <section class="screen" id="screen-evaluate-waste">
+        <div class="screen-header">
+          <button class="btn-back" onclick="navegarPara('screen-home-worker')">❮</button>
+          <h2>Avaliar Descarte da Rua</h2>
+          <button class="btn-voice-inline" onclick="lerTelaAtual()" title="Ouvir ou parar áudio">🔊</button>
+        </div>
+
+        <div class="wellbeing-content">
+          <div class="info-banner">
+            🏡 <strong>Valorização Mútua:</strong> Quando o morador embala o vidro com segurança e separa o lixo direito, sua aprovação libera pontos para ele ter <strong>desconto na conta de Água, Luz e IPTU!</strong>
+          </div>
+
+          <!-- Seleção Automática de Endereço por GPS na Rota -->
+          <div class="question-box">
+            <label class="question-title">📍 Endereço na Rota 14 (GPS Ativo):</label>
+            <select id="eval-endereco-select" class="form-input" style="margin-bottom: 8px; font-weight: 600;">
+              <option value="Rua dos Patriotas, 482 - Ipiranga|mariana@elo.com|Mariana Souza">Rua dos Patriotas, 482 (Residência: Mariana Souza)</option>
+              <option value="Rua Silva Bueno, 310 - Ipiranga||Condomínio Edifício Solar">Rua Silva Bueno, 310 (Condomínio Solar)</option>
+              <option value="Av. Nazaré, 1020 - Ipiranga||Residência Família Oliveira">Av. Nazaré, 1020 (Família Oliveira)</option>
+              <option value="Rua Bom Pastor, 740 - Ipiranga||Comércio Padaria Estrela">Rua Bom Pastor, 740 (Padaria Estrela)</option>
+            </select>
+            <p style="font-size: 0.76rem; color: var(--text-muted);">O GPS identifica o número da casa na parada do caminhão.</p>
+          </div>
+
+          <!-- Botões Semáforo de Avaliação Rápida (1 Toque para o Gari) -->
+          <div class="question-box">
+            <label class="question-title">Como estava o descarte deste endereço?</label>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <button class="btn" style="background:#dcfce7; border:2px solid #22c55e; color:#14532d; justify-content:flex-start; text-align:left; padding:14px;" onclick="registrarAvaliacaoEndereco('aprovado')">
+                <span style="font-size:1.6rem;">🟢</span>
+                <div>
+                  <strong style="display:block; font-size:0.9rem;">Descarte Seguro e Correto</strong>
+                  <span style="font-size:0.75rem; font-weight:500;">Vidro protegido em caixa e saco firme (+50 ELOs p/ Morador • +15 p/ Você)</span>
+                </div>
+              </button>
+
+              <button class="btn" style="background:#fef9c3; border:2px solid #eab308; color:#713f12; justify-content:flex-start; text-align:left; padding:14px;" onclick="registrarAvaliacaoEndereco('atencao')">
+                <span style="font-size:1.6rem;">🟡</span>
+                <div>
+                  <strong style="display:block; font-size:0.9rem;">Atenção: Lixo Misturado / Saco Frágil</strong>
+                  <span style="font-size:0.75rem; font-weight:500;">Envia dica educativa ao morador (+10 ELOs p/ Você)</span>
+                </div>
+              </button>
+
+              <button class="btn" style="background:#fee2e2; border:2px solid #ef4444; color:#7f1d1d; justify-content:flex-start; text-align:left; padding:14px;" onclick="registrarAvaliacaoEndereco('perigo')">
+                <span style="font-size:1.6rem;">🔴</span>
+                <div>
+                  <strong style="display:block; font-size:0.9rem;">Perigo: Vidro Solto / Risco de Corte</strong>
+                  <span style="font-size:0.75rem; font-weight:500;">Bloqueia bônus do endereço e alerta equipe (+15 ELOs p/ Você)</span>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Histórico de Avaliações da Rota -->
+          <div class="question-box">
+            <label class="question-title">📋 Últimas avaliações feitas na Rota 14:</label>
+            <div id="eval-history-list" style="display:flex; flex-direction:column; gap:8px; font-size:0.8rem;">
+              <div style="padding:8px 10px; background:#f0fdf4; border-radius:8px; border-left:4px solid #22c55e;">
+                <strong>🟢 Av. Nazaré, 1020</strong> — Descarte Seguro • <em>+50 ELOs creditados ao endereço</em>
+              </div>
+              <div style="padding:8px 10px; background:#fef2f2; border-radius:8px; border-left:4px solid #ef4444;">
+                <strong>🔴 Rua Silva Bueno, 310</strong> — Vidro solto no saco • <em>Alerta enviado ao morador</em>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -712,73 +794,73 @@
             </div>
           </div>
 
-          <!-- VISÃO 2: RECOMPENSAS E METAS DO MORADOR (CIDADÃO CONSCIENTE) -->
+          <!-- VISÃO 2: RECOMPENSAS E METAS DO MORADOR (DESCONTO EM CONTAS FIXAS) -->
           <div id="rewards-view-morador" style="display: none;">
             <div class="rewards-section">
-              <h3>Como você ganha ELOs cuidando do bairro:</h3>
+              <h3>Como sua residência ganha ELOs:</h3>
               <div class="tasks-list">
-                <div class="task-item" onclick="navegarPara('screen-learn')" style="cursor:pointer;">
-                  <span>📖 Aprender sobre doenças e descarte correto</span>
-                  <strong class="points-gain">+10</strong>
-                </div>
-                <div class="task-item" onclick="navegarPara('screen-appreciate')" style="cursor:pointer;">
-                  <span>💜 Valorizar os coletores enviando recado no Mural</span>
-                  <strong class="points-gain">+15</strong>
+                <div class="task-item" style="background:#f0fdf4; border:1.5px solid #86efac;">
+                  <span>✅ <strong>Ter o descarte aprovado pelo Gari no seu endereço</strong> (Vidro embalado e saco firme)</span>
+                  <strong class="points-gain">+50</strong>
                 </div>
                 <div class="task-item" onclick="navegarPara('screen-reports')" style="cursor:pointer;">
                   <span>📢 Alertar sobre vidro quebrado ou lixo na rua</span>
                   <strong class="points-gain">+20</strong>
                 </div>
-                <div class="task-item">
-                  <span>♻️ Descartar vidros embalados com aviso de segurança</span>
-                  <strong class="points-gain">+30</strong>
+                <div class="task-item" onclick="navegarPara('screen-appreciate')" style="cursor:pointer;">
+                  <span>💜 Valorizar os coletores enviando recado no Mural</span>
+                  <strong class="points-gain">+15</strong>
+                </div>
+                <div class="task-item" onclick="navegarPara('screen-learn')" style="cursor:pointer;">
+                  <span>📖 Aprender sobre doenças e descarte correto</span>
+                  <strong class="points-gain">+10</strong>
                 </div>
               </div>
             </div>
 
             <div class="rewards-section" style="margin-top: 16px;">
-              <h3>Benefícios para o Morador Consciente:</h3>
+              <h3>Abatimento em Contas Fixas do seu Endereço:</h3>
               <div class="rewards-catalog">
-                <div class="reward-card">
-                  <div class="reward-icon">🌱</div>
+                <div class="reward-card highlight">
+                  <div class="reward-icon">💧</div>
                   <div class="reward-details">
-                    <h4>Muda de Planta + Adubo Orgânico</h4>
-                    <p>Retirada no Viveiro / Horta Municipal do Ipiranga</p>
+                    <h4>Desconto R$ 15 na Conta de Água</h4>
+                    <p>Sabesp • Abatimento direto na fatura de água do endereço</p>
                   </div>
-                  <button class="btn-redeem" onclick="resgatarRecompensa(50, 'Muda de Planta + Adubo Orgânico', 'Viveiro Municipal Ipiranga', '🌱')">
-                    50 ELOs
-                  </button>
-                </div>
-
-                <div class="reward-card">
-                  <div class="reward-icon">🎟️</div>
-                  <div class="reward-details">
-                    <h4>Ingresso Cultural / Museu do Ipiranga</h4>
-                    <p>Meia-entrada ou cortesia em parceiros culturais</p>
-                  </div>
-                  <button class="btn-redeem" onclick="resgatarRecompensa(100, 'Ingresso Cultural Ipiranga', 'Parceiros Culturais do Bairro', '🎟️')">
+                  <button class="btn-redeem" onclick="resgatarRecompensa(100, 'Desconto R$ 15 na Conta de Água', 'Sabesp • Fatura Residencial', '💧')">
                     100 ELOs
                   </button>
                 </div>
 
                 <div class="reward-card highlight">
-                  <div class="reward-icon">🍎</div>
+                  <div class="reward-icon">⚡</div>
                   <div class="reward-details">
-                    <h4>Vale R$ 15 na Feira Livre / Padaria</h4>
-                    <p>Desconto em feiras orgânicas e comércios do Ipiranga</p>
+                    <h4>Desconto R$ 20 na Conta de Luz / Energia</h4>
+                    <p>Enel • Crédito EcoEnergia na fatura elétrica da residência</p>
                   </div>
-                  <button class="btn-redeem" onclick="resgatarRecompensa(150, 'Vale R$ 15 Feira Livre', 'Comércio Parceiro Ipiranga', '🍎')">
+                  <button class="btn-redeem" onclick="resgatarRecompensa(150, 'Desconto R$ 20 na Conta de Energia', 'Enel • EcoEnergia Residencial', '⚡')">
                     150 ELOs
                   </button>
                 </div>
 
-                <div class="reward-card highlight">
+                <div class="reward-card">
+                  <div class="reward-icon">🔥</div>
+                  <div class="reward-details">
+                    <h4>Desconto R$ 25 na Conta de Gás</h4>
+                    <p>Comgás / Vale-Gás • Abatimento para residências certificadas</p>
+                  </div>
+                  <button class="btn-redeem" onclick="resgatarRecompensa(200, 'Desconto R$ 25 na Conta de Gás', 'Comgás / Auxílio Gás', '🔥')">
+                    200 ELOs
+                  </button>
+                </div>
+
+                <div class="reward-card">
                   <div class="reward-icon">🏡</div>
                   <div class="reward-details">
-                    <h4>Crédito IPTU Verde / Taxa Ambiental</h4>
-                    <p>Abatimento para cidadãos que protegem os coletores</p>
+                    <h4>Abatimento R$ 40 no IPTU Verde</h4>
+                    <p>Prefeitura de SP • Desconto fiscal por descarte seguro</p>
                   </div>
-                  <button class="btn-redeem" onclick="resgatarRecompensa(300, 'Crédito IPTU Verde', 'Prefeitura de São Paulo', '🏡')">
+                  <button class="btn-redeem" onclick="resgatarRecompensa(300, 'Abatimento R$ 40 no IPTU Verde', 'Prefeitura de São Paulo', '🏡')">
                     300 ELOs
                   </button>
                 </div>
