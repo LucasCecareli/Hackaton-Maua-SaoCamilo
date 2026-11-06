@@ -10,6 +10,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
+  <!-- Leaflet CSS (Mapa Interativo Real OpenStreetMap) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+
   <!-- Folha de Estilos Principal -->
   <link rel="stylesheet" href="style.css">
 </head>
@@ -278,7 +281,17 @@
             </div>
           </div>
 
-          <!-- Card 5: Minha Comunidade -->
+          <!-- Card 5: Mapa da Rota & Alertas de Risco -->
+          <div class="dash-card card-neighborhood full-width" onclick="navegarPara('screen-neighborhood')">
+            <div class="dash-card-icon">🗺️</div>
+            <div class="dash-card-text">
+              <h3>Mapa da Rota 14 (Ao Vivo)</h3>
+              <p>Veja alertas de vidro quebrado e pontos de apoio na rua</p>
+            </div>
+            <span class="badge-new" style="background: #ef4444;">GPS</span>
+          </div>
+
+          <!-- Card 6: Minha Comunidade -->
           <div class="dash-card card-community full-width" onclick="navegarPara('screen-community')">
             <div class="dash-card-icon">👥</div>
             <div class="dash-card-text">
@@ -893,45 +906,81 @@
       </section>
 
       <!-- ============================================== -->
-      <!-- TELA 10: MEU BAIRRO & MAPA - FASE 3            -->
+      <!-- TELA 10: MEU BAIRRO & MAPA REAL (LEAFLET OSM)  -->
       <!-- ============================================== -->
       <section class="screen" id="screen-neighborhood">
         <div class="screen-header">
-          <button class="btn-back" onclick="navegarPara('screen-home-morador')">❮</button>
-          <h2>Meu Bairro</h2>
-          <button class="btn-voice-inline" onclick="falarTexto('Mapa do bairro com pontos de coleta e status das denúncias.')">🔊</button>
+          <button class="btn-back" onclick="irParaHome()">❮</button>
+          <h2>Mapa do Bairro (Ao Vivo)</h2>
+          <button class="btn-voice-inline" onclick="falarTexto('Mapa interativo em tempo real do bairro Ipiranga. Acompanhe o caminhão da coleta na Rota 14, pontos de apoio São Camilo e alertas de vidro quebrado nas ruas.')">🔊</button>
         </div>
 
         <div class="neighborhood-content">
+          <!-- Abas de Filtro Inteligente do Mapa -->
           <div class="tabs-nav">
-            <button class="tab-btn active" id="tab-rotas" onclick="alternarAbaBairro('rotas')">Rotas de Coleta</button>
-            <button class="tab-btn" id="tab-ocorrencias" onclick="alternarAbaBairro('ocorrencias')">Ocorrências</button>
+            <button class="tab-btn active" id="tab-rotas" onclick="alternarAbaBairro('rotas')">🚛 Rota & Caminhão</button>
+            <button class="tab-btn" id="tab-ocorrencias" onclick="alternarAbaBairro('ocorrencias')">⚠️ Alertas (<span id="map-badge-count">3</span>)</button>
           </div>
 
-          <!-- Mapa Simulado -->
-          <div class="simulated-map">
-            <div class="map-overlay-header">Bairro Ipiranga • São Paulo</div>
-            
-            <!-- Pins Interativos -->
-            <div class="map-pin pin-red" style="top: 30%; left: 25%;" title="Caco de vidro relatado" onclick="detalharPin('Rua Silva Bueno: Caco de vidro solto', 'Em análise')">📍</div>
-            <div class="map-pin pin-yellow" style="top: 55%; left: 60%;" title="Lixo acumulado" onclick="detalharPin('Rua dos Patriotas: Lixo acumulado', 'Em atendimento')">📍</div>
-            <div class="map-pin pin-green" style="top: 75%; left: 40%;" title="Coleta finalizada" onclick="detalharPin('Av. Nazaré: Coleta concluída com sucesso', 'Resolvida')">📍</div>
-            <div class="map-truck" style="top: 50%; left: 52%;" title="Caminhão em rota">🚛</div>
+          <!-- Barra de Telemetria do Caminhão em Tempo Real -->
+          <div class="truck-telemetry-bar" onclick="centralizarCaminhaoMapa()">
+            <div class="telemetry-left">
+              <span class="live-pulse-dot"></span>
+              <div>
+                <strong id="telemetry-truck-title">🚛 Caminhão Rota 14 • Em movimento</strong>
+                <p id="telemetry-truck-sub">Av. Nazaré ➔ Rua dos Patriotas • Chegada em ~4 min</p>
+              </div>
+            </div>
+            <button class="btn-follow-truck" title="Centralizar no caminhão">🎯 Seguir</button>
           </div>
 
-          <!-- Legenda de Status -->
+          <!-- Container do Mapa Interativo Real (Leaflet + OpenStreetMap) -->
+          <div class="real-map-wrapper">
+            <div id="elo-leaflet-map" class="elo-leaflet-container"></div>
+
+            <!-- Botões Flutuantes sobre o Mapa -->
+            <div class="map-floating-controls">
+              <button class="map-fab" onclick="centralizarCaminhaoMapa()" title="Focar no Caminhão">🚛 Caminhão</button>
+              <button class="map-fab" onclick="focarPontoSaoCamilo()" title="Clínica São Camilo Ipiranga">🏥 São Camilo</button>
+              <button class="map-fab map-fab-alert" onclick="navegarPara('screen-reports')" title="Reportar Caco de Vidro ou Risco">➕ Alerta</button>
+            </div>
+          </div>
+
+          <!-- Legenda Interativa de Camadas -->
           <div class="map-legend">
-            <div class="legend-item"><span class="badge-dot dot-red"></span> Em análise</div>
+            <div class="legend-item"><span class="badge-dot dot-red"></span> Risco / Vidro</div>
             <div class="legend-item"><span class="badge-dot dot-yellow"></span> Em atendimento</div>
-            <div class="legend-item"><span class="badge-dot dot-green"></span> Resolvida</div>
+            <div class="legend-item"><span class="badge-dot dot-green"></span> Coletado</div>
+            <div class="legend-item"><span class="badge-dot" style="background:#2563eb;"></span> Apoio Saúde</div>
+          </div>
+
+          <!-- Card Dinâmico do Ponto Selecionado no Mapa (Substitui o alert nativo) -->
+          <div class="map-detail-card" id="map-selected-card">
+            <div class="map-detail-header">
+              <span class="map-detail-badge" id="map-detail-badge">🚛 ROTA 14 AO VIVO</span>
+              <button class="btn-speak-msg" onclick="ouvirDetalhePinAtual()">🔊 Ouvir</button>
+            </div>
+            <h4 id="map-detail-title">Caminhão Compactador • Equipe Carlos</h4>
+            <p id="map-detail-desc">Percorrendo o circuito Ipiranga (Av. Nazaré, Rua dos Patriotas e Rua Silva Bueno). Velocidade média: 18 km/h.</p>
+          </div>
+
+          <!-- Lista Sincronizada de Ocorrências e Pontos no Mapa -->
+          <div class="map-occurrences-section">
+            <div class="map-section-header">
+              <h4>📍 Pontos Monitorados no Bairro (Toque para ver no mapa):</h4>
+            </div>
+            <div class="map-occurrences-list" id="map-occurrences-list">
+              <!-- Preenchido dinamicamente pelo JavaScript sincronizado com o Mapa -->
+            </div>
           </div>
 
           <!-- Horários da Rota -->
           <div class="schedule-card">
-            <h4>📅 Calendário da sua rua (Rua dos Patriotas):</h4>
+            <h4>📅 Calendário Oficial (Subprefeitura Ipiranga):</h4>
             <ul>
-              <li><strong>Segunda, Quarta e Sexta:</strong> Coleta Comum às 19:30</li>
+              <li><strong>Segunda, Quarta e Sexta:</strong> Coleta Domiciliar às 19:30</li>
               <li><strong>Terça e Quinta:</strong> Coleta Seletiva Reciclável às 10:00</li>
+              <li><strong>Ponto de Apoio ao Coletor:</strong> Clínica São Camilo (Av. Nazaré, 1501)</li>
             </ul>
           </div>
         </div>
@@ -1234,6 +1283,8 @@
 
   </div>
 
+  <!-- Leaflet JS (Mapa Interativo Real OpenStreetMap) -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <!-- Supabase JS Client via CDN Oficial -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase.js"></script>

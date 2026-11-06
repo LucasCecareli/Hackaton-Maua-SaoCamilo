@@ -150,6 +150,13 @@ function navegarPara(idTelaDestino) {
 
     const container = document.querySelector('.screens-container');
     if (container) container.scrollTop = 0;
+
+    // Se abriu a tela do Mapa (Meu Bairro), inicializa ou atualiza o Leaflet
+    if (idTelaDestino === 'screen-neighborhood') {
+      setTimeout(() => {
+        inicializarMapaLeaflet();
+      }, 120);
+    }
   }
 
   // Atualiza a barra de navegação inferior
@@ -515,7 +522,7 @@ function enviarOcorrencia() {
   const tipoProblemaEl = document.querySelector('input[name="tipo-problema"]:checked');
   const tipoProblema = tipoProblemaEl ? tipoProblemaEl.value : "Lixo acumulado";
   const descricao = document.getElementById('input-descricao-denuncia').value.trim();
-  const endereco = document.getElementById('label-endereco')?.textContent || "Rua dos Patriotas - Ipiranga";
+  const endereco = document.getElementById('label-endereco')?.textContent || "Rua dos Patriotas, 482 - Ipiranga";
 
   const protocolo = "ELO-" + Math.floor(100000 + Math.random() * 900000);
 
@@ -527,13 +534,29 @@ function enviarOcorrencia() {
     descricao: descricao
   });
 
+  // Adiciona também um novo pino real no Mapa Interativo do Ipiranga
+  const ehPerigoso = tipoProblema.includes("Perigoso") || tipoProblema.includes("Vidro");
+  const novoPontoMapa = {
+    id: protocolo,
+    lat: -23.5862 + (Math.random() - 0.5) * 0.004,
+    lng: -46.6075 + (Math.random() - 0.5) * 0.004,
+    titulo: `${endereco.split('-')[0].trim()}: ${ehPerigoso ? 'Caco de Vidro / Cortante' : tipoProblema}`,
+    descricao: descricao || (ehPerigoso ? "Alerta de resíduo perfurocortante emitido para proteger os coletores da Rota 14." : "Ocorrência registrada pelo morador via app ELO."),
+    status: ehPerigoso ? "Risco Crítico" : "Em análise",
+    cor: ehPerigoso ? "red" : "yellow",
+    icone: ehPerigoso ? "⚠️" : "🗑️",
+    categoria: "ocorrencia"
+  };
+  PontosMapaBairro.unshift(novoPontoMapa);
+  ultimoPontoSelecionadoMapa = novoPontoMapa;
+
   let mensagemAlerta = `Ocorrência registrada no Supabase com sucesso!\nProtocolo: ${protocolo}\nProblema: ${tipoProblema}`;
   
-  if (tipoProblema.includes("Perigoso") || tipoProblema.includes("Vidro")) {
-    mensagemAlerta += `\n\n⚠️ ALERTA DE SEGURANÇA EMITIDO: Os coletores do caminhão da rota receberão aviso imediato de cuidado com perfurocortantes nesta rua!`;
-    falarTexto("Alerta crítico emitido! Obrigado por avisar sobre o vidro quebrado. A equipe foi alertada para evitar cortes.");
+  if (ehPerigoso) {
+    mensagemAlerta += `\n\n⚠️ ALERTA DE SEGURANÇA EMITIDO: Os coletores do caminhão da rota receberão aviso imediato no mapa GPS sobre perfurocortantes nesta rua!`;
+    falarTexto("Alerta crítico emitido! Obrigado por avisar sobre o vidro quebrado. O pino vermelho já está no mapa da equipe.");
   } else {
-    falarTexto("Ocorrência enviada para a central de limpeza urbana com sucesso.");
+    falarTexto("Ocorrência enviada e adicionada ao mapa do bairro com sucesso.");
   }
 
   alert(mensagemAlerta);
@@ -542,26 +565,328 @@ function enviarOcorrencia() {
 }
 
 /* --------------------------------------------------------------------------
-   6. FASE 3: MEU BAIRRO & MAPA INTERATIVO
+   6. FASE 3: MEU BAIRRO & MAPA REAL INTERATIVO (LEAFLET + OPENSTREETMAP)
    -------------------------------------------------------------------------- */
+let mapaLeaflet = null;
+let marcadorCaminhao = null;
+let linhaRotaColeta = null;
+let camadaMarcadores = null;
+let indiceRotaCaminhao = 0;
+let timerCaminhaoMapa = null;
+
+// Trajeto real da Rota 14 pelas ruas do Ipiranga (Av. Nazaré -> Rua dos Patriotas -> Rua Silva Bueno -> Rua Bom Pastor)
+const CoordenadasRotaIpiranga = [
+  { lat: -23.5918, lng: -46.6067, trecho: "Av. Nazaré (Próx. Campus São Camilo)" },
+  { lat: -23.5892, lng: -46.6072, trecho: "Av. Nazaré, 1100 • Subindo sentido Museu" },
+  { lat: -23.5868, lng: -46.6079, trecho: "Esquina Av. Nazaré c/ Rua dos Patriotas" },
+  { lat: -23.5864, lng: -46.6058, trecho: "Rua dos Patriotas, 482 • Coleta em andamento" },
+  { lat: -23.5849, lng: -46.6039, trecho: "Cruzamento Rua dos Patriotas c/ Rua Silva Bueno" },
+  { lat: -23.5872, lng: -46.6032, trecho: "Rua Silva Bueno, 310 • Atenção a Resíduo Cortante" },
+  { lat: -23.5895, lng: -46.6048, trecho: "Rua Bom Pastor • Retorno ao circuito Ipiranga" }
+];
+
+// Pontos monitorados reais no Bairro Ipiranga (São Paulo)
+const PontosMapaBairro = [
+  {
+    id: "ELO-849201",
+    lat: -23.5872,
+    lng: -46.6032,
+    titulo: "Rua Silva Bueno, 310 • Caco de Vidro Solto",
+    descricao: "Morador alertou garrafa quebrada dentro de saco plástico. Equipe Carlos avisada para usar luva anticorte de kevlar.",
+    status: "Risco Crítico",
+    cor: "red",
+    icone: "⚠️",
+    categoria: "ocorrencia"
+  },
+  {
+    id: "ELO-731940",
+    lat: -23.5864,
+    lng: -46.6058,
+    titulo: "Rua dos Patriotas, 482 • Lixo Acumulado",
+    descricao: "Sacos acumulados próximos à árvore da calçada. Caminhão Compactador Rota 14 a 4 minutos do local.",
+    status: "Em atendimento",
+    cor: "yellow",
+    icone: "🗑️",
+    categoria: "ocorrencia"
+  },
+  {
+    id: "ELO-610422",
+    lat: -23.5892,
+    lng: -46.6072,
+    titulo: "Av. Nazaré, 1020 • Coleta Finalizada",
+    descricao: "Via limpa e vidros descartados corretamente em caixa de papelão identificada pela moradora.",
+    status: "Resolvida",
+    cor: "green",
+    icone: "✅",
+    categoria: "ocorrencia"
+  },
+  {
+    id: "SPSC-APOIO",
+    lat: -23.5918,
+    lng: -46.6067,
+    titulo: "Centro Universitário São Camilo (Av. Nazaré, 1501)",
+    descricao: "Ponto Oficial de Apoio em Saúde e Fisioterapia Ocupacional para os coletores da Rota 14 (Hidratação, Alongamento e Triagem).",
+    status: "Apoio Saúde",
+    cor: "blue",
+    icone: "🏥",
+    categoria: "apoio"
+  }
+];
+
+let ultimoPontoSelecionadoMapa = PontosMapaBairro[0];
+
+function inicializarMapaLeaflet() {
+  const container = document.getElementById('elo-leaflet-map');
+  if (!container) return;
+
+  // Atualiza contador da aba e lista abaixo do mapa
+  renderizarListaPontosMapa();
+
+  // Caso a biblioteca Leaflet não tenha carregado (ex: sem internet), exibe fallback amigável
+  if (typeof L === 'undefined') {
+    container.innerHTML = `<div style="padding:30px;text-align:center;color:#475569;font-size:0.85rem;">🗺️ Mapa Interativo Ipiranga ativo.<br>Selecione um ponto na lista abaixo para ouvir os detalhes.</div>`;
+    return;
+  }
+
+  // Se o mapa já foi criado, apenas recalcula o tamanho e sincroniza os pinos
+  if (mapaLeaflet) {
+    mapaLeaflet.invalidateSize();
+    sincronizarMarcadoresMapa();
+    return;
+  }
+
+  // Inicializa o Mapa Real centrado no Bairro Ipiranga (São Paulo)
+  mapaLeaflet = L.map('elo-leaflet-map', {
+    zoomControl: true,
+    attributionControl: false
+  }).setView([-23.5880, -46.6056], 15);
+
+  // Camada de Ruas Reais OpenStreetMap
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19
+  }).addTo(mapaLeaflet);
+
+  // Desenha a Polilinha da Rota 14 (Circuito de Coleta no Ipiranga)
+  const latLngsRota = CoordenadasRotaIpiranga.map(p => [p.lat, p.lng]);
+  // Fecha o circuito voltando ao ponto inicial
+  latLngsRota.push([CoordenadasRotaIpiranga[0].lat, CoordenadasRotaIpiranga[0].lng]);
+
+  linhaRotaColeta = L.polyline(latLngsRota, {
+    color: '#059669',
+    weight: 5,
+    opacity: 0.85,
+    dashArray: '10, 8',
+    lineJoin: 'round'
+  }).addTo(mapaLeaflet);
+
+  // Grupo de marcadores para facilitar atualização
+  camadaMarcadores = L.layerGroup().addTo(mapaLeaflet);
+
+  // Cria o marcador animado do Caminhão da Coleta (Equipe Carlos)
+  const iconeCaminhao = L.divIcon({
+    className: '',
+    html: `<div class="elo-custom-pin pin-bg-truck" title="Caminhão Rota 14 - Ao Vivo">🚛</div>`,
+    iconSize: [42, 42],
+    iconAnchor: [21, 21]
+  });
+
+  const posInicial = CoordenadasRotaIpiranga[indiceRotaCaminhao];
+  marcadorCaminhao = L.marker([posInicial.lat, posInicial.lng], { icon: iconeCaminhao, zIndexOffset: 1000 })
+    .addTo(mapaLeaflet)
+    .on('click', () => {
+      const passoAtual = CoordenadasRotaIpiranga[indiceRotaCaminhao];
+      selecionarPontoNoMapa({
+        id: "ROTA-14",
+        lat: passoAtual.lat,
+        lng: passoAtual.lng,
+        titulo: "🚛 Caminhão Compactador • Equipe Carlos (Rota 14)",
+        descricao: `Localização atual via GPS: ${passoAtual.trecho}. Equipe com 3 coletores ativos e alerta de vidro sincronizado.`,
+        status: "Ao Vivo no GPS",
+        cor: "green"
+      });
+    });
+
+  // Renderiza todos os marcadores de ocorrências e apoio
+  sincronizarMarcadoresMapa();
+
+  // Inicia simulação em tempo real do caminhão percorrendo as ruas do Ipiranga
+  if (!timerCaminhaoMapa) {
+    timerCaminhaoMapa = setInterval(() => {
+      indiceRotaCaminhao = (indiceRotaCaminhao + 1) % CoordenadasRotaIpiranga.length;
+      const proxPos = CoordenadasRotaIpiranga[indiceRotaCaminhao];
+      if (marcadorCaminhao) {
+        marcadorCaminhao.setLatLng([proxPos.lat, proxPos.lng]);
+      }
+      const subEl = document.getElementById('telemetry-truck-sub');
+      if (subEl) {
+        subEl.textContent = `${proxPos.trecho} • Atualizado agora`;
+      }
+    }, 3500);
+  }
+}
+
+function sincronizarMarcadoresMapa(filtro = 'todos') {
+  if (!camadaMarcadores || typeof L === 'undefined') return;
+  camadaMarcadores.clearLayers();
+
+  PontosMapaBairro.forEach(ponto => {
+    if (filtro === 'ocorrencias' && ponto.categoria !== 'ocorrencia') return;
+
+    const classeCor =
+      ponto.cor === 'red' ? 'pin-bg-red' :
+      ponto.cor === 'yellow' ? 'pin-bg-yellow' :
+      ponto.cor === 'blue' ? 'pin-bg-blue' : 'pin-bg-green';
+
+    const iconePin = L.divIcon({
+      className: '',
+      html: `<div class="elo-custom-pin ${classeCor}">${ponto.icone}</div>`,
+      iconSize: [36, 36],
+      iconAnchor: [18, 18]
+    });
+
+    const marker = L.marker([ponto.lat, ponto.lng], { icon: iconePin });
+    marker.on('click', () => {
+      selecionarPontoNoMapa(ponto, true);
+    });
+    marker.addTo(camadaMarcadores);
+  });
+}
+
+function selecionarPontoNoMapa(ponto, falar = false) {
+  ultimoPontoSelecionadoMapa = ponto;
+
+  // Move suavemente a câmera do mapa até o ponto clicado
+  if (mapaLeaflet && ponto.lat && ponto.lng) {
+    mapaLeaflet.flyTo([ponto.lat, ponto.lng], 16, { duration: 0.6 });
+  }
+
+  // Atualiza o Card de Detalhes abaixo do mapa
+  const card = document.getElementById('map-selected-card');
+  const badge = document.getElementById('map-detail-badge');
+  const title = document.getElementById('map-detail-title');
+  const desc = document.getElementById('map-detail-desc');
+
+  if (badge) {
+    badge.textContent = `${ponto.icone || '📍'} ${ponto.status.toUpperCase()}`;
+    if (ponto.cor === 'red') {
+      badge.style.background = '#fee2e2';
+      badge.style.color = '#991b1b';
+      if (card) card.style.borderLeftColor = '#ef4444';
+    } else if (ponto.cor === 'yellow') {
+      badge.style.background = '#fef3c7';
+      badge.style.color = '#92400e';
+      if (card) card.style.borderLeftColor = '#f59e0b';
+    } else if (ponto.cor === 'blue') {
+      badge.style.background = '#dbeafe';
+      badge.style.color = '#1e40af';
+      if (card) card.style.borderLeftColor = '#2563eb';
+    } else {
+      badge.style.background = '#dcfce7';
+      badge.style.color = '#166534';
+      if (card) card.style.borderLeftColor = '#10b981';
+    }
+  }
+
+  if (title) title.textContent = ponto.titulo;
+  if (desc) desc.textContent = ponto.descricao;
+
+  if (falar) {
+    falarTexto(`${ponto.titulo}. Status: ${ponto.status}. ${ponto.descricao}`);
+  }
+}
+
+function ouvirDetalhePinAtual() {
+  if (!ultimoPontoSelecionadoMapa) return;
+  falarTexto(`${ultimoPontoSelecionadoMapa.titulo}. ${ultimoPontoSelecionadoMapa.descricao}`);
+}
+
+function centralizarCaminhaoMapa() {
+  const passoAtual = CoordenadasRotaIpiranga[indiceRotaCaminhao];
+  selecionarPontoNoMapa({
+    id: "ROTA-14",
+    lat: passoAtual.lat,
+    lng: passoAtual.lng,
+    titulo: "🚛 Caminhão Compactador • Equipe Carlos (Rota 14)",
+    descricao: `Em trânsito agora: ${passoAtual.trecho}. Previsão de passagem na Rua dos Patriotas às 19:30.`,
+    status: "Caminhão em Rota",
+    cor: "green",
+    icone: "🚛"
+  }, true);
+}
+
+function focarPontoSaoCamilo() {
+  const pontoSC = PontosMapaBairro.find(p => p.id === "SPSC-APOIO") || PontosMapaBairro[PontosMapaBairro.length - 1];
+  selecionarPontoNoMapa(pontoSC, true);
+}
+
+function renderizarListaPontosMapa() {
+  const badgeCount = document.getElementById('map-badge-count');
+  const qtdOcorrencias = PontosMapaBairro.filter(p => p.categoria === 'ocorrencia').length;
+  if (badgeCount) badgeCount.textContent = qtdOcorrencias;
+
+  const listaEl = document.getElementById('map-occurrences-list');
+  if (!listaEl) return;
+
+  listaEl.innerHTML = PontosMapaBairro.map((ponto, idx) => {
+    const bgIcone =
+      ponto.cor === 'red' ? '#fee2e2' :
+      ponto.cor === 'yellow' ? '#fef3c7' :
+      ponto.cor === 'blue' ? '#dbeafe' : '#dcfce7';
+
+    const corTextoStatus =
+      ponto.cor === 'red' ? '#991b1b' :
+      ponto.cor === 'yellow' ? '#92400e' :
+      ponto.cor === 'blue' ? '#1e40af' : '#166534';
+
+    return `
+      <div class="map-occurrence-item" onclick="selecionarPontoPorIndice(${idx})">
+        <div class="map-occ-icon" style="background: ${bgIcone};">${ponto.icone}</div>
+        <div class="map-occ-info">
+          <h5>${ponto.titulo}</h5>
+          <p>${ponto.descricao.substring(0, 72)}...</p>
+        </div>
+        <span class="map-occ-status" style="background: ${bgIcone}; color: ${corTextoStatus};">${ponto.status}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function selecionarPontoPorIndice(idx) {
+  const ponto = PontosMapaBairro[idx];
+  if (ponto) {
+    selecionarPontoNoMapa(ponto, true);
+  }
+}
+
 function alternarAbaBairro(aba) {
   const btnRotas = document.getElementById('tab-rotas');
   const btnOcorrencias = document.getElementById('tab-ocorrencias');
 
   if (aba === 'rotas') {
-    btnRotas.classList.add('active');
-    btnOcorrencias.classList.remove('active');
-    falarTexto("Exibindo rotas de coleta do caminhão no Ipiranga.");
+    if (btnRotas) btnRotas.classList.add('active');
+    if (btnOcorrencias) btnOcorrencias.classList.remove('active');
+    if (linhaRotaColeta && mapaLeaflet) linhaRotaColeta.setStyle({ opacity: 0.9, weight: 5 });
+    sincronizarMarcadoresMapa('todos');
+    centralizarCaminhaoMapa();
   } else {
-    btnOcorrencias.classList.add('active');
-    btnRotas.classList.remove('active');
-    falarTexto("Exibindo pontos de ocorrências registradas no mapa.");
+    if (btnOcorrencias) btnOcorrencias.classList.add('active');
+    if (btnRotas) btnRotas.classList.remove('active');
+    if (linhaRotaColeta && mapaLeaflet) linhaRotaColeta.setStyle({ opacity: 0.35, weight: 3 });
+    sincronizarMarcadoresMapa('ocorrencias');
+    if (PontosMapaBairro.length > 0) {
+      selecionarPontoNoMapa(PontosMapaBairro[0], true);
+    }
   }
 }
 
 function detalharPin(local, status) {
-  alert(`📍 Ponto de Coleta:\n${local}\nStatus: [${status}]`);
-  falarTexto(`${local}. Status atual: ${status}.`);
+  selecionarPontoNoMapa({
+    titulo: local,
+    descricao: `Ponto monitorado pela equipe ELO no bairro Ipiranga.`,
+    status: status,
+    cor: status.includes('análise') ? 'red' : status.includes('atendimento') ? 'yellow' : 'green',
+    icone: '📍'
+  }, true);
 }
 
 /* --------------------------------------------------------------------------
