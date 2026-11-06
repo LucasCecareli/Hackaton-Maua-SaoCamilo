@@ -194,21 +194,9 @@ body {
   transform: scale(0.94);
 }
 
+/* Oculta os botões duplicados internos (.btn-voice-inline) para manter APENAS UM ícone de som no cabeçalho de todas as telas */
 .btn-voice-inline {
-  background: #ef4444;
-  border: 2px solid #b91c1c;
-  border-radius: var(--radius-full);
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.15rem;
-  color: #ffffff;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.28);
+  display: none !important;
 }
 
 /* ESTADO 1: VERDE PULSANTE — FALANDO ATIVAMENTE (Toque novamente para parar) */
@@ -273,7 +261,8 @@ body {
 .screen-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 12px;
   padding: 16px 20px;
   background: var(--card-bg);
   border-bottom: 1px solid var(--border-light);
