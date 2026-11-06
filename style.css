@@ -143,38 +143,27 @@ body {
   letter-spacing: -0.5px;
 }
 
-/* Botão Ouvir / Controle Interativo de Voz (Verde = Falando | Vermelho = Sem Fala) */
+/* Botão de Som Apenas com Ícone (Verde = Som Ligado 🔊 | Vermelho = Mudo 🔇) */
 .btn-voice-toggle {
-  background: #f0fdf4;
-  border: 1.5px solid #86efac;
+  background: #ef4444;
+  border: 2px solid #b91c1c;
   border-radius: var(--radius-full);
-  padding: 6px 14px;
-  height: 34px;
+  width: 38px;
+  height: 38px;
+  padding: 0;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: #166534;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: #ffffff;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.btn-voice-toggle:hover {
-  background: #dcfce7;
-  border-color: #4ade80;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.28);
 }
 
 .btn-voice-toggle .voice-icon {
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   line-height: 1;
-}
-
-.btn-voice-toggle .voice-text {
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
 }
 
 .btn-voice-toggle:active, .btn-voice-inline:active {
@@ -182,18 +171,20 @@ body {
 }
 
 .btn-voice-inline {
-  background: #dcfce7;
-  border: 2px solid #4ade80;
+  background: #ef4444;
+  border: 2px solid #b91c1c;
   border-radius: var(--radius-full);
   width: 40px;
   height: 40px;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.15rem;
-  color: #166534;
+  color: #ffffff;
   cursor: pointer;
   transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.28);
 }
 
 /* ESTADO 1: VERDE PULSANTE — FALANDO ATIVAMENTE (Toque novamente para parar) */

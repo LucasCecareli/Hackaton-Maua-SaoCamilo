@@ -27,14 +27,9 @@
         <img src="assets/logo_elo_hd.png" alt="ELO Logo" class="header-logo-img">
       </div>
       <div class="header-actions" style="display: flex; align-items: center; gap: 8px;">
-        <!-- Botão de Alternância Rápida para o Painel Web B2B/Prefeitura -->
-        <button class="btn-admin-toggle" id="btn-header-admin" title="Abrir Painel Web da Concessionária/Prefeitura" onclick="abrirPainelGestor()">
-          📊 Gestão Web
-        </button>
-        <!-- Botão de Acessibilidade de Leitura por Voz -->
-        <button class="btn-voice-toggle" id="btn-global-voice" title="Ler tela em voz alta" aria-label="Ouvir tela" onclick="lerTelaAtual()">
-          <span class="voice-icon">🔊</span>
-          <span class="voice-text">Ouvir</span>
+        <!-- Botão de Acessibilidade de Som (Começa naturalmente no Mudo = Vermelho 🔇; Ao ligar = Verde 🔊) -->
+        <button class="btn-voice-toggle voice-stopped" id="btn-global-voice" title="Som desligado. Toque para ligar o áudio." aria-label="Alternar som" onclick="alternarSomGlobal()">
+          <span class="voice-icon">🔇</span>
         </button>
       </div>
     </header>
@@ -267,16 +262,7 @@
             </div>
           </div>
 
-          <!-- Card 3: Aprender -->
-          <div class="dash-card card-learn" onclick="navegarPara('screen-learn')">
-            <div class="dash-card-icon">📖</div>
-            <div class="dash-card-text">
-              <h3>Aprender</h3>
-              <p>Vídeos, lições e segurança</p>
-            </div>
-          </div>
-
-          <!-- Card 4: Meus ELOs -->
+          <!-- Card 3: Meus ELOs -->
           <div class="dash-card card-rewards" onclick="navegarPara('screen-rewards')">
             <div class="dash-card-icon">🎁</div>
             <div class="dash-card-text">
@@ -285,17 +271,16 @@
             </div>
           </div>
 
-          <!-- Card 5: Avaliar Descarte por Endereço (Gera Desconto de Água/Luz ao Morador) -->
-          <div class="dash-card card-evaluate full-width" onclick="navegarPara('screen-evaluate-waste')" style="border: 1.5px solid #86efac; background: #f0fdf4;">
+          <!-- Card 4: Avaliar Descarte por Endereço -->
+          <div class="dash-card card-evaluate" onclick="navegarPara('screen-evaluate-waste')" style="border: 1.5px solid #86efac; background: #f0fdf4;">
             <div class="dash-card-icon">🏠</div>
             <div class="dash-card-text">
-              <h3>Avaliar Descarte da Rua</h3>
-              <p>Valide o lixo do endereço e gere desconto de água/luz ao morador</p>
+              <h3>Avaliar Descarte</h3>
+              <p>Valide o lixo da rua (+15 ELOs)</p>
             </div>
-            <span class="badge-new" style="background: #16a34a;">+15 ELOs</span>
           </div>
 
-          <!-- Card 6: Mapa da Rota & Alertas de Risco -->
+          <!-- Card 5: Mapa da Rota & Alertas de Risco -->
           <div class="dash-card card-neighborhood full-width" onclick="navegarPara('screen-neighborhood')">
             <div class="dash-card-icon">🗺️</div>
             <div class="dash-card-text">
@@ -305,7 +290,7 @@
             <span class="badge-new" style="background: #ef4444;">GPS</span>
           </div>
 
-          <!-- Card 7: Minha Comunidade -->
+          <!-- Card 6: Minha Comunidade -->
           <div class="dash-card card-community full-width" onclick="navegarPara('screen-community')">
             <div class="dash-card-icon">👥</div>
             <div class="dash-card-text">
@@ -535,16 +520,10 @@
         <div class="screen-header">
           <button class="btn-back" onclick="navegarPara('screen-home-worker')">❮</button>
           <h2>Minha Saúde</h2>
-          <button class="btn-voice-inline" onclick="falarTexto('Exercícios rápidos e guiados para prevenir dores na coluna e pernas.')">🔊</button>
+          <button class="btn-voice-inline voice-stopped" onclick="alternarSomGlobal()" title="Ligar ou desligar som">🔇</button>
         </div>
 
         <div class="health-content">
-          <div class="tabs-nav">
-            <button class="tab-btn active" onclick="filtrarVideosSaude('todos', this)">Todos</button>
-            <button class="tab-btn" onclick="filtrarVideosSaude('alongamento', this)">Alongamentos</button>
-            <button class="tab-btn" onclick="filtrarVideosSaude('postura', this)">Postura</button>
-          </div>
-
           <!-- Banner Educativo de Vídeos -->
           <div class="video-hub-banner">
             <span class="hub-badge">🎬 Vídeos Guiados</span>
@@ -1293,9 +1272,8 @@
             </div>
           </div>
           <div class="admin-actions">
-            <button class="btn-voice-toggle" id="btn-admin-voice" title="Ativar ou parar leitura em voz alta" onclick="lerTelaAtual()">
-              <span class="voice-icon">🔊</span>
-              <span class="voice-text">Ouvir</span>
+            <button class="btn-voice-toggle voice-stopped" id="btn-admin-voice" title="Ligar ou desligar áudio" onclick="alternarSomGlobal()">
+              <span class="voice-icon">🔇</span>
             </button>
             <button class="btn-admin-action" onclick="sincronizarPainelAdmin()">
               🔄 Atualizar Dados da Nuvem
