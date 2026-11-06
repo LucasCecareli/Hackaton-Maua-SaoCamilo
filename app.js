@@ -97,8 +97,85 @@ const EstadoVoz = {
   estaFalando: false,
   inicioFalaMs: 0,
   estadoVisual: 'stopped', // 'speaking' (verde 🔊) | 'stopped' (vermelho 🔇)
-  timerEstimado: null
+  timerEstimado: null,
+  generoPreferido: localStorage.getItem('elo_voz_genero') || 'feminina', // 'feminina' | 'masculina'
+  listaVozes: []
 };
+
+// Carrega as vozes neurais/nativas disponíveis no navegador
+function carregarVozesNavegador() {
+  if (!suporteVoz) return;
+  const vozes = window.speechSynthesis.getVoices();
+  if (vozes && vozes.length > 0) {
+    EstadoVoz.listaVozes = vozes;
+  }
+}
+
+if (suporteVoz) {
+  carregarVozesNavegador();
+  if (typeof window.speechSynthesis.onvoiceschanged !== 'undefined') {
+    window.speechSynthesis.onvoiceschanged = carregarVozesNavegador;
+  }
+}
+
+function selecionarMelhorVozPtBr(genero = 'feminina') {
+  if (!suporteVoz) return { voz: null, pitch: 1.0, rate: 1.04 };
+  const todas = EstadoVoz.listaVozes.length > 0 ? EstadoVoz.listaVozes : window.speechSynthesis.getVoices();
+  const vozesPt = todas.filter(v => v.lang && (v.lang.toLowerCase().includes('pt-br') || v.lang.toLowerCase().includes('pt_br') || v.lang.toLowerCase().startsWith('pt')));
+
+  if (vozesPt.length === 0) {
+    return { voz: null, pitch: genero === 'masculina' ? 0.85 : 1.06, rate: 1.04 };
+  }
+
+  if (genero === 'feminina') {
+    // Prioridade para vozes Neurais Naturais Femininas (Francisca Natural, Thalita, Google PT-BR, Luciana, Maria)
+    const prioridadesFem = ['francisca', 'thalita', 'natural', 'google português', 'google portugues', 'luciana', 'fernanda', 'vitoria', 'vitória', 'maria'];
+    for (const termo of prioridadesFem) {
+      const encontrada = vozesPt.find(v => v.name.toLowerCase().includes(termo) && !v.name.toLowerCase().includes('antonio') && !v.name.toLowerCase().includes('daniel'));
+      if (encontrada) {
+        return { voz: encontrada, pitch: 1.04, rate: 1.04 };
+      }
+    }
+    return { voz: vozesPt[0], pitch: 1.06, rate: 1.04 };
+  } else {
+    // Prioridade para vozes Neurais Naturais Masculinas (Antonio Natural, Donato, Fabio, Daniel, Felipe)
+    const prioridadesMasc = ['antonio', 'antônio', 'donato', 'fabio', 'fábio', 'daniel', 'felipe', 'ricardo', 'luca'];
+    for (const termo of prioridadesMasc) {
+      const encontrada = vozesPt.find(v => v.name.toLowerCase().includes(termo));
+      if (encontrada) {
+        return { voz: encontrada, pitch: 0.96, rate: 1.03 };
+      }
+    }
+    // Se o navegador só tiver uma voz PT-BR genérica (ex: Google português do Brasil), ajusta o timbre (pitch) para masculino natural
+    return { voz: vozesPt[0], pitch: 0.82, rate: 1.01 };
+  }
+}
+
+function atualizarBotaoGeneroVoz() {
+  const btn = document.getElementById('btn-voice-gender');
+  if (!btn) return;
+  if (EstadoVoz.generoPreferido === 'masculina') {
+    btn.innerHTML = '👨🏽 Voz M';
+    btn.title = 'Voz Masculina ativa (Toque para mudar para Feminina)';
+  } else {
+    btn.innerHTML = '👩🏻 Voz F';
+    btn.title = 'Voz Feminina Natural ativa (Toque para mudar para Masculina)';
+  }
+}
+
+function alternarGeneroVoz() {
+  EstadoVoz.generoPreferido = EstadoVoz.generoPreferido === 'feminina' ? 'masculina' : 'feminina';
+  localStorage.setItem('elo_voz_genero', EstadoVoz.generoPreferido);
+  atualizarBotaoGeneroVoz();
+
+  // Se o som estiver ligado, anuncia a nova voz escolhida imediatamente
+  if (EstadoVoz.somLigado) {
+    const msg = EstadoVoz.generoPreferido === 'feminina'
+      ? 'Voz feminina natural selecionada.'
+      : 'Voz masculina selecionada.';
+    falarTexto(msg);
+  }
+}
 
 function atualizarVisualBotoesVoz(estado) {
   const ativo = (estado === 'speaking') || (estado === undefined && EstadoVoz.somLigado);
@@ -202,8 +279,14 @@ function falarTexto(texto, forcarAtivacao = false) {
   window.speechSynthesis.cancel(); // Interrompe tópico anterior para falar o novo imediatamente
   const locucao = new SpeechSynthesisUtterance(texto);
   locucao.lang = 'pt-BR';
-  locucao.rate = 1.0;
-  locucao.pitch = 1.0;
+
+  // Seleciona a voz Neural Natural (Feminina ou Masculina) com ajuste de timbre e fluidez
+  const configVoz = selecionarMelhorVozPtBr(EstadoVoz.generoPreferido);
+  if (configVoz.voz) {
+    locucao.voice = configVoz.voz;
+  }
+  locucao.rate = configVoz.rate;
+  locucao.pitch = configVoz.pitch;
 
   locucao.onend = () => {
     if (EstadoVoz.estaFalando && (Date.now() - EstadoVoz.inicioFalaMs > 800)) {
@@ -1609,9 +1692,11 @@ async function avancarStatusOcorrencia(botao, protocolo) {
 
 // Inicialização ao carregar a página
 document.addEventListener('DOMContentLoaded', () => {
-  // Inicia naturalmente no mudo (🔇 vermelho, apenas ícone)
+  // Inicia naturalmente no mudo (🔇 vermelho, apenas ícone) e carrega preferência de voz
   EstadoVoz.somLigado = false;
   atualizarVisualBotoesVoz('stopped');
+  atualizarBotaoGeneroVoz();
+  carregarVozesNavegador();
 
   // Intercepta cliques nos botões circulares de som (.btn-voice-inline) para ligar/desligar o som
   document.addEventListener('click', (e) => {

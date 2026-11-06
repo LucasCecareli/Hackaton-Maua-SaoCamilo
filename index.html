@@ -27,6 +27,10 @@
         <img src="assets/logo_elo_hd.png" alt="ELO Logo" class="header-logo-img">
       </div>
       <div class="header-actions" style="display: flex; align-items: center; gap: 8px;">
+        <!-- Seletor Rápido de Timbre/Voz (Feminina Neural vs Masculina) -->
+        <button class="btn-voice-gender" id="btn-voice-gender" title="Trocar voz (Feminina / Masculina)" onclick="alternarGeneroVoz()">
+          👩🏻 Voz F
+        </button>
         <!-- Botão de Acessibilidade de Som (Começa naturalmente no Mudo = Vermelho 🔇; Ao ligar = Verde 🔊) -->
         <button class="btn-voice-toggle voice-stopped" id="btn-global-voice" title="Som desligado. Toque para ligar o áudio." aria-label="Alternar som" onclick="alternarSomGlobal()">
           <span class="voice-icon">🔇</span>
