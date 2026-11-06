@@ -386,11 +386,11 @@ body {
 }
 
 .hero-logo-img {
-  width: 115px;
+  width: 135px;
   height: auto;
-  max-height: 85px;
+  max-height: 90px;
   object-fit: contain;
-  filter: drop-shadow(0 2px 4px rgba(15, 53, 92, 0.06));
+  filter: drop-shadow(0 2px 5px rgba(15, 53, 92, 0.08));
 }
 
 .splash-title {
@@ -411,12 +411,12 @@ body {
   margin: 0 auto 10px;
 }
 
-/* Wrapper da Ilustração Central */
+/* Wrapper da Ilustração Central com o Protótipo Oficial */
 .splash-illustration-wrapper {
   position: relative;
   width: 100%;
-  max-width: 330px;
-  margin: 4px 0 14px;
+  max-width: 380px;
+  margin: 4px 0 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -425,10 +425,16 @@ body {
 .splash-hero-illustration {
   width: 100%;
   height: auto;
-  max-height: 255px;
+  max-height: 275px;
   object-fit: contain;
   display: block;
   user-select: none;
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.05));
+  transition: transform 0.25s ease;
+}
+
+.splash-hero-illustration:hover {
+  transform: scale(1.015);
 }
 
 /* Ações Inferiores */
