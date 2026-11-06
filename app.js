@@ -1763,27 +1763,42 @@ const CatalogoVideosAlongamento = {
     ],
     falaPassos: "Exercício respiratório: Puxe o ar pelo nariz profundamente, segure dois segundos e solte pela boca bem devagar para relaxar a mente."
   },
+  descarte_agulhas: {
+    titulo: "Descarte Seguro de Agulhas e Perfurocortantes",
+    subtitulo: "Prevenção SESMT São Camilo • Proteja os Garis • 1 min",
+    categoria: "Segurança do Coletor",
+    tempoSegundos: 10,
+    videoUrl: "assets/videos/descarte_agulhas_1.mp4",
+    poster: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=600&q=80",
+    passos: [
+      "Nunca jogue agulhas de insulina, seringas ou lancetas soltas no saco de lixo comum.",
+      "Insira sempre em um recipiente de paredes rígidas com tampa (garrafa PET ou frasco de amaciante).",
+      "Feche a tampa e vede com fita adesiva resistente para evitar abertura acidental.",
+      "Escreva por fora com caneta em destaque: 'CUIDADO: AGULHAS USADAS'."
+    ],
+    falaPassos: "Descarte seguro de agulhas e seringas: Nunca jogue agulhas soltas no lixo. Coloque dentro de uma garrafa PET rígida, tampe bem com fita e identifique com a frase Cuidado Agulhas."
+  },
   descarte_vidro: {
     titulo: "Como Embalar Vidros Quebrados e Cortantes",
-    subtitulo: "Guia Prático do Morador • Proteja os Garis • 2 min",
+    subtitulo: "Guia Prático do Morador • Proteja os Garis • 1 min",
     categoria: "Descarte Seguro",
-    tempoSegundos: 20,
-    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    tempoSegundos: 10,
+    videoUrl: "assets/videos/guia_descarte_correto.mp4",
     poster: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=600&q=80",
     passos: [
       "Recolha os cacos de vidro ou lâmpadas usando luva ou jornal grosso.",
-      "Coloque todos os cacos dentro de uma caixa de leite longa vida ou garrafa PET cortada.",
+      "Coloque todos os cacos dentro de uma garrafa PET cortada, caixa de leite ou papelão grosso.",
       "Feche bem a abertura com fita adesiva resistente para nenhum caco escapar.",
       "Escreva por fora em letra grande: 'CUIDADO: VIDRO QUEBRADO'."
     ],
     falaPassos: "Como embalar vidros quebrados: Coloque os cacos dentro de uma caixa de leite ou garrafa PET, lacre com fita adesiva e escreva Cuidado Vidro."
   },
   descarte_separacao: {
-    titulo: "Separação Correta: Lixo Seco x Lixo Úmido",
-    subtitulo: "Coleta Seletiva Ipiranga • Educação Ambiental • 2 min",
+    titulo: "Dicas Práticas para Separar o Lixo em Casa",
+    subtitulo: "Coleta Seletiva Ipiranga • Educação Ambiental • 1 min",
     categoria: "Reciclagem em Casa",
-    tempoSegundos: 20,
-    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+    tempoSegundos: 10,
+    videoUrl: "assets/videos/dicas_separacao_lixo.mp4",
     poster: "https://images.unsplash.com/photo-1604187351574-c75ca79f5807?auto=format&fit=crop&w=600&q=80",
     passos: [
       "Saco 1 (Lixo Úmido / Orgânico): Restos de alimentos, cascas de frutas, borra de café e guardanapos usados.",
@@ -1791,6 +1806,20 @@ const CatalogoVideosAlongamento = {
       "Amarre os sacos com nó duplo e coloque na calçada apenas perto do horário do caminhão."
     ],
     falaPassos: "Separação correta: Coloque restos de comida no saco de lixo orgânico e embalagens limpas no saco de recicláveis."
+  },
+  editorial_conscientizacao: {
+    titulo: "Campanha Cidadã: O Trabalho dos Garis",
+    subtitulo: "Valorização da Limpeza Urbana & Saúde Pública • 1 min",
+    categoria: "Conscientização Coletiva",
+    tempoSegundos: 10,
+    videoUrl: "assets/videos/editorial_conscientizacao.mp4",
+    poster: "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=600&q=80",
+    passos: [
+      "Cada saco colocado na calçada passa pelas mãos de trabalhadores essenciais da nossa cidade.",
+      "Um pequeno cuidado ao embalar evita cortes graves e garante a segurança de toda a equipe.",
+      "Colabore separando o lixo e protegendo quem cuida de São Paulo todos os dias!"
+    ],
+    falaPassos: "Campanha de conscientização cidadã: O trabalho dos garis protege a saúde pública da nossa cidade. Embale sempre com cuidado e respeito."
   },
   descarte_oleo: {
     titulo: "Descarte de Óleo de Cozinha, Pilhas e Remédios",
@@ -1843,9 +1872,12 @@ function abrirPlayerVideo(idExercicio) {
   // Atualiza vídeo
   const video = document.getElementById('video-element');
   const source = document.getElementById('video-source');
-  source.src = dados.videoUrl;
-  video.poster = dados.poster;
-  video.load();
+  if (source) source.src = dados.videoUrl;
+  if (video) {
+    video.src = dados.videoUrl;
+    video.poster = dados.poster;
+    video.load();
+  }
 
   // Atualiza instruções
   const ol = document.getElementById('video-instrucoes');

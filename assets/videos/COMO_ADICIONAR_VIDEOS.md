@@ -20,3 +20,4 @@ Se quiser que os vídeos já fiquem salvos fixamente no código/GitHub, basta sa
 - `assets/videos/descarte_vidro.mp4` (Como Embalar Vidros Quebrados e Cortantes)
 - `assets/videos/descarte_separacao.mp4` (Separação Orgânico x Reciclável)
 - `assets/videos/descarte_oleo.mp4` (Óleo de Cozinha, Pilhas e Remédios)
+
