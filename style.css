@@ -1,6 +1,7 @@
 /* ==========================================================================
    ELO - DESIGN SYSTEM & FOLHA DE ESTILOS PRINCIPAL
    Construído com CSS3 Puro, Mobile-First e Acessibilidade WCAG
+   Fases 1, 2 e 3 integradas
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
@@ -17,6 +18,10 @@
   --color-orange-primary: #e65100;
   --color-orange-light: #ff9800;
   --color-orange-soft: #fff3e0;
+
+  /* Paleta Roxa (Valorização / Comunidade / Afeto) */
+  --color-purple-primary: #7c3aed;
+  --color-purple-soft: #f5f3ff;
 
   /* Semáforo de Sentimentos e Escala de Dor */
   --status-good: #4caf50;       /* Muito bem / Sem dor */
@@ -360,7 +365,7 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   7. HOME DO TRABALHADOR (CARLOS)
+   7. DASHBOARDS (TRABALHADOR & MORADORA)
    -------------------------------------------------------------------------- */
 .profile-header {
   padding: 20px;
@@ -381,6 +386,11 @@ body {
   align-items: center;
   justify-content: center;
   border: 2px solid var(--color-orange-light);
+}
+
+.resident-avatar {
+  background: #f0fdf4;
+  border-color: var(--color-green-light);
 }
 
 .profile-meta h2 {
@@ -404,6 +414,18 @@ body {
   cursor: pointer;
   border: 1px solid #fde68a;
   white-space: nowrap;
+}
+
+.btn-profile-switch {
+  margin-left: auto;
+  background: #f1f5f9;
+  border: 1px solid var(--border-light);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
 }
 
 .dashboard-grid {
@@ -450,11 +472,17 @@ body {
   justify-content: center;
 }
 
+/* Ícones dos Cards */
 .card-wellbeing .dash-card-icon { background: #dcfce7; }
 .card-health .dash-card-icon { background: #e0f2fe; }
 .card-learn .dash-card-icon { background: #fef3c7; }
 .card-rewards .dash-card-icon { background: #ffedd5; }
 .card-community .dash-card-icon { background: #f3e8ff; }
+
+.card-neighborhood .dash-card-icon { background: #e0f2fe; }
+.card-reports .dash-card-icon { background: #fee2e2; }
+.card-learn-resident .dash-card-icon { background: #dcfce7; }
+.card-appreciate .dash-card-icon { background: #f3e8ff; }
 
 .dash-card-text h3 {
   font-size: 0.95rem;
@@ -479,6 +507,21 @@ body {
   padding: 2px 8px;
   border-radius: var(--radius-full);
 }
+
+.collection-status-card {
+  margin: 0 20px 20px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.status-icon { font-size: 2rem; }
+.status-info h4 { font-size: 0.88rem; font-weight: 700; color: #166534; }
+.status-info p { font-size: 0.8rem; color: #15803d; }
 
 /* --------------------------------------------------------------------------
    8. TELA MEU BEM-ESTAR (CHECK-IN DE SAÚDE)
@@ -590,7 +633,6 @@ body {
 }
 
 .tip-icon { font-size: 1.5rem; }
-
 .tip-info h4 { font-size: 0.85rem; font-weight: 700; color: #1e40af; margin-bottom: 2px; }
 .tip-info p { font-size: 0.8rem; color: #1e3a8a; line-height: 1.35; margin-bottom: 8px; }
 
@@ -672,16 +714,8 @@ body {
   flex-shrink: 0;
 }
 
-.exercise-details h4 {
-  font-size: 0.9rem;
-  font-weight: 700;
-  margin-bottom: 2px;
-}
-
-.exercise-details p {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
+.exercise-details h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 2px; }
+.exercise-details p { font-size: 0.75rem; color: var(--text-muted); }
 
 .btn-play {
   margin-left: auto;
@@ -720,25 +754,9 @@ body {
 }
 
 .balance-coins { font-size: 2.8rem; }
-
-.balance-value {
-  font-size: 1.8rem;
-  font-weight: 900;
-  display: block;
-  letter-spacing: -0.5px;
-}
-
-.balance-info p {
-  font-size: 0.8rem;
-  opacity: 0.9;
-  line-height: 1.3;
-}
-
-.rewards-section h3 {
-  font-size: 0.95rem;
-  font-weight: 800;
-  margin-bottom: 12px;
-}
+.balance-value { font-size: 1.8rem; font-weight: 900; display: block; letter-spacing: -0.5px; }
+.balance-info p { font-size: 0.8rem; opacity: 0.9; line-height: 1.3; }
+.rewards-section h3 { font-size: 0.95rem; font-weight: 800; margin-bottom: 12px; }
 
 .tasks-list {
   background: var(--card-bg);
@@ -759,11 +777,7 @@ body {
 .task-item:last-child { border-bottom: none; }
 .points-gain { color: var(--color-green-primary); font-weight: 800; }
 
-.rewards-catalog {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+.rewards-catalog { display: flex; flex-direction: column; gap: 12px; }
 
 .reward-card {
   background: var(--card-bg);
@@ -775,10 +789,7 @@ body {
   border: 1px solid var(--border-light);
 }
 
-.reward-card.highlight {
-  border-color: #86efac;
-  background: #f0fdf4;
-}
+.reward-card.highlight { border-color: #86efac; background: #f0fdf4; }
 
 .reward-icon {
   font-size: 1.8rem;
@@ -808,10 +819,319 @@ body {
   white-space: nowrap;
 }
 
-.btn-redeem:active { transform: scale(0.95); }
+/* --------------------------------------------------------------------------
+   11. TELA DENÚNCIAS & RISCOS (FASE 3)
+   -------------------------------------------------------------------------- */
+.reports-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.input-label {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.location-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--card-bg);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.btn-gps {
+  background: var(--color-green-soft);
+  border: none;
+  font-size: 1.1rem;
+  border-radius: var(--radius-full);
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+}
+
+.problem-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.radio-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.radio-card input { display: none; }
+
+.radio-custom {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-full);
+  display: inline-block;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.radio-card input:checked + .radio-custom {
+  border-color: var(--color-green-primary);
+  background: var(--color-green-primary);
+}
+
+.radio-card.alert-risk {
+  border-color: #fca5a5;
+  background: #fef2f2;
+}
+
+.risk-label {
+  font-weight: 700;
+  color: #b91c1c;
+}
+
+.photo-uploader {
+  background: var(--card-bg);
+  border: 2px dashed #cbd5e1;
+  border-radius: var(--radius-md);
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.photo-uploader:hover { border-color: var(--color-green-primary); }
+.upload-icon { font-size: 2rem; display: block; margin-bottom: 6px; }
+.photo-uploader p { font-size: 0.8rem; color: var(--text-muted); }
+
+.form-textarea {
+  width: 100%;
+  min-height: 80px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  font-family: var(--font-family);
+  font-size: 0.85rem;
+  resize: none;
+}
+
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--color-green-primary);
+}
 
 /* --------------------------------------------------------------------------
-   11. TELA MINHA COMUNIDADE (MURAL)
+   12. TELA MEU BAIRRO & MAPA (FASE 3)
+   -------------------------------------------------------------------------- */
+.neighborhood-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.simulated-map {
+  width: 100%;
+  height: 220px;
+  background: #e2e8f0 url('https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=600&q=80') center/cover;
+  border-radius: var(--radius-lg);
+  position: relative;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+  overflow: hidden;
+}
+
+.map-overlay-header {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  backdrop-filter: blur(4px);
+}
+
+.map-pin {
+  position: absolute;
+  font-size: 1.8rem;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+  transition: transform 0.2s;
+}
+
+.map-pin:hover { transform: translate(-50%, -50%) scale(1.3); }
+
+.map-truck {
+  position: absolute;
+  font-size: 1.8rem;
+  transform: translate(-50%, -50%);
+  animation: truckMove 3s infinite alternate ease-in-out;
+}
+
+@keyframes truckMove {
+  from { transform: translate(-50%, -50%) translateX(-15px); }
+  to { transform: translate(-50%, -50%) translateX(15px); }
+}
+
+.map-legend {
+  display: flex;
+  justify-content: space-around;
+  background: var(--card-bg);
+  padding: 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.badge-dot { width: 10px; height: 10px; border-radius: var(--radius-full); }
+.dot-red { background: #ef4444; }
+.dot-yellow { background: #f59e0b; }
+.dot-green { background: #10b981; }
+
+.schedule-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  border: 1px solid var(--border-light);
+}
+
+.schedule-card h4 { font-size: 0.88rem; font-weight: 700; margin-bottom: 8px; }
+.schedule-card ul { list-style: none; font-size: 0.8rem; line-height: 1.6; }
+.schedule-card li strong { color: var(--color-green-dark); }
+
+/* --------------------------------------------------------------------------
+   13. TELA APRENDER & EDUCAÇÃO (FASE 3)
+   -------------------------------------------------------------------------- */
+.learn-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.learn-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.learn-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.learn-card:active { transform: translateY(-2px); }
+
+.learn-icon {
+  font-size: 1.8rem;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icon-mosquito { background: #fef2f2; }
+.icon-rat { background: #fef3c7; }
+.icon-bio { background: #f3e8ff; }
+.icon-recycle { background: #dcfce7; }
+
+.learn-text h4 { font-size: 0.92rem; font-weight: 700; margin-bottom: 2px; }
+.learn-text p { font-size: 0.78rem; color: var(--text-muted); line-height: 1.3; }
+
+.learn-arrow {
+  margin-left: auto;
+  color: var(--text-muted);
+  font-weight: bold;
+}
+
+.learn-card.highlight-risk {
+  border-color: #c084fc;
+  background: #faf5ff;
+}
+
+/* --------------------------------------------------------------------------
+   14. TELA VALORIZE (FASE 3)
+   -------------------------------------------------------------------------- */
+.appreciate-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.appreciate-hero {
+  text-align: center;
+  padding: 10px;
+}
+
+.heart-big { font-size: 3rem; display: block; margin-bottom: 6px; }
+.appreciate-hero h3 { font-size: 1.15rem; font-weight: 800; margin-bottom: 6px; color: var(--text-main); }
+.appreciate-hero p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
+
+.quick-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.chip-btn {
+  background: var(--color-purple-soft);
+  border: 1px solid #ddd6fe;
+  color: var(--color-purple-primary);
+  border-radius: var(--radius-full);
+  padding: 8px 14px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.chip-btn:active { background: #ede9fe; }
+
+.btn-purple {
+  background-color: var(--color-purple-primary);
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);
+}
+
+.btn-purple:active { background-color: #6d28d9; }
+
+/* --------------------------------------------------------------------------
+   15. MURAL DE COMUNIDADE (COMPARTILHADO)
    -------------------------------------------------------------------------- */
 .community-content {
   padding: 20px;
@@ -884,7 +1204,7 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   12. COMPONENTES GLOBAIS: BOTÕES & NAVEGAÇÃO
+   16. COMPONENTES GLOBAIS: BOTÕES & NAVEGAÇÃO
    -------------------------------------------------------------------------- */
 .btn {
   display: flex;

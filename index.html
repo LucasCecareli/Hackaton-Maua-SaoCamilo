@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
-  <!-- Folha de Estilos Principal (na mesma pasta) -->
+  <!-- Folha de Estilos Principal -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -25,7 +25,7 @@
         <span class="logo-text">ELO</span>
       </div>
       <div class="header-actions">
-        <!-- Botão de Acessibilidade de Leitura por Voz para analfabetos -->
+        <!-- Botão de Acessibilidade de Leitura por Voz -->
         <button class="btn-voice-toggle" id="btn-global-voice" title="Ler tela em voz alta" aria-label="Ouvir tela" onclick="lerTelaAtual()">
           🔊
         </button>
@@ -138,7 +138,7 @@
           </div>
 
           <!-- Card 3: Aprender -->
-          <div class="dash-card card-learn" onclick="falarTexto('Aprenda: Dicas de segurança para não se cortar com vidro e prevenir lesões no joelho e coluna.')">
+          <div class="dash-card card-learn" onclick="navegarPara('screen-learn')">
             <div class="dash-card-icon">📖</div>
             <div class="dash-card-text">
               <h3>Aprender</h3>
@@ -232,7 +232,7 @@
             </div>
           </div>
 
-          <!-- Dica Inteligente Baseada na Resposta -->
+          <!-- Dica Inteligente -->
           <div class="tip-card" id="wellbeing-tip">
             <span class="tip-icon">💡</span>
             <div class="tip-info">
@@ -259,14 +259,12 @@
         </div>
 
         <div class="health-content">
-          <!-- Abas de Navegação -->
           <div class="tabs-nav">
             <button class="tab-btn active">Alongamentos</button>
             <button class="tab-btn">Relaxamento</button>
             <button class="tab-btn">Prevenção</button>
           </div>
 
-          <!-- Lista de Exercícios Guiados -->
           <div class="exercises-list">
             <div class="exercise-card" onclick="iniciarExercicio('Alongamento para Costas e Ombros')">
               <div class="exercise-thumb">🧘🏽‍♂️</div>
@@ -318,7 +316,6 @@
         </div>
 
         <div class="rewards-content">
-          <!-- Saldo em Destaque -->
           <div class="balance-card">
             <span class="balance-coins">🪙</span>
             <div class="balance-info">
@@ -327,7 +324,6 @@
             </div>
           </div>
 
-          <!-- Como Ganhar Mais -->
           <div class="rewards-section">
             <h3>Conquiste mais ELOs:</h3>
             <div class="tasks-list">
@@ -350,12 +346,9 @@
             </div>
           </div>
 
-          <!-- Catálogo de Troca de Recompensas -->
           <div class="rewards-section">
             <h3>Troque seus ELOs por benefícios:</h3>
             <div class="rewards-catalog">
-              
-              <!-- Item 1: Recarga / Padaria -->
               <div class="reward-card">
                 <div class="reward-icon">☕</div>
                 <div class="reward-details">
@@ -367,7 +360,6 @@
                 </button>
               </div>
 
-              <!-- Item 2: Recarga de Celular -->
               <div class="reward-card">
                 <div class="reward-icon">📱</div>
                 <div class="reward-details">
@@ -379,7 +371,6 @@
                 </button>
               </div>
 
-              <!-- Item 3: Sessão de Fisioterapia (São Camilo) -->
               <div class="reward-card highlight">
                 <div class="reward-icon">🏥</div>
                 <div class="reward-details">
@@ -391,7 +382,6 @@
                 </button>
               </div>
 
-              <!-- Item 4: Apoio Psicológico -->
               <div class="reward-card highlight">
                 <div class="reward-icon">🧠</div>
                 <div class="reward-details">
@@ -402,7 +392,6 @@
                   600 ELOs
                 </button>
               </div>
-
             </div>
           </div>
         </div>
@@ -413,7 +402,7 @@
       <!-- ============================================== -->
       <section class="screen" id="screen-community">
         <div class="screen-header">
-          <button class="btn-back" onclick="navegarPara('screen-home-worker')">❮</button>
+          <button class="btn-back" onclick="irParaHome()">❮</button>
           <h2>Minha Comunidade</h2>
           <button class="btn-voice-inline" onclick="falarTexto('Mensagens de agradecimento enviadas pelos moradores do bairro.')">🔊</button>
         </div>
@@ -425,7 +414,7 @@
           </div>
 
           <div class="messages-feed" id="messages-list">
-            <!-- Mensagem 1 -->
+            <!-- Mensagens prévias + novas mensagens adicionadas dinamicamente -->
             <div class="message-card">
               <div class="message-header">
                 <span class="user-badge">🏡 Moradora - Bairro Ipiranga</span>
@@ -438,7 +427,6 @@
               </div>
             </div>
 
-            <!-- Mensagem 2 -->
             <div class="message-card">
               <div class="message-header">
                 <span class="user-badge">👨‍👩‍👧 Família do Carlos</span>
@@ -454,14 +442,286 @@
         </div>
       </section>
 
-      <!-- Espaço reservado para a Fase 3 (Moradora Mariana) -->
+      <!-- ============================================== -->
+      <!-- TELA 8: HOME DA MORADORA (MARIANA) - FASE 3    -->
+      <!-- ============================================== -->
       <section class="screen" id="screen-home-morador">
-        <!-- Será implementado na Fase 3 -->
+        <div class="profile-header resident-theme">
+          <div class="profile-avatar resident-avatar">👩🏻</div>
+          <div class="profile-meta">
+            <h2>Olá, Mariana!</h2>
+            <p>Moradora • Bairro Ipiranga</p>
+          </div>
+          <button class="btn-profile-switch" onclick="navegarPara('screen-roles')" title="Trocar Perfil">
+            🔄 Trocar
+          </button>
+        </div>
+
+        <div class="dashboard-grid">
+          <!-- Card 1: Meu Bairro -->
+          <div class="dash-card card-neighborhood" onclick="navegarPara('screen-neighborhood')">
+            <div class="dash-card-icon">📍</div>
+            <div class="dash-card-text">
+              <h3>Meu Bairro</h3>
+              <p>Coleta, horários e pontos de descarte</p>
+            </div>
+          </div>
+
+          <!-- Card 2: Denúncias -->
+          <div class="dash-card card-reports" onclick="navegarPara('screen-reports')">
+            <div class="dash-card-icon">📢</div>
+            <div class="dash-card-text">
+              <h3>Denúncias</h3>
+              <p>Reporte lixo acumulado e caco de vidro</p>
+            </div>
+          </div>
+
+          <!-- Card 3: Aprenda -->
+          <div class="dash-card card-learn-resident" onclick="navegarPara('screen-learn')">
+            <div class="dash-card-icon">📖</div>
+            <div class="dash-card-text">
+              <h3>Aprenda</h3>
+              <p>Saúde, riscos e descarte correto</p>
+            </div>
+          </div>
+
+          <!-- Card 4: Valorize -->
+          <div class="dash-card card-appreciate" onclick="navegarPara('screen-appreciate')">
+            <div class="dash-card-icon">💜</div>
+            <div class="dash-card-text">
+              <h3>Valorize</h3>
+              <p>Envie mensagens de agradecimento</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Banner de Próxima Coleta -->
+        <div class="collection-status-card">
+          <div class="status-icon">🚛</div>
+          <div class="status-info">
+            <h4>Caminhão da Coleta a caminho!</h4>
+            <p>Previsão na Rua dos Patriotas: <strong>Hoje às 19:30</strong> (Coleta Orgânica).</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TELA 9: DENÚNCIAS & RESÍDUOS PERIGOSOS - FASE 3 -->
+      <!-- ============================================== -->
+      <section class="screen" id="screen-reports">
+        <div class="screen-header">
+          <button class="btn-back" onclick="navegarPara('screen-home-morador')">❮</button>
+          <h2>Denúncias e Riscos</h2>
+          <button class="btn-voice-inline" onclick="falarTexto('Tela de denúncias. Avise a prefeitura e proteja os garis de acidentes com vidro.')">🔊</button>
+        </div>
+
+        <div class="reports-content">
+          <!-- Campo Localização -->
+          <div class="input-group">
+            <label class="input-label">📍 Localização da ocorrência:</label>
+            <div class="location-box">
+              <span id="label-endereco">Rua dos Patriotas - Ipiranga</span>
+              <button class="btn-gps" onclick="obterLocalizacaoGPS()" title="Atualizar GPS">🎯</button>
+            </div>
+          </div>
+
+          <!-- Seletor do Tipo de Problema -->
+          <div class="input-group">
+            <label class="input-label">Qual é o problema?</label>
+            <div class="problem-options">
+              <label class="radio-card">
+                <input type="radio" name="tipo-problema" value="Lixo acumulado na calçada" checked>
+                <span class="radio-custom"></span>
+                <span>🗑️ Lixo acumulado na rua</span>
+              </label>
+
+              <label class="radio-card alert-risk">
+                <input type="radio" name="tipo-problema" value="Resíduo Perigoso (Caco de Vidro / Agulha)">
+                <span class="radio-custom"></span>
+                <span class="risk-label">⚠️ Resíduos perigosos (Vidro quebrado / Cortes)</span>
+              </label>
+
+              <label class="radio-card">
+                <input type="radio" name="tipo-problema" value="Descarte irregular / Entulho">
+                <span class="radio-custom"></span>
+                <span>🚧 Descarte irregular de entulho</span>
+              </label>
+
+              <label class="radio-card">
+                <input type="radio" name="tipo-problema" value="Lixeira comunitária danificada">
+                <span class="radio-custom"></span>
+                <span>📦 Lixeira danificada</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Simulação de Foto -->
+          <div class="input-group">
+            <label class="input-label">📷 Adicionar foto (opcional):</label>
+            <div class="photo-uploader" onclick="simularUploadFoto()">
+              <div id="photo-preview-placeholder">
+                <span class="upload-icon">📸</span>
+                <p>Toque para tirar foto do lixo</p>
+              </div>
+              <img id="photo-preview-img" style="display:none;" alt="Preview" />
+            </div>
+          </div>
+
+          <!-- Descrição -->
+          <div class="input-group">
+            <label class="input-label">Descreva o problema:</label>
+            <textarea id="input-descricao-denuncia" class="form-textarea" placeholder="Ex: Há cacos de garrafa quebrada dentro do saco preto. Colei fita adesiva para avisar."></textarea>
+          </div>
+
+          <button class="btn btn-primary" onclick="enviarOcorrencia()">
+            Enviar ocorrência para a equipe
+          </button>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TELA 10: MEU BAIRRO & MAPA - FASE 3            -->
+      <!-- ============================================== -->
+      <section class="screen" id="screen-neighborhood">
+        <div class="screen-header">
+          <button class="btn-back" onclick="navegarPara('screen-home-morador')">❮</button>
+          <h2>Meu Bairro</h2>
+          <button class="btn-voice-inline" onclick="falarTexto('Mapa do bairro com pontos de coleta e status das denúncias.')">🔊</button>
+        </div>
+
+        <div class="neighborhood-content">
+          <div class="tabs-nav">
+            <button class="tab-btn active" id="tab-rotas" onclick="alternarAbaBairro('rotas')">Rotas de Coleta</button>
+            <button class="tab-btn" id="tab-ocorrencias" onclick="alternarAbaBairro('ocorrencias')">Ocorrências</button>
+          </div>
+
+          <!-- Mapa Simulado -->
+          <div class="simulated-map">
+            <div class="map-overlay-header">Bairro Ipiranga • São Paulo</div>
+            
+            <!-- Pins Interativos -->
+            <div class="map-pin pin-red" style="top: 30%; left: 25%;" title="Caco de vidro relatado" onclick="detalharPin('Rua Silva Bueno: Caco de vidro solto', 'Em análise')">📍</div>
+            <div class="map-pin pin-yellow" style="top: 55%; left: 60%;" title="Lixo acumulado" onclick="detalharPin('Rua dos Patriotas: Lixo acumulado', 'Em atendimento')">📍</div>
+            <div class="map-pin pin-green" style="top: 75%; left: 40%;" title="Coleta finalizada" onclick="detalharPin('Av. Nazaré: Coleta concluída com sucesso', 'Resolvida')">📍</div>
+            <div class="map-truck" style="top: 50%; left: 52%;" title="Caminhão em rota">🚛</div>
+          </div>
+
+          <!-- Legenda de Status -->
+          <div class="map-legend">
+            <div class="legend-item"><span class="badge-dot dot-red"></span> Em análise</div>
+            <div class="legend-item"><span class="badge-dot dot-yellow"></span> Em atendimento</div>
+            <div class="legend-item"><span class="badge-dot dot-green"></span> Resolvida</div>
+          </div>
+
+          <!-- Horários da Rota -->
+          <div class="schedule-card">
+            <h4>📅 Calendário da sua rua (Rua dos Patriotas):</h4>
+            <ul>
+              <li><strong>Segunda, Quarta e Sexta:</strong> Coleta Comum às 19:30</li>
+              <li><strong>Terça e Quinta:</strong> Coleta Seletiva Reciclável às 10:00</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TELA 11: APRENDA (EDUCAÇÃO EM SAÚDE) - FASE 3  -->
+      <!-- ============================================== -->
+      <section class="screen" id="screen-learn">
+        <div class="screen-header">
+          <button class="btn-back" onclick="irParaHome()">❮</button>
+          <h2>Aprender e Prevenir</h2>
+          <button class="btn-voice-inline" onclick="falarTexto('Guia educativo sobre doenças transmitidas pelo lixo e como proteger os coletores.')">🔊</button>
+        </div>
+
+        <div class="learn-content">
+          <div class="tabs-nav">
+            <button class="tab-btn active">Comunidade</button>
+            <button class="tab-btn">Trabalhador</button>
+          </div>
+
+          <div class="learn-cards-list">
+            <!-- Card Dengue -->
+            <div class="learn-card" onclick="falarTexto('Dengue: O lixo descartado incorretamente acumula água da chuva e serve de criadouro para o mosquito Aedes aegypti. Mantenha recipientes sempre tampados.')">
+              <div class="learn-icon icon-mosquito">🦟</div>
+              <div class="learn-text">
+                <h4>Dengue</h4>
+                <p>Como o lixo acumulado favorece o mosquito e como prevenir</p>
+              </div>
+              <span class="learn-arrow">❯</span>
+            </div>
+
+            <!-- Card Leptospirose -->
+            <div class="learn-card" onclick="falarTexto('Leptospirose: Doença transmitida pela urina de ratos em contato com água e entulho. Evite contato direto com poças de lixo.')">
+              <div class="learn-icon icon-rat">🐀</div>
+              <div class="learn-text">
+                <h4>Leptospirose</h4>
+                <p>Riscos da urina de roedores em enchentes e lixões</p>
+              </div>
+              <span class="learn-arrow">❯</span>
+            </div>
+
+            <!-- Card Infecções e Vidros -->
+            <div class="learn-card highlight-risk" onclick="falarTexto('Cuidado com cortes: Embale cacos de vidro e lâmpadas dentro de garrafas pet ou caixas de leite antes de descartar. Isso salva as mãos dos coletores.')">
+              <div class="learn-icon icon-bio">🟣</div>
+              <div class="learn-text">
+                <h4>Infecções e Perfurocortantes</h4>
+                <p>Cuidados com resíduos contaminados e como embalar vidros</p>
+              </div>
+              <span class="learn-arrow">❯</span>
+            </div>
+
+            <!-- Card Descarte Correto -->
+            <div class="learn-card" onclick="falarTexto('Descarte Correto: Separe o lixo orgânico do reciclável. Lave potes plásticos e coloque sacos reforçados.')">
+              <div class="learn-icon icon-recycle">♻️</div>
+              <div class="learn-text">
+                <h4>Descarte Correto</h4>
+                <p>Como separar os resíduos secos e úmidos no bairro</p>
+              </div>
+              <span class="learn-arrow">❯</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TELA 12: VALORIZE (ENVIO DE MENSAGENS) - FASE 3-->
+      <!-- ============================================== -->
+      <section class="screen" id="screen-appreciate">
+        <div class="screen-header">
+          <button class="btn-back" onclick="navegarPara('screen-home-morador')">❮</button>
+          <h2>Valorize Quem Cuida</h2>
+          <button class="btn-voice-inline" onclick="falarTexto('Envie uma mensagem de carinho e apoio para a equipe de coletores da sua rua.')">🔊</button>
+        </div>
+
+        <div class="appreciate-content">
+          <div class="appreciate-hero">
+            <span class="heart-big">💜</span>
+            <h3>Reconhecimento transforma o dia!</h3>
+            <p>Os coletores correm quilômetros cuidando da nossa saúde pública. Deixe um recado de incentivo que será lido para a equipe da rota.</p>
+          </div>
+
+          <div class="input-group">
+            <label class="input-label">Sua mensagem para os garis:</label>
+            <textarea id="input-mensagem-morador" class="form-textarea" placeholder="Ex: Querida equipe da coleta, muito obrigado pela dedicação! Deixei um café para vocês hoje. Cuidem-se!"></textarea>
+          </div>
+
+          <!-- Sugestões Rápidas -->
+          <div class="quick-chips">
+            <button class="chip-btn" onclick="inserirChip('Muito obrigado pelo trabalho duro de vocês! heróis do bairro!')">👏 Heróis do bairro</button>
+            <button class="chip-btn" onclick="inserirChip('Deixei água gelada no portão para a equipe!')">💧 Água gelada no portão</button>
+            <button class="chip-btn" onclick="inserirChip('Gratidão por cuidarem da nossa rua com tanto carinho!')">💚 Gratidão sempre</button>
+          </div>
+
+          <button class="btn btn-primary btn-purple" onclick="enviarMensagemMorador()">
+            Enviar Mensagem ao Mural da Equipe 💌
+          </button>
+        </div>
       </section>
 
     </main>
 
-    <!-- Barra de Navegação Inferior (Fixa nas telas internas) -->
+    <!-- Barra de Navegação Inferior -->
     <nav class="bottom-nav" id="bottom-navbar" style="display: none;">
       <button class="nav-item active" id="nav-inicio" onclick="irParaHome()">
         <span class="nav-icon">🏠</span>
@@ -483,7 +743,7 @@
 
   </div>
 
-  <!-- Script JavaScript principal (na mesma pasta) -->
+  <!-- Script JavaScript principal -->
   <script src="app.js"></script>
 </body>
 </html>
