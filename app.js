@@ -323,19 +323,57 @@ function navegarPara(idTelaDestino) {
 }
 
 function atualizarItensNav(idTela) {
+  // Detecta se deve exibir a barra inferior do Morador ou do Trabalhador
+  const navTrab = document.getElementById('nav-group-trabalhador');
+  const navMorador = document.getElementById('nav-group-morador');
+
+  if (idTela === 'screen-home-morador' || idTela === 'screen-reports' || idTela === 'screen-appreciate') {
+    EstadoApp.perfilAtual = 'morador';
+  } else if (idTela === 'screen-home-worker' || idTela === 'screen-wellbeing' || idTela === 'screen-health' || idTela === 'screen-rewards' || idTela === 'screen-worker-profile') {
+    EstadoApp.perfilAtual = 'trabalhador';
+  }
+
+  if (EstadoApp.perfilAtual === 'morador') {
+    if (navTrab) navTrab.style.display = 'none';
+    if (navMorador) navMorador.style.display = 'flex';
+  } else {
+    if (navTrab) navTrab.style.display = 'flex';
+    if (navMorador) navMorador.style.display = 'none';
+  }
+
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  if (idTela === 'screen-home-worker' || idTela === 'screen-home-morador') {
-    const el = document.getElementById('nav-inicio');
-    if (el) el.classList.add('active');
+
+  // Marca aba ativa do Trabalhador
+  if (idTela === 'screen-home-worker') {
+    document.getElementById('nav-inicio-trab')?.classList.add('active');
   } else if (idTela === 'screen-wellbeing' || idTela === 'screen-health') {
-    const el = document.getElementById('nav-saude');
-    if (el) el.classList.add('active');
+    document.getElementById('nav-saude')?.classList.add('active');
   } else if (idTela === 'screen-rewards') {
-    const el = document.getElementById('nav-elos');
-    if (el) el.classList.add('active');
+    document.getElementById('nav-elos')?.classList.add('active');
   } else if (idTela === 'screen-community') {
-    const el = document.getElementById('nav-comunidade');
-    if (el) el.classList.add('active');
+    document.getElementById('nav-comunidade')?.classList.add('active');
+  }
+
+  // Marca aba ativa do Morador
+  if (idTela === 'screen-home-morador') {
+    document.getElementById('nav-inicio-morador')?.classList.add('active');
+  } else if (idTela === 'screen-neighborhood') {
+    document.getElementById('nav-mapa-morador')?.classList.add('active');
+  } else if (idTela === 'screen-reports') {
+    document.getElementById('nav-denuncias-morador')?.classList.add('active');
+  } else if (idTela === 'screen-learn') {
+    document.getElementById('nav-aprenda-morador')?.classList.add('active');
+  } else if (idTela === 'screen-appreciate') {
+    document.getElementById('nav-valorize-morador')?.classList.add('active');
+  }
+}
+
+function alternarDetalheAprendizado(cardEl, textoFala) {
+  if (cardEl) {
+    cardEl.classList.toggle('expanded');
+  }
+  if (textoFala) {
+    falarTexto(textoFala);
   }
 }
 
