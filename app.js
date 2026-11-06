@@ -1703,8 +1703,50 @@ function renderizarMensagens() {
    8. CATÁLOGO E PLAYER DE VÍDEOS DE ALONGAMENTO (SAÚDE OCUPACIONAL)
    -------------------------------------------------------------------------- */
 const CatalogoVideosAlongamento = {
+  exercicio_gari: {
+    titulo: "Ginástica Laboral & Alongamento do Gari",
+    subtitulo: "Fisioterapia São Camilo • Preparação oficial para o turno • 1 min",
+    categoria: "Ginástica Laboral",
+    tempoSegundos: 10,
+    videoUrl: "assets/videos/exerciciogari.mp4",
+    poster: "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=600&q=80",
+    passos: [
+      "Fique em pé com a postura ereta e respire profundamente antes de iniciar o movimento.",
+      "Execute o aquecimento guiado no vídeo para soltar a musculatura e prevenir lesões.",
+      "Faça o exercício antes de subir no caminhão e após o encerramento da rota de coleta."
+    ],
+    falaPassos: "Ginástica laboral do gari. Faça o aquecimento para soltar os músculos e proteger as articulações antes de iniciar a coleta."
+  },
+  ombros: {
+    titulo: "Alongamento de Ombros e Braços",
+    subtitulo: "Alívio de sobrecarga nos membros superiores • 1 min",
+    categoria: "Membros Superiores",
+    tempoSegundos: 10,
+    videoUrl: "assets/videos/exercicio_ombros.mp4",
+    poster: "https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=600&q=80",
+    passos: [
+      "Gire os ombros para trás em círculos amplos para soltar a musculatura.",
+      "Puxe o braço estendido na altura do peito, segurando com o outro braço.",
+      "Mantenha por 15 segundos de cada lado sem curvar a coluna nem prender a respiração."
+    ],
+    falaPassos: "Exercício de ombros: Gire os ombros suavemente e puxe o braço na frente do peito para soltar a tensão de levantar peso."
+  },
+  tornozelos: {
+    titulo: "Prevenção de Entorses & Tornozelos",
+    subtitulo: "Fortalecimento para corrida no asfalto e meio-fio • 1 min",
+    categoria: "Prevenção de Quedas e Entorses",
+    tempoSegundos: 10,
+    videoUrl: "assets/videos/exercicio_tornozelos.mp4",
+    poster: "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=600&q=80",
+    passos: [
+      "Apoie a ponta do pé no chão e realize giros circulares lentos com o tornozelo.",
+      "Alongue a panturrilha apoiando as mãos no estribo e flexionando a perna da frente.",
+      "Prevenção essencial para evitar torções ao descer do estribo e correr no asfalto irregular."
+    ],
+    falaPassos: "Exercício de tornozelos: Faça giros suaves com os tornozelos e alongue a panturrilha para evitar torções ao pisar no meio-fio."
+  },
   costas: {
-    titulo: "Alongamento para Costas e Ombros",
+    titulo: "Alongamento para Costas e Coluna",
     subtitulo: "Fisioterapia São Camilo • Alívio de peso e lombar • 5 min",
     categoria: "Alongamento Ocupacional",
     tempoSegundos: 30,
@@ -1973,6 +2015,10 @@ function concluirExercicioVideo() {
   const video = document.getElementById('video-element');
   if (video) video.pause();
   pararTimer();
+
+  if (EstadoApp.usuarioLogado) {
+    EstadoApp.usuarioLogado.alongamentos = (EstadoApp.usuarioLogado.alongamentos || 0) + 1;
+  }
 
   somarPontos(10, `completar o vídeo de ${dados.titulo}`);
   alert(`🎉 Parabéns!\n\nVocê concluiu: ${dados.titulo}\nVocê ganhou +10 ELOs!`);
