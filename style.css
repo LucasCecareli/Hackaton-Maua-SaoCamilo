@@ -107,6 +107,7 @@ body {
   background-color: var(--card-bg);
   border-bottom: 1px solid var(--border-light);
   z-index: 10;
+  position: relative;
 }
 
 .header-logo {
@@ -114,6 +115,18 @@ body {
   align-items: center;
   gap: 8px;
   cursor: pointer;
+}
+
+.header-logo-img {
+  height: 34px;
+  width: auto;
+  max-width: 90px;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.header-logo-img:hover {
+  transform: scale(1.04);
 }
 
 .logo-circle {
@@ -130,7 +143,45 @@ body {
   letter-spacing: -0.5px;
 }
 
-.btn-voice-toggle, .btn-voice-inline {
+/* Botão Ouvir estilo Pill do Figma */
+.btn-voice-toggle {
+  background: #f0fdf4;
+  border: 1.5px solid #bbf7d0;
+  border-radius: var(--radius-full);
+  padding: 6px 14px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #166534;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.btn-voice-toggle:hover {
+  background: #dcfce7;
+  border-color: #86efac;
+}
+
+.btn-voice-toggle .voice-icon {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.btn-voice-toggle .voice-text {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.btn-voice-toggle:active, .btn-voice-inline:active {
+  transform: scale(0.94);
+}
+
+.btn-voice-inline {
   background: var(--color-green-soft);
   border: 1px solid var(--color-green-light);
   border-radius: var(--radius-full);
@@ -142,10 +193,6 @@ body {
   font-size: 1.1rem;
   cursor: pointer;
   transition: var(--transition);
-}
-
-.btn-voice-toggle:active, .btn-voice-inline:active {
-  transform: scale(0.92);
 }
 
 /* --------------------------------------------------------------------------
@@ -197,9 +244,60 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   6. TELAS INICIAIS (SPLASH & SELEÇÃO DE PERFIL)
+   6. TELAS INICIAIS (SPLASH & SELEÇÃO DE PERFIL) - NOVO DESIGN FIGMA
    -------------------------------------------------------------------------- */
-.splash-content, .roles-content {
+#screen-splash {
+  background-color: #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Efeitos sutis decorativos de fundo do Figma */
+.splash-bg-decorations {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.splash-bg-blob {
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle, rgba(72, 187, 120, 0.16) 0%, rgba(72, 187, 120, 0) 70%);
+  border-radius: 50%;
+}
+
+.splash-bg-ring {
+  position: absolute;
+  right: -45px;
+  top: 250px;
+  width: 130px;
+  height: 130px;
+  border: 1.5px solid rgba(15, 53, 92, 0.08);
+  border-radius: 50%;
+}
+
+.splash-content {
+  position: relative;
+  z-index: 1;
+  padding: 16px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 100%;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.roles-content {
   padding: 32px 24px;
   display: flex;
   flex-direction: column;
@@ -207,79 +305,190 @@ body {
   min-height: 100%;
 }
 
-.splash-content { text-align: center; }
-
+/* Badge Superior com ponto dourado */
 .splash-badge {
-  align-self: center;
-  background: var(--color-green-soft);
-  color: var(--color-green-dark);
-  font-size: 0.75rem;
-  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #f0fdf4;
+  border: 1px solid #dcfce7;
+  color: #166534;
+  font-size: 0.78rem;
+  font-weight: 600;
   padding: 6px 14px;
   border-radius: var(--radius-full);
+  margin-top: 2px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.splash-badge .badge-dot {
+  width: 7px;
+  height: 7px;
+  background-color: #f59e0b;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* Seção Hero */
+.splash-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2px;
 }
 
 .hero-logo-box {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  margin: 20px 0 10px;
+  margin: 4px 0 10px;
 }
 
-.hero-logo {
-  font-size: 3.5rem;
-  font-weight: 900;
-  color: var(--color-green-dark);
-  letter-spacing: -1.5px;
+.hero-logo-img {
+  width: 115px;
+  height: auto;
+  max-height: 85px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(15, 53, 92, 0.06));
 }
-
-.hero-leaf { font-size: 2.2rem; margin-top: -12px; }
 
 .splash-title {
-  font-size: 1.35rem;
-  font-weight: 700;
-  margin-bottom: 8px;
+  font-size: 1.48rem;
+  font-weight: 800;
+  color: #0f355c;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  margin: 0 0 8px;
+  max-width: 320px;
 }
 
 .splash-subtitle {
-  font-size: 0.95rem;
-  color: var(--text-muted);
-  max-width: 290px;
-  margin: 0 auto;
+  font-size: 0.92rem;
+  color: #475569;
+  line-height: 1.45;
+  max-width: 295px;
+  margin: 0 auto 10px;
 }
 
-.splash-illustration {
-  margin: 24px 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-
-.worker-avatar-large {
-  font-size: 4.5rem;
-  background: var(--color-orange-soft);
-  width: 110px;
-  height: 110px;
-  border-radius: var(--radius-full);
+/* Wrapper da Ilustração Central */
+.splash-illustration-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 330px;
+  margin: 4px 0 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: var(--shadow-md);
-  border: 3px solid var(--color-orange-light);
 }
 
-.city-skyline { font-size: 1.8rem; opacity: 0.8; }
+.splash-hero-illustration {
+  width: 100%;
+  height: auto;
+  max-height: 255px;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+}
 
+/* Ações Inferiores */
 .splash-actions {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  align-items: center;
+  gap: 0;
+  margin-top: auto;
 }
 
-.splash-subtext {
+/* Botão Começar Estilo Figma com Gradiente e Seta */
+.btn-comecar {
+  width: 100%;
+  height: 52px;
+  background: linear-gradient(135deg, #1f7a39 0%, #17682f 100%);
+  border: none;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px 0 22px;
+  color: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(31, 122, 57, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-comecar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(31, 122, 57, 0.38);
+  background: linear-gradient(135deg, #248840 0%, #1a7535 100%);
+}
+
+.btn-comecar:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 10px rgba(31, 122, 57, 0.25);
+}
+
+.btn-comecar-text {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.btn-comecar-circle {
+  width: 38px;
+  height: 38px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  transition: background 0.2s ease;
+}
+
+.btn-comecar:hover .btn-comecar-circle {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.splash-helper-text {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 10px 0 14px;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Rodapé Institucional */
+.splash-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 0.72rem;
+  padding-top: 10px;
+  border-top: 1px solid rgba(226, 232, 240, 0.8);
+  box-sizing: border-box;
+}
+
+.footer-hackathon {
+  font-weight: 800;
+  color: #0f355c;
+  text-align: left;
+  line-height: 1.25;
+}
+
+.footer-dot {
+  color: #94a3b8;
+  margin: 0 6px;
   font-size: 0.75rem;
-  color: var(--text-muted);
+}
+
+.footer-partners {
+  color: #64748b;
+  text-align: right;
+  line-height: 1.25;
+  font-weight: 500;
 }
 
 .roles-title {
