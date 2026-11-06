@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ELO - Conectando quem cuida da cidade</title>
+  
+  <!-- Fonte Google Inter para máxima legibilidade -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Folha de Estilos Principal (na mesma pasta) -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Container Principal: simula um smartphone no computador e preenche 100% no celular real -->
+  <div class="mobile-frame">
+    
+    <!-- Barra Superior de Status -->
+    <header class="app-header" id="main-header">
+      <div class="header-logo" onclick="navegarPara('screen-splash')">
+        <span class="logo-circle"></span>
+        <span class="logo-text">ELO</span>
+      </div>
+      <div class="header-actions">
+        <!-- Botão de Acessibilidade de Leitura por Voz para analfabetos -->
+        <button class="btn-voice-toggle" id="btn-global-voice" title="Ler tela em voz alta" aria-label="Ouvir tela" onclick="lerTelaAtual()">
+          🔊
+        </button>
+      </div>
+    </header>
+
+    <!-- ÁREA PRINCIPAL ONDE AS TELAS SÃO ALTERNADAS VIA JAVASCRIPT -->
+    <main class="screens-container">
+      
+      <!-- ============================================== -->
+      <!-- TELA 1: SPLASH & BOAS-VINDAS                   -->
+      <!-- ============================================== -->
+      <section class="screen active" id="screen-splash">
+        <div class="splash-content">
+          <div class="splash-badge">3º Hackathon em Saúde</div>
+          
+          <div class="splash-hero">
+            <div class="hero-logo-box">
+              <span class="hero-logo">ELO</span>
+              <span class="hero-leaf">🍃</span>
+            </div>
+            <h1 class="splash-title">Conectando quem cuida da cidade</h1>
+            <p class="splash-subtitle">Saúde, dignidade e reconhecimento para os trabalhadores da limpeza urbana.</p>
+          </div>
+
+          <div class="splash-illustration">
+            <div class="worker-avatar-large">👷🏽‍♂️</div>
+            <div class="city-skyline">🏙️🌳🏡</div>
+          </div>
+
+          <div class="splash-actions">
+            <button class="btn btn-primary" onclick="navegarPara('screen-roles')">
+              Começar Agora
+            </button>
+            <p class="splash-subtext">Parceria Centro Universitário São Camilo & IMT</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TELA 2: SELEÇÃO DE PERFIL                      -->
+      <!-- ============================================== -->
+      <section class="screen" id="screen-roles">
+        <div class="roles-content">
+          <h2 class="roles-title">Bem-vindo(a) ao ELO!</h2>
+          <p class="roles-subtitle">Escolha o seu perfil para personalizar sua experiência:</p>
+
+          <div class="roles-cards">
+            <!-- Card Morador -->
+            <div class="role-card card-morador" onclick="selecionarPerfil('morador')">
+              <div class="role-icon">🏡</div>
+              <div class="role-info">
+                <h3>Sou Morador(a)</h3>
+                <p>Quero cuidar do meu bairro, aprender e apoiar os trabalhadores.</p>
+              </div>
+              <div class="role-arrow">❯</div>
+            </div>
+
+            <!-- Card Trabalhador da Coleta -->
+            <div class="role-card card-trabalhador" onclick="selecionarPerfil('trabalhador')">
+              <div class="role-icon">👷🏽‍♂️</div>
+              <div class="role-info">
+                <h3>Sou Trabalhador(a)</h3>
+                <p>Faço parte da coleta e quero cuidar da minha saúde, aprender e me conectar.</p>
+              </div>
+              <div class="role-arrow">❯</div>
+            </div>
+          </div>
+
+          <div class="roles-footer">
+            <button class="btn-link" onclick="navegarPara('screen-splash')">
+              ❮ Voltar ao início
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TELA 3: HOME DO TRABALHADOR (CARLOS)           -->
+      <!-- ============================================== -->
+      <section class="screen" id="screen-home-worker">
+        <div class="profile-header worker-theme">
+          <div class="profile-avatar">👷🏽‍♂️</div>
+          <div class="profile-meta">
+            <h2>Olá, Carlos!</h2>
+            <p>Trabalhador da coleta • Equipe Rota 14</p>
+          </div>
+          <div class="badge-elos-mini" onclick="navegarPara('screen-rewards')">
+            ⭐ <span class="valor-elos">340</span> ELOs
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <!-- Card 1: Meu Bem-Estar -->
+          <div class="dash-card card-wellbeing" onclick="navegarPara('screen-wellbeing')">
+            <div class="dash-card-icon">💚</div>
+            <div class="dash-card-text">
+              <h3>Meu Bem-Estar</h3>
+              <p>Check-in emocional e de saúde</p>
+            </div>
+          </div>
+
+          <!-- Card 2: Minha Saúde -->
+          <div class="dash-card card-health" onclick="navegarPara('screen-health')">
+            <div class="dash-card-icon">🧘🏽‍♂️</div>
+            <div class="dash-card-text">
+              <h3>Minha Saúde</h3>
+              <p>Alongamentos, relaxamento e prevenção</p>
+            </div>
+          </div>
+
+          <!-- Card 3: Aprender -->
+          <div class="dash-card card-learn" onclick="falarTexto('Aprenda: Dicas de segurança para não se cortar com vidro e prevenir lesões no joelho e coluna.')">
+            <div class="dash-card-icon">📖</div>
+            <div class="dash-card-text">
+              <h3>Aprender</h3>
+              <p>Vídeos, lições e segurança</p>
+            </div>
+          </div>
+
+          <!-- Card 4: Meus ELOs -->
+          <div class="dash-card card-rewards" onclick="navegarPara('screen-rewards')">
+            <div class="dash-card-icon">🎁</div>
+            <div class="dash-card-text">
+              <h3>Meus ELOs</h3>
+              <p>Seus créditos e recompensas</p>
+            </div>
+          </div>
+
+          <!-- Card 5: Minha Comunidade -->
+          <div class="dash-card card-community full-width" onclick="navegarPara('screen-community')">
+            <div class="dash-card-icon">👥</div>
+            <div class="dash-card-text">
+              <h3>Minha Comunidade</h3>
+              <p>Mensagens de carinho do bairro e da sua família</p>
+            </div>
+            <span class="badge-new">Novo</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TELA 4: MEU BEM-ESTAR (CHECK-IN DE SAÚDE)      -->
+      <!-- ============================================== -->
+      <section class="screen" id="screen-wellbeing">
+        <div class="screen-header">
+          <button class="btn-back" onclick="navegarPara('screen-home-worker')">❮</button>
+          <h2>Meu Bem-Estar</h2>
+          <button class="btn-voice-inline" onclick="falarTexto('Check-in do dia. É voluntário, privado e para o seu cuidado. Escolha como você está se sentindo.')">🔊</button>
+        </div>
+
+        <div class="wellbeing-content">
+          <div class="info-banner">
+            🔒 <strong>Check-in do dia:</strong> É voluntário, privado e seguro. Seus líderes não têm acesso a respostas individuais.
+          </div>
+
+          <!-- Pergunta 1: Humor / Saúde Mental -->
+          <div class="question-box">
+            <label class="question-title">Como você está se sentindo hoje?</label>
+            <div class="emoji-selector">
+              <button class="emoji-btn st-good" onclick="selecionarHumor(this, 'Muito bem')">
+                <span class="emoji-icon">😄</span>
+                <span class="emoji-label">Muito bem</span>
+              </button>
+              <button class="emoji-btn st-mild" onclick="selecionarHumor(this, 'Bem')">
+                <span class="emoji-icon">🙂</span>
+                <span class="emoji-label">Bem</span>
+              </button>
+              <button class="emoji-btn st-neutral" onclick="selecionarHumor(this, 'Mais ou menos')">
+                <span class="emoji-icon">😐</span>
+                <span class="emoji-label">Mais ou menos</span>
+              </button>
+              <button class="emoji-btn st-bad" onclick="selecionarHumor(this, 'Triste')">
+                <span class="emoji-icon">🙁</span>
+                <span class="emoji-label">Triste</span>
+              </button>
+              <button class="emoji-btn st-danger" onclick="selecionarHumor(this, 'Muito cansado')">
+                <span class="emoji-icon">😫</span>
+                <span class="emoji-label">Muito cansado</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Pergunta 2: Dores no Corpo / Saúde Ocupacional -->
+          <div class="question-box">
+            <label class="question-title">Como está seu corpo depois do trabalho?</label>
+            <div class="pain-selector">
+              <button class="pain-btn pain-0" onclick="selecionarDor(this, 'Sem dores')">
+                <span class="pain-indicator"></span>
+                <span>Sem dores</span>
+              </button>
+              <button class="pain-btn pain-1" onclick="selecionarDor(this, 'Pequeno desconforto')">
+                <span class="pain-indicator"></span>
+                <span>Pequeno desconforto</span>
+              </button>
+              <button class="pain-btn pain-2" onclick="selecionarDor(this, 'Dores moderadas')">
+                <span class="pain-indicator"></span>
+                <span>Dores moderadas</span>
+              </button>
+              <button class="pain-btn pain-3" onclick="selecionarDor(this, 'Dores intensas')">
+                <span class="pain-indicator"></span>
+                <span>Dores intensas</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Dica Inteligente Baseada na Resposta -->
+          <div class="tip-card" id="wellbeing-tip">
+            <span class="tip-icon">💡</span>
+            <div class="tip-info">
+              <h4>Dica de hoje para a equipe:</h4>
+              <p>Que tal fazer um alongamento rápido de 3 minutos para aliviar as costas?</p>
+              <button class="btn-text-action" onclick="navegarPara('screen-health')">Ver alongamentos recomendados ❯</button>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" id="btn-salvar-checkin" onclick="concluirCheckin()">
+            Confirmar Check-in (+10 ELOs)
+          </button>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TELA 5: MINHA SAÚDE & ALONGAMENTOS             -->
+      <!-- ============================================== -->
+      <section class="screen" id="screen-health">
+        <div class="screen-header">
+          <button class="btn-back" onclick="navegarPara('screen-home-worker')">❮</button>
+          <h2>Minha Saúde</h2>
+          <button class="btn-voice-inline" onclick="falarTexto('Exercícios rápidos e guiados para prevenir dores na coluna e pernas.')">🔊</button>
+        </div>
+
+        <div class="health-content">
+          <!-- Abas de Navegação -->
+          <div class="tabs-nav">
+            <button class="tab-btn active">Alongamentos</button>
+            <button class="tab-btn">Relaxamento</button>
+            <button class="tab-btn">Prevenção</button>
+          </div>
+
+          <!-- Lista de Exercícios Guiados -->
+          <div class="exercises-list">
+            <div class="exercise-card" onclick="iniciarExercicio('Alongamento para Costas e Ombros')">
+              <div class="exercise-thumb">🧘🏽‍♂️</div>
+              <div class="exercise-details">
+                <h4>Alongamento para costas e ombros</h4>
+                <p>Alivia a tensão de carregar peso • <strong>5 min</strong></p>
+              </div>
+              <button class="btn-play">▶</button>
+            </div>
+
+            <div class="exercise-card" onclick="iniciarExercicio('Relaxamento das Pernas e Panturrilhas')">
+              <div class="exercise-thumb">🦵🏽</div>
+              <div class="exercise-details">
+                <h4>Relaxamento das pernas</h4>
+                <p>Para quem correu atrás do caminhão • <strong>4 min</strong></p>
+              </div>
+              <button class="btn-play">▶</button>
+            </div>
+
+            <div class="exercise-card" onclick="iniciarExercicio('Exercícios Respiratórios Anti-estresse')">
+              <div class="exercise-thumb">💨</div>
+              <div class="exercise-details">
+                <h4>Exercícios respiratórios</h4>
+                <p>Acalma os batimentos e reduz o estresse • <strong>3 min</strong></p>
+              </div>
+              <button class="btn-play">▶</button>
+            </div>
+
+            <div class="exercise-card" onclick="iniciarExercicio('Prevenção de Cortes com Vidro e Agulhas')">
+              <div class="exercise-thumb">🧤</div>
+              <div class="exercise-details">
+                <h4>Como evitar cortes na coleta</h4>
+                <p>Uso correto da luva e inspeção de sacos • <strong>6 min</strong></p>
+              </div>
+              <button class="btn-play">▶</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TELA 6: MEUS ELOS & RECOMPENSAS                -->
+      <!-- ============================================== -->
+      <section class="screen" id="screen-rewards">
+        <div class="screen-header">
+          <button class="btn-back" onclick="navegarPara('screen-home-worker')">❮</button>
+          <h2>Meus ELOs</h2>
+          <button class="btn-voice-inline" onclick="falarTexto('Seu saldo de pontos e recompensas disponíveis.')">🔊</button>
+        </div>
+
+        <div class="rewards-content">
+          <!-- Saldo em Destaque -->
+          <div class="balance-card">
+            <span class="balance-coins">🪙</span>
+            <div class="balance-info">
+              <span class="balance-value"><span class="valor-elos">340</span> ELOs</span>
+              <p>Continue cuidando da sua saúde para conquistar mais benefícios!</p>
+            </div>
+          </div>
+
+          <!-- Como Ganhar Mais -->
+          <div class="rewards-section">
+            <h3>Conquiste mais ELOs:</h3>
+            <div class="tasks-list">
+              <div class="task-item">
+                <span>📹 Assistir a um vídeo de alongamento</span>
+                <strong class="points-gain">+10</strong>
+              </div>
+              <div class="task-item">
+                <span>💬 Fazer o check-in diário de saúde</span>
+                <strong class="points-gain">+10</strong>
+              </div>
+              <div class="task-item">
+                <span>⚠️ Avisar sobre caco de vidro na rota</span>
+                <strong class="points-gain">+20</strong>
+              </div>
+              <div class="task-item">
+                <span>🤝 Bônus de segurança da equipe do mês</span>
+                <strong class="points-gain">+50</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Catálogo de Troca de Recompensas -->
+          <div class="rewards-section">
+            <h3>Troque seus ELOs por benefícios:</h3>
+            <div class="rewards-catalog">
+              
+              <!-- Item 1: Recarga / Padaria -->
+              <div class="reward-card">
+                <div class="reward-icon">☕</div>
+                <div class="reward-details">
+                  <h4>Café com Pão na Chapa</h4>
+                  <p>Padaria parceira da sua rota de coleta</p>
+                </div>
+                <button class="btn-redeem" onclick="resgatarRecompensa(100, 'Café com pão na chapa na padaria')">
+                  100 ELOs
+                </button>
+              </div>
+
+              <!-- Item 2: Recarga de Celular -->
+              <div class="reward-card">
+                <div class="reward-icon">📱</div>
+                <div class="reward-details">
+                  <h4>Recarga de Celular R$ 15</h4>
+                  <p>Créditos para Claro, Vivo ou TIM</p>
+                </div>
+                <button class="btn-redeem" onclick="resgatarRecompensa(200, 'Recarga de celular de 15 reais')">
+                  200 ELOs
+                </button>
+              </div>
+
+              <!-- Item 3: Sessão de Fisioterapia (São Camilo) -->
+              <div class="reward-card highlight">
+                <div class="reward-icon">🏥</div>
+                <div class="reward-details">
+                  <h4>Sessão de Fisioterapia</h4>
+                  <p>Clínica São Camilo para alívio da coluna</p>
+                </div>
+                <button class="btn-redeem" onclick="resgatarRecompensa(500, 'Sessão de fisioterapia na São Camilo')">
+                  500 ELOs
+                </button>
+              </div>
+
+              <!-- Item 4: Apoio Psicológico -->
+              <div class="reward-card highlight">
+                <div class="reward-icon">🧠</div>
+                <div class="reward-details">
+                  <h4>Acolhimento Psicológico</h4>
+                  <p>Conversa sigilosa com profissional de saúde</p>
+                </div>
+                <button class="btn-redeem" onclick="resgatarRecompensa(600, 'Atendimento psicológico sigiloso')">
+                  600 ELOs
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- TELA 7: MINHA COMUNIDADE (MURAL DE AFETO)      -->
+      <!-- ============================================== -->
+      <section class="screen" id="screen-community">
+        <div class="screen-header">
+          <button class="btn-back" onclick="navegarPara('screen-home-worker')">❮</button>
+          <h2>Minha Comunidade</h2>
+          <button class="btn-voice-inline" onclick="falarTexto('Mensagens de agradecimento enviadas pelos moradores do bairro.')">🔊</button>
+        </div>
+
+        <div class="community-content">
+          <div class="community-banner">
+            💚 <strong>Dia de Valorizar Quem Cuida da Cidade!</strong>
+            <p>Veja os recados deixados pelos moradores para a sua equipe:</p>
+          </div>
+
+          <div class="messages-feed" id="messages-list">
+            <!-- Mensagem 1 -->
+            <div class="message-card">
+              <div class="message-header">
+                <span class="user-badge">🏡 Moradora - Bairro Ipiranga</span>
+                <button class="btn-speak-msg" onclick="falarTexto('Mensagem da Mariana: Muito obrigada pelo trabalho duro de vocês! Deixei uma garrafa de água gelada no portão hoje.')">🔊 Ouvir</button>
+              </div>
+              <p class="message-body">"Muito obrigada pelo trabalho duro de vocês! Deixei uma garrafa de água gelada no portão hoje. Vocês são heróis!"</p>
+              <div class="message-footer">
+                <span>❤️ 24 apoios da comunidade</span>
+                <span class="time-stamp">Hoje, 08:30</span>
+              </div>
+            </div>
+
+            <!-- Mensagem 2 -->
+            <div class="message-card">
+              <div class="message-header">
+                <span class="user-badge">👨‍👩‍👧 Família do Carlos</span>
+                <button class="btn-speak-msg" onclick="falarTexto('Mensagem da sua filha: Pai, muito orgulho do seu trabalho! Volta logo pra casa, cuide da coluna!')">🔊 Ouvir</button>
+              </div>
+              <p class="message-body">"Pai, muito orgulho do seu trabalho! Volta logo pra casa, cuide da coluna! Te amamos."</p>
+              <div class="message-footer">
+                <span>❤️ 12 apoios</span>
+                <span class="time-stamp">Ontem</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Espaço reservado para a Fase 3 (Moradora Mariana) -->
+      <section class="screen" id="screen-home-morador">
+        <!-- Será implementado na Fase 3 -->
+      </section>
+
+    </main>
+
+    <!-- Barra de Navegação Inferior (Fixa nas telas internas) -->
+    <nav class="bottom-nav" id="bottom-navbar" style="display: none;">
+      <button class="nav-item active" id="nav-inicio" onclick="irParaHome()">
+        <span class="nav-icon">🏠</span>
+        <span class="nav-label">Início</span>
+      </button>
+      <button class="nav-item" id="nav-saude" onclick="navegarPara('screen-wellbeing')">
+        <span class="nav-icon">💚</span>
+        <span class="nav-label">Saúde</span>
+      </button>
+      <button class="nav-item" id="nav-elos" onclick="navegarPara('screen-rewards')">
+        <span class="nav-icon">⭐</span>
+        <span class="nav-label">ELOs</span>
+      </button>
+      <button class="nav-item" id="nav-comunidade" onclick="navegarPara('screen-community')">
+        <span class="nav-icon">👥</span>
+        <span class="nav-label">Mural</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- Script JavaScript principal (na mesma pasta) -->
+  <script src="app.js"></script>
+</body>
+</html>

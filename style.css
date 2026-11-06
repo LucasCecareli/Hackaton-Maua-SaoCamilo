@@ -1,0 +1,954 @@
+/* ==========================================================================
+   ELO - DESIGN SYSTEM & FOLHA DE ESTILOS PRINCIPAL
+   Construído com CSS3 Puro, Mobile-First e Acessibilidade WCAG
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. VARIÁVEIS GLOBAIS (DESIGN TOKENS)
+   -------------------------------------------------------------------------- */
+:root {
+  /* Paleta Verde (Preservação / Saúde / Natureza) */
+  --color-green-dark: #1b5e20;
+  --color-green-primary: #2e7d32;
+  --color-green-light: #4caf50;
+  --color-green-soft: #e8f5e9;
+
+  /* Paleta Laranja (Alerta / Gari / Energia) */
+  --color-orange-primary: #e65100;
+  --color-orange-light: #ff9800;
+  --color-orange-soft: #fff3e0;
+
+  /* Semáforo de Sentimentos e Escala de Dor */
+  --status-good: #4caf50;       /* Muito bem / Sem dor */
+  --status-mild: #8bc34a;       /* Bem / Leve desconforto */
+  --status-neutral: #ffc107;    /* Mais ou menos / Dor moderada */
+  --status-bad: #ff7043;        /* Triste */
+  --status-danger: #e53935;     /* Muito cansado / Dor intensa */
+
+  /* Cores Neutras e Estruturais */
+  --bg-page: #0f172a;           /* Fundo da tela do computador */
+  --bg-mobile: #f8fafc;         /* Fundo do aplicativo */
+  --card-bg: #ffffff;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --border-light: #e2e8f0;
+
+  /* Tipografia e Espaçamentos */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+  --transition: all 0.2s ease-in-out;
+}
+
+/* --------------------------------------------------------------------------
+   2. RESET & BASE
+   -------------------------------------------------------------------------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  line-height: 1.5;
+}
+
+/* --------------------------------------------------------------------------
+   3. CONTAINER MOBILE SIMULADO
+   -------------------------------------------------------------------------- */
+.mobile-frame {
+  width: 100%;
+  max-width: 430px;
+  height: 100vh;
+  max-height: 900px;
+  background-color: var(--bg-mobile);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+}
+
+@media (min-width: 450px) {
+  .mobile-frame {
+    border-radius: 40px;
+    border: 8px solid #1e293b;
+    height: 92vh;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   4. CABEÇALHO (HEADER)
+   -------------------------------------------------------------------------- */
+.app-header {
+  height: 60px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--card-bg);
+  border-bottom: 1px solid var(--border-light);
+  z-index: 10;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.logo-circle {
+  width: 14px;
+  height: 14px;
+  background-color: var(--color-green-primary);
+  border-radius: var(--radius-full);
+}
+
+.logo-text {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--color-green-dark);
+  letter-spacing: -0.5px;
+}
+
+.btn-voice-toggle, .btn-voice-inline {
+  background: var(--color-green-soft);
+  border: 1px solid var(--color-green-light);
+  border-radius: var(--radius-full);
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-voice-toggle:active, .btn-voice-inline:active {
+  transform: scale(0.92);
+}
+
+/* --------------------------------------------------------------------------
+   5. SISTEMA DE TELAS SPA (.screen)
+   -------------------------------------------------------------------------- */
+.screens-container {
+  flex: 1;
+  overflow-y: auto;
+  position: relative;
+}
+
+.screen {
+  display: none;
+  min-height: 100%;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.screen.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.screen-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.screen-header h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.btn-back {
+  background: transparent;
+  border: none;
+  font-size: 1.3rem;
+  font-weight: bold;
+  cursor: pointer;
+  color: var(--text-main);
+  padding: 4px 8px;
+}
+
+/* --------------------------------------------------------------------------
+   6. TELAS INICIAIS (SPLASH & SELEÇÃO DE PERFIL)
+   -------------------------------------------------------------------------- */
+.splash-content, .roles-content {
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 100%;
+}
+
+.splash-content { text-align: center; }
+
+.splash-badge {
+  align-self: center;
+  background: var(--color-green-soft);
+  color: var(--color-green-dark);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+}
+
+.hero-logo-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0 10px;
+}
+
+.hero-logo {
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: var(--color-green-dark);
+  letter-spacing: -1.5px;
+}
+
+.hero-leaf { font-size: 2.2rem; margin-top: -12px; }
+
+.splash-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.splash-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  max-width: 290px;
+  margin: 0 auto;
+}
+
+.splash-illustration {
+  margin: 24px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.worker-avatar-large {
+  font-size: 4.5rem;
+  background: var(--color-orange-soft);
+  width: 110px;
+  height: 110px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+  border: 3px solid var(--color-orange-light);
+}
+
+.city-skyline { font-size: 1.8rem; opacity: 0.8; }
+
+.splash-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.splash-subtext {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.roles-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.roles-subtitle {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  margin-bottom: 28px;
+}
+
+.roles-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.role-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  padding: 22px 18px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: 2px solid var(--border-light);
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+
+.role-card:active {
+  transform: translateY(-2px);
+}
+
+.card-morador:active {
+  border-color: var(--color-green-light);
+  background: var(--color-green-soft);
+}
+
+.card-trabalhador:active {
+  border-color: var(--color-orange-light);
+  background: var(--color-orange-soft);
+}
+
+.role-icon {
+  font-size: 2.2rem;
+  width: 54px;
+  height: 54px;
+  border-radius: var(--radius-md);
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.role-info h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.role-info p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+.role-arrow {
+  color: var(--text-muted);
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-left: auto;
+}
+
+.roles-footer {
+  margin-top: auto;
+  padding-top: 24px;
+  text-align: center;
+}
+
+/* --------------------------------------------------------------------------
+   7. HOME DO TRABALHADOR (CARLOS)
+   -------------------------------------------------------------------------- */
+.profile-header {
+  padding: 20px;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.profile-avatar {
+  font-size: 2.2rem;
+  width: 52px;
+  height: 52px;
+  background: var(--color-orange-soft);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--color-orange-light);
+}
+
+.profile-meta h2 {
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.profile-meta p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.badge-elos-mini {
+  margin-left: auto;
+  background: #fef3c7;
+  color: #92400e;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid #fde68a;
+  white-space: nowrap;
+}
+
+.dashboard-grid {
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.dash-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  padding: 18px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  box-shadow: var(--shadow-sm);
+}
+
+.dash-card:active {
+  transform: scale(0.97);
+  box-shadow: var(--shadow-md);
+}
+
+.dash-card.full-width {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+}
+
+.dash-card-icon {
+  font-size: 2rem;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-wellbeing .dash-card-icon { background: #dcfce7; }
+.card-health .dash-card-icon { background: #e0f2fe; }
+.card-learn .dash-card-icon { background: #fef3c7; }
+.card-rewards .dash-card-icon { background: #ffedd5; }
+.card-community .dash-card-icon { background: #f3e8ff; }
+
+.dash-card-text h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.dash-card-text p {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+
+.badge-new {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: var(--color-orange-primary);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+/* --------------------------------------------------------------------------
+   8. TELA MEU BEM-ESTAR (CHECK-IN DE SAÚDE)
+   -------------------------------------------------------------------------- */
+.wellbeing-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.info-banner {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.question-box {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  border: 1px solid var(--border-light);
+}
+
+.question-title {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.emoji-selector {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.emoji-btn {
+  background: #f8fafc;
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 10px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.emoji-btn .emoji-icon { font-size: 1.7rem; }
+.emoji-btn .emoji-label { font-size: 0.65rem; font-weight: 600; color: var(--text-muted); text-align: center; }
+
+.emoji-btn.selected {
+  border-color: var(--color-green-primary);
+  background: var(--color-green-soft);
+  transform: scale(1.05);
+}
+
+.pain-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.pain-btn {
+  background: #f8fafc;
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 14px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.pain-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-full);
+}
+
+.pain-0 .pain-indicator { background-color: var(--status-good); }
+.pain-1 .pain-indicator { background-color: var(--status-mild); }
+.pain-2 .pain-indicator { background-color: var(--status-neutral); }
+.pain-3 .pain-indicator { background-color: var(--status-danger); }
+
+.pain-btn.selected {
+  border-color: var(--color-green-primary);
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+.tip-card {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.tip-icon { font-size: 1.5rem; }
+
+.tip-info h4 { font-size: 0.85rem; font-weight: 700; color: #1e40af; margin-bottom: 2px; }
+.tip-info p { font-size: 0.8rem; color: #1e3a8a; line-height: 1.35; margin-bottom: 8px; }
+
+.btn-text-action {
+  background: transparent;
+  border: none;
+  color: #2563eb;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* --------------------------------------------------------------------------
+   9. TELA MINHA SAÚDE & EXERCÍCIOS
+   -------------------------------------------------------------------------- */
+.health-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tabs-nav {
+  display: flex;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: var(--radius-md);
+  gap: 4px;
+}
+
+.tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  background: var(--card-bg);
+  color: var(--text-main);
+  box-shadow: var(--shadow-sm);
+}
+
+.exercises-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.exercise-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.exercise-card:active { transform: translateY(-2px); }
+
+.exercise-thumb {
+  font-size: 1.8rem;
+  width: 48px;
+  height: 48px;
+  background: var(--color-orange-soft);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.exercise-details h4 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.exercise-details p {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.btn-play {
+  margin-left: auto;
+  background: var(--color-green-primary);
+  color: white;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+/* --------------------------------------------------------------------------
+   10. TELA MEUS ELOS & RECOMPENSAS
+   -------------------------------------------------------------------------- */
+.rewards-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.balance-card {
+  background: linear-gradient(135deg, #1b5e20, #2e7d32);
+  color: white;
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 8px 20px rgba(46, 125, 50, 0.25);
+}
+
+.balance-coins { font-size: 2.8rem; }
+
+.balance-value {
+  font-size: 1.8rem;
+  font-weight: 900;
+  display: block;
+  letter-spacing: -0.5px;
+}
+
+.balance-info p {
+  font-size: 0.8rem;
+  opacity: 0.9;
+  line-height: 1.3;
+}
+
+.rewards-section h3 {
+  font-size: 0.95rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.tasks-list {
+  background: var(--card-bg);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  overflow: hidden;
+}
+
+.task-item {
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 0.82rem;
+}
+
+.task-item:last-child { border-bottom: none; }
+.points-gain { color: var(--color-green-primary); font-weight: 800; }
+
+.rewards-catalog {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.reward-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--border-light);
+}
+
+.reward-card.highlight {
+  border-color: #86efac;
+  background: #f0fdf4;
+}
+
+.reward-icon {
+  font-size: 1.8rem;
+  width: 44px;
+  height: 44px;
+  background: #f8fafc;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.reward-details h4 { font-size: 0.88rem; font-weight: 700; margin-bottom: 2px; }
+.reward-details p { font-size: 0.75rem; color: var(--text-muted); }
+
+.btn-redeem {
+  margin-left: auto;
+  background: var(--color-green-primary);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-redeem:active { transform: scale(0.95); }
+
+/* --------------------------------------------------------------------------
+   11. TELA MINHA COMUNIDADE (MURAL)
+   -------------------------------------------------------------------------- */
+.community-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.community-banner {
+  background: #fdf2f8;
+  border: 1px solid #fbcfe8;
+  color: #9d174d;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.messages-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.message-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  border: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.user-badge {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-green-dark);
+}
+
+.btn-speak-msg {
+  background: var(--color-green-soft);
+  border: 1px solid var(--color-green-light);
+  color: var(--color-green-dark);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+}
+
+.message-body {
+  font-size: 0.88rem;
+  font-style: italic;
+  color: var(--text-main);
+  line-height: 1.4;
+}
+
+.message-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   12. COMPONENTES GLOBAIS: BOTÕES & NAVEGAÇÃO
+   -------------------------------------------------------------------------- */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 16px 20px;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: var(--transition);
+}
+
+.btn-primary {
+  background-color: var(--color-green-primary);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(46, 125, 50, 0.35);
+}
+
+.btn-primary:active {
+  background-color: var(--color-green-dark);
+  transform: scale(0.98);
+}
+
+.btn-link {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 10px;
+}
+
+.bottom-nav {
+  height: 64px;
+  background-color: var(--card-bg);
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 10;
+}
+
+.nav-item {
+  background: transparent;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 12px;
+  transition: var(--transition);
+}
+
+.nav-item.active {
+  color: var(--color-green-primary);
+}
+
+.nav-icon { font-size: 1.25rem; }
