@@ -385,7 +385,12 @@ function concluirCheckin() {
 
   if (EstadoApp.usuarioLogado) {
     EstadoApp.usuarioLogado.checkins = (EstadoApp.usuarioLogado.checkins || 0) + 1;
-    SupabaseService.registrarCheckin(EstadoApp.usuarioLogado.email, EstadoApp.checkinDoDia.humor, EstadoApp.checkinDoDia.dor);
+    SupabaseService.registrarCheckin(
+      EstadoApp.usuarioLogado.email,
+      EstadoApp.checkinDoDia.humor,
+      EstadoApp.checkinDoDia.dor,
+      EstadoApp.usuarioLogado.checkins
+    );
   }
 
   somarPontos(10, "fazer o check-in de saúde");
@@ -572,6 +577,7 @@ function enviarMensagemMorador() {
 
   EstadoApp.mensagensComunidade.unshift(novaMsg);
   localStorage.setItem('elo_mensagens', JSON.stringify(EstadoApp.mensagensComunidade));
+  SupabaseService.salvarMensagemMural(novaMsg.autor, novaMsg.texto);
   renderizarMensagens();
 
   alert("💌 Mensagem enviada com sucesso ao Mural dos Trabalhadores!\nEles poderão ouvir seu recado em voz alta.");

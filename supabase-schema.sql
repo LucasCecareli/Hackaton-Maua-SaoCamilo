@@ -80,3 +80,4 @@ VALUES
   ('carlos@elo.com', 'Carlos Silva', 'trabalhador', 'Rota 14 - Bairro Ipiranga', 340, 12, 8, 4),
   ('mariana@elo.com', 'Mariana Souza', 'morador', 'Rua dos Patriotas - Ipiranga', 80, 4, 2, 3)
 ON CONFLICT (email) DO NOTHING;
+
