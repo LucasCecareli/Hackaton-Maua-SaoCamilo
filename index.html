@@ -613,6 +613,14 @@
             </div>
           </div>
 
+          <!-- Upload Direto de Vídeo do Aparelho (Roda 100% dentro do App sem abrir link externo) -->
+          <div style="margin-bottom: 10px;">
+            <label for="input-trocar-video-player" class="btn-outline-dashed" style="display:flex; align-items:center; justify-content:center; gap:6px; padding:9px 12px; font-size:0.8rem; cursor:pointer; background:#f0fdf4; border-color:#86efac; color:#166534;">
+              📁 Carregar / Trocar Vídeo deste Tópico (.mp4 do Aparelho)
+            </label>
+            <input type="file" id="input-trocar-video-player" accept="video/*" style="display:none;" onchange="carregarArquivoVideoNoPlayer(this)">
+          </div>
+
           <!-- Detalhes do Exercício -->
           <div class="exercise-info-box">
             <div class="info-top">
@@ -671,8 +679,11 @@
             <label class="input-label">Duração estimada:</label>
             <input type="text" id="novo-video-duracao" class="form-input" placeholder="Ex: 4 min">
 
-            <label class="input-label">Link do Vídeo (MP4 ou YouTube):</label>
-            <input type="text" id="novo-video-url" class="form-input" placeholder="https://exemplo.com/alongamento.mp4">
+            <label class="input-label">📁 Enviar Arquivo de Vídeo do Aparelho (.mp4, .mov, .webm):</label>
+            <input type="file" id="novo-video-arquivo" accept="video/*" class="form-input" style="padding: 8px; background: #f0fdf4; border: 1.5px dashed #22c55e;">
+
+            <label class="input-label">Ou caminho na pasta do projeto (opcional):</label>
+            <input type="text" id="novo-video-url" class="form-input" placeholder="Ex: assets/videos/meu_alongamento.mp4">
 
             <label class="input-label">Instrução simples para o trabalhador:</label>
             <textarea id="novo-video-passos" class="form-textarea" placeholder="Passo a passo simples para orientar o coletor..."></textarea>
@@ -1194,6 +1205,9 @@
                   <div class="learn-expand-box">
                     <strong>Passo a passo:</strong> 1) Coloque os cacos na caixa de leite ou PET • 2) Lacre com fita • 3) Escreva por fora: <strong>"CUIDADO: VIDRO"</strong>.
                   </div>
+                  <button class="btn-watch-inline-video" onclick="event.stopPropagation(); abrirPlayerVideo('descarte_vidro')" style="margin-top:8px; background:#16a34a; color:#fff; border:none; border-radius:8px; padding:7px 12px; font-size:0.76rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                    🎬 Assistir / Enviar Vídeo no App
+                  </button>
                 </div>
                 <span class="learn-arrow">❯</span>
               </div>
@@ -1207,6 +1221,9 @@
                   <div class="learn-expand-box">
                     <strong>Dica:</strong> Não misture guardanapos sujos ou restos de comida com papéis e plásticos recicláveis.
                   </div>
+                  <button class="btn-watch-inline-video" onclick="event.stopPropagation(); abrirPlayerVideo('descarte_separacao')" style="margin-top:8px; background:#16a34a; color:#fff; border:none; border-radius:8px; padding:7px 12px; font-size:0.76rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                    🎬 Assistir / Enviar Vídeo no App
+                  </button>
                 </div>
                 <span class="learn-arrow">❯</span>
               </div>
@@ -1220,6 +1237,9 @@
                   <div class="learn-expand-box">
                     <strong>Onde entregar:</strong> Óleo usado em garrafa PET vai para Ecopontos; remédios e agulhas devem ser entregues na UBS ou farmácias.
                   </div>
+                  <button class="btn-watch-inline-video" onclick="event.stopPropagation(); abrirPlayerVideo('descarte_oleo')" style="margin-top:8px; background:#16a34a; color:#fff; border:none; border-radius:8px; padding:7px 12px; font-size:0.76rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                    🎬 Assistir / Enviar Vídeo no App
+                  </button>
                 </div>
                 <span class="learn-arrow">❯</span>
               </div>

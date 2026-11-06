@@ -1392,10 +1392,54 @@ const CatalogoVideosAlongamento = {
       "Solte o ar pela boca bem devagar contando até 6."
     ],
     falaPassos: "Exercício respiratório: Puxe o ar pelo nariz profundamente, segure dois segundos e solte pela boca bem devagar para relaxar a mente."
+  },
+  descarte_vidro: {
+    titulo: "Como Embalar Vidros Quebrados e Cortantes",
+    subtitulo: "Guia Prático do Morador • Proteja os Garis • 2 min",
+    categoria: "Descarte Seguro",
+    tempoSegundos: 20,
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    poster: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=600&q=80",
+    passos: [
+      "Recolha os cacos de vidro ou lâmpadas usando luva ou jornal grosso.",
+      "Coloque todos os cacos dentro de uma caixa de leite longa vida ou garrafa PET cortada.",
+      "Feche bem a abertura com fita adesiva resistente para nenhum caco escapar.",
+      "Escreva por fora em letra grande: 'CUIDADO: VIDRO QUEBRADO'."
+    ],
+    falaPassos: "Como embalar vidros quebrados: Coloque os cacos dentro de uma caixa de leite ou garrafa PET, lacre com fita adesiva e escreva Cuidado Vidro."
+  },
+  descarte_separacao: {
+    titulo: "Separação Correta: Lixo Seco x Lixo Úmido",
+    subtitulo: "Coleta Seletiva Ipiranga • Educação Ambiental • 2 min",
+    categoria: "Reciclagem em Casa",
+    tempoSegundos: 20,
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+    poster: "https://images.unsplash.com/photo-1604187351574-c75ca79f5807?auto=format&fit=crop&w=600&q=80",
+    passos: [
+      "Saco 1 (Lixo Úmido / Orgânico): Restos de alimentos, cascas de frutas, borra de café e guardanapos usados.",
+      "Saco 2 (Lixo Seco / Reciclável): Garrafas PET, latas, papelão seco e potes plásticos enxaguados.",
+      "Amarre os sacos com nó duplo e coloque na calçada apenas perto do horário do caminhão."
+    ],
+    falaPassos: "Separação correta: Coloque restos de comida no saco de lixo orgânico e embalagens limpas no saco de recicláveis."
+  },
+  descarte_oleo: {
+    titulo: "Descarte de Óleo de Cozinha, Pilhas e Remédios",
+    subtitulo: "Prevenção de Contaminação da Água e Solo • 2 min",
+    categoria: "Resíduos Especiais",
+    tempoSegundos: 20,
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+    poster: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=600&q=80",
+    passos: [
+      "Espere o óleo de cozinha esfriar e armazene em uma garrafa PET bem fechada com funil.",
+      "Separe pilhas, baterias e cartelas de medicamentos vencidos em um saquinho identificado.",
+      "Entregue o óleo no Ecoponto e leve os remédios ou agulhas até a UBS ou farmácia mais próxima."
+    ],
+    falaPassos: "Óleo, pilhas e remédios: Guarde o óleo usado em garrafa PET e entregue remédios vencidos na farmácia ou posto de saúde."
   }
 };
 
 let exercicioAtualId = 'costas';
+let telaOrigemVideo = 'screen-health';
 let timerInterval = null;
 let timerSegundosRestantes = 30;
 let timerAtivo = false;
@@ -1404,6 +1448,13 @@ function abrirPlayerVideo(idExercicio) {
   const dados = CatalogoVideosAlongamento[idExercicio];
   if (!dados) return;
 
+  // Guarda de qual tela o usuário abriu o vídeo (Minha Saúde do Gari ou Aprenda do Morador)
+  if (EstadoApp.telaAtual === 'screen-learn' || idExercicio.startsWith('descarte_')) {
+    telaOrigemVideo = 'screen-learn';
+  } else {
+    telaOrigemVideo = 'screen-health';
+  }
+
   exercicioAtualId = idExercicio;
 
   // Atualiza elementos do player
@@ -1411,6 +1462,13 @@ function abrirPlayerVideo(idExercicio) {
   document.getElementById('video-subtitulo').textContent = dados.subtitulo;
   document.getElementById('video-categoria-badge').textContent = dados.categoria;
   document.getElementById('player-titulo-header').textContent = dados.titulo;
+
+  const btnConcluir = document.querySelector('.btn-concluir-exercicio');
+  if (btnConcluir) {
+    btnConcluir.textContent = telaOrigemVideo === 'screen-learn'
+      ? '✅ Concluir Vídeo Educativo (+10 ELOs)'
+      : '✅ Concluir Exercício (+10 ELOs)';
+  }
 
   // Atualiza vídeo
   const video = document.getElementById('video-element');
@@ -1434,11 +1492,32 @@ function abrirPlayerVideo(idExercicio) {
   falarTexto(`Iniciando vídeo: ${dados.titulo}. Siga as instruções do vídeo ou aperte o botão para ouvir os passos.`);
 }
 
+function carregarArquivoVideoNoPlayer(inputEl) {
+  if (!inputEl || !inputEl.files || inputEl.files.length === 0) return;
+  const arquivo = inputEl.files[0];
+  const blobUrl = URL.createObjectURL(arquivo);
+
+  if (CatalogoVideosAlongamento[exercicioAtualId]) {
+    CatalogoVideosAlongamento[exercicioAtualId].videoUrl = blobUrl;
+  }
+
+  const video = document.getElementById('video-element');
+  const source = document.getElementById('video-source');
+  if (source && video) {
+    source.src = blobUrl;
+    video.load();
+    video.play().catch(() => {});
+  }
+
+  alert(`🎬 Vídeo "${arquivo.name}" carregado com sucesso dentro do aplicativo!\nEle já está pronto para reprodução no player acima.`);
+  falarTexto(`Vídeo ${arquivo.name} carregado no player do aplicativo.`);
+}
+
 function fecharPlayerVideo() {
   const video = document.getElementById('video-element');
   if (video) video.pause();
   pararTimer();
-  navegarPara('screen-health');
+  navegarPara(telaOrigemVideo || 'screen-health');
 }
 
 function alternarTimer() {
@@ -1494,10 +1573,10 @@ function concluirExercicioVideo() {
   pararTimer();
 
   somarPontos(10, `completar o vídeo de ${dados.titulo}`);
-  alert(`🎉 Parabéns pelo cuidado com sua saúde!\n\nVocê concluiu: ${dados.titulo}\nVocê ganhou +10 ELOs!`);
-  falarTexto(`Parabéns Carlos! Alongamento concluído. Você conquistou mais 10 ELOs.`);
+  alert(`🎉 Parabéns!\n\nVocê concluiu: ${dados.titulo}\nVocê ganhou +10 ELOs!`);
+  falarTexto(`Parabéns! Vídeo concluído. Você conquistou mais 10 ELOs.`);
 
-  navegarPara('screen-health');
+  navegarPara(telaOrigemVideo || 'screen-health');
 }
 
 /* Modal de Novo Vídeo */
@@ -1513,10 +1592,19 @@ function salvarNovoVideo() {
   const titulo = document.getElementById('novo-video-titulo').value.trim();
   const duracao = document.getElementById('novo-video-duracao').value.trim() || "4 min";
   const passos = document.getElementById('novo-video-passos').value.trim() || "Siga a orientação do fisioterapeuta com postura ereta.";
+  const inputArquivo = document.getElementById('novo-video-arquivo');
+  const urlManual = document.getElementById('novo-video-url')?.value.trim();
 
   if (!titulo) {
     alert("Por favor, digite o título do alongamento.");
     return;
+  }
+
+  let videoFinalUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4";
+  if (inputArquivo && inputArquivo.files && inputArquivo.files.length > 0) {
+    videoFinalUrl = URL.createObjectURL(inputArquivo.files[0]);
+  } else if (urlManual) {
+    videoFinalUrl = urlManual;
   }
 
   const novoId = "video_" + Date.now();
@@ -1525,7 +1613,7 @@ function salvarNovoVideo() {
     subtitulo: `Fisioterapia São Camilo • ${duracao}`,
     categoria: "Alongamento Especializado",
     tempoSegundos: 30,
-    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    videoUrl: videoFinalUrl,
     poster: "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=600&q=80",
     passos: [passos, "Mantenha a respiração estável durante todo o exercício.", "Repita duas vezes ao dia."],
     falaPassos: `${titulo}. ${passos}`
