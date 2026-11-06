@@ -30,7 +30,7 @@ const BancoUsuariosPadrao = {
     alertas: 4,
     vouchers: [
       { titulo: "Café com Pão na Chapa", local: "Padaria Estrela do Ipiranga", codigo: "ELO-7492", status: "Pronto para Usar", icone: "☕" },
-      { titulo: "Sessão de Fisioterapia", local: "Clínica Integrada São Camilo", codigo: "SPSC-1104", status: "Agendado", icone: "🏥" }
+      { titulo: "Sessão de Fisioterapia", local: "Clínica Parceira de Saúde", codigo: "SESMT-1104", status: "Agendado", icone: "🏥" }
     ]
   },
   "roberto.lima@elo.com": {
@@ -401,7 +401,7 @@ function lerTelaAtual(forcarAtivacao = false) {
   } else if (tela === 'screen-home-worker') {
     falarTexto(`Olá Carlos! Você tem ${EstadoApp.pontosElos} ELOs. Escolha uma das opções: Meu Bem-Estar, Minha Saúde, Avaliar Rua, Meus ELOs, Mapa da Rota 14 ou Minha Comunidade.`);
   } else if (tela === 'screen-worker-profile') {
-    falarTexto(`Perfil de Carlos Silva. Você possui ${EstadoApp.pontosElos} ELOs acumulados e dois vouchers prontos para uso na padaria e na clínica São Camilo.`);
+    falarTexto(`Perfil de Carlos Silva. Você possui ${EstadoApp.pontosElos} ELOs acumulados e dois vouchers prontos para uso na padaria e na clínica parceira.`);
   } else if (tela === 'screen-wellbeing') {
     falarTexto("Tela de Meu Bem-Estar. Conte como você está se sentindo e se sente dores no corpo depois do trabalho.");
   } else if (tela === 'screen-health') {
@@ -417,7 +417,7 @@ function lerTelaAtual(forcarAtivacao = false) {
   } else if (tela === 'screen-reports') {
     falarTexto("Tela de Denúncias. Informe a localização, marque se há resíduos perigosos como caco de vidro solto e envie para a equipe.");
   } else if (tela === 'screen-neighborhood') {
-    falarTexto("Mapa do Bairro ao vivo: acompanhe o caminhão da coleta na Rota 14 pelo Ipiranga, veja o ponto de apoio da São Camilo e os alertas de vidro quebrado.");
+    falarTexto("Mapa do Bairro ao vivo: acompanhe o caminhão da coleta na Rota 14 pelo Ipiranga, veja o ponto de apoio de saúde e os alertas de vidro quebrado.");
   } else if (tela === 'screen-learn') {
     falarTexto("Aprenda: Guia de saúde e prevenção. Saiba como evitar dengue, leptospirose e como embalar vidros com segurança.");
   } else if (tela === 'screen-appreciate') {
@@ -576,10 +576,143 @@ function alternarDetalheAprendizado(cardEl, textoFala) {
   }
 }
 
+let modoEnderecoAvaliacaoAtual = 'gps';
+
+function alternarModoEnderecoAvaliacao(modo) {
+  modoEnderecoAvaliacaoAtual = modo === 'manual' ? 'manual' : 'gps';
+  const boxGps = document.getElementById('box-eval-endereco-gps');
+  const boxManual = document.getElementById('box-eval-endereco-manual');
+  const btnGps = document.getElementById('btn-modo-end-gps');
+  const btnManual = document.getElementById('btn-modo-end-manual');
+  const selectEl = document.getElementById('eval-endereco-select');
+
+  if (modoEnderecoAvaliacaoAtual === 'manual') {
+    if (boxGps) boxGps.style.display = 'none';
+    if (boxManual) boxManual.style.display = 'flex';
+    if (btnManual) {
+      btnManual.style.background = '#16a34a';
+      btnManual.style.color = '#ffffff';
+    }
+    if (btnGps) {
+      btnGps.style.background = 'transparent';
+      btnGps.style.color = '#475569';
+    }
+    document.getElementById('eval-endereco-manual-rua')?.focus();
+  } else {
+    if (boxGps) boxGps.style.display = 'block';
+    if (boxManual) boxManual.style.display = 'none';
+    if (btnGps) {
+      btnGps.style.background = '#16a34a';
+      btnGps.style.color = '#ffffff';
+    }
+    if (btnManual) {
+      btnManual.style.background = 'transparent';
+      btnManual.style.color = '#475569';
+    }
+    if (selectEl && selectEl.value === '__MANUAL__') {
+      selectEl.selectedIndex = 0;
+    }
+  }
+}
+
+function verificarSelecaoManualDropdown(selectEl) {
+  if (selectEl && selectEl.value === '__MANUAL__') {
+    alternarModoEnderecoAvaliacao('manual');
+  }
+}
+
+function buscarMoradorPorEnderecoOuNome(enderecoDigitado, moradorDigitado) {
+  const termoEnd = (enderecoDigitado || '').trim().toLowerCase();
+  const termoNome = (moradorDigitado || '').trim().toLowerCase();
+  const moradores = Object.values(BancoUsuarios).filter(u => u && u.perfil === 'morador');
+
+  for (const m of moradores) {
+    const rotaM = (m.rota || '').toLowerCase();
+    const nomeM = (m.nome || '').toLowerCase();
+    if (
+      (termoEnd && rotaM && (termoEnd.includes(rotaM.split('-')[0].trim()) || rotaM.includes(termoEnd.split('-')[0].trim()))) ||
+      (termoNome && nomeM && (nomeM.includes(termoNome) || termoNome.includes(nomeM)))
+    ) {
+      return m;
+    }
+  }
+  return null;
+}
+
+function salvarEnderecoManualNaRota() {
+  const inputRua = document.getElementById('eval-endereco-manual-rua');
+  const inputMorador = document.getElementById('eval-endereco-manual-morador');
+  const rua = inputRua ? inputRua.value.trim() : '';
+  const moradorRef = inputMorador ? inputMorador.value.trim() : '';
+
+  if (!rua) {
+    alert("Por favor, digite a Rua e o Número do endereço para cadastrar na rota.");
+    inputRua?.focus();
+    return;
+  }
+
+  const moradorVinculado = buscarMoradorPorEnderecoOuNome(rua, moradorRef);
+  const emailVinculado = moradorVinculado ? moradorVinculado.email : '';
+  const nomeExibicao = moradorRef || (moradorVinculado ? moradorVinculado.nome : 'Endereço Cadastrado');
+
+  const selectEl = document.getElementById('eval-endereco-select');
+  if (selectEl) {
+    const opt = document.createElement('option');
+    opt.value = `${rua}|${emailVinculado}|${nomeExibicao}`;
+    opt.textContent = `${rua} (${nomeExibicao})`;
+    selectEl.prepend(opt);
+    selectEl.selectedIndex = 0;
+  }
+
+  if (inputRua) inputRua.value = '';
+  if (inputMorador) inputMorador.value = '';
+  alternarModoEnderecoAvaliacao('gps');
+
+  alert(`📍 Endereço cadastrado na Rota com sucesso!\n\n${rua} (${nomeExibicao})\nAgora basta tocar em uma das opções abaixo para avaliar o descarte.`);
+  falarTexto(`Endereço ${rua} adicionado na lista da rota.`);
+}
+
 function registrarAvaliacaoEndereco(statusAvaliacao) {
   const selectEl = document.getElementById('eval-endereco-select');
-  const valorBruto = selectEl ? selectEl.value : "Rua dos Patriotas, 482 - Ipiranga|mariana@elo.com|Mariana Souza";
-  const [endereco, emailMorador, nomeMorador] = valorBruto.split('|');
+  const inputRuaManual = document.getElementById('eval-endereco-manual-rua');
+  const inputMoradorManual = document.getElementById('eval-endereco-manual-morador');
+
+  let endereco = "Rua dos Patriotas, 482 - Ipiranga";
+  let emailMorador = "mariana@elo.com";
+  let nomeMorador = "Mariana Souza";
+
+  // Se o Gari estiver no modo Manual (ou digitou um endereço no campo manual), usa o endereço digitado
+  const ruaDigitada = inputRuaManual ? inputRuaManual.value.trim() : '';
+  if (modoEnderecoAvaliacaoAtual === 'manual' || (selectEl && selectEl.value === '__MANUAL__')) {
+    if (!ruaDigitada) {
+      alert("✏️ Por favor, digite a Rua e o Número do endereço no campo manual (ou mude para '🎯 GPS da Rota').");
+      inputRuaManual?.focus();
+      return;
+    }
+    const refDigitada = inputMoradorManual ? inputMoradorManual.value.trim() : '';
+    const moradorAchado = buscarMoradorPorEnderecoOuNome(ruaDigitada, refDigitada);
+    endereco = ruaDigitada;
+    emailMorador = moradorAchado ? moradorAchado.email : '';
+    nomeMorador = refDigitada || (moradorAchado ? moradorAchado.nome : 'Morador / Endereço Manual');
+
+    // Também fixa o endereço digitado na lista de seleção da rota
+    if (selectEl) {
+      const opt = document.createElement('option');
+      opt.value = `${endereco}|${emailMorador}|${nomeMorador}`;
+      opt.textContent = `${endereco} (${nomeMorador})`;
+      selectEl.prepend(opt);
+      selectEl.selectedIndex = 0;
+    }
+    if (inputRuaManual) inputRuaManual.value = '';
+    if (inputMoradorManual) inputMoradorManual.value = '';
+    alternarModoEnderecoAvaliacao('gps');
+  } else if (selectEl && selectEl.value) {
+    const partes = selectEl.value.split('|');
+    endereco = partes[0] || endereco;
+    emailMorador = partes[1] || '';
+    nomeMorador = partes[2] || 'Morador Local';
+  }
+
   const histList = document.getElementById('eval-history-list');
 
   if (statusAvaliacao === 'aprovado') {
@@ -1211,7 +1344,7 @@ function resgatarRecompensa(custo, itemNome, localParceiro, iconeCustom) {
   
   // Gera código único de voucher
   const codigoVoucher = "ELO-" + Math.floor(1000 + Math.random() * 9000);
-  const localFinal = localParceiro || (itemNome.includes("Fisioterapia") || itemNome.includes("psicológico") ? "Clínica São Camilo" : "Parceiro do Bairro");
+  const localFinal = localParceiro || (itemNome.includes("Fisioterapia") || itemNome.includes("psicológico") ? "Clínica Parceira de Saúde" : "Parceiro do Bairro");
   const iconeFinal = iconeCustom || (itemNome.includes("Café") ? "☕" : itemNome.includes("Celular") ? "📱" : "🎟️");
 
   const novoVoucher = {
@@ -1339,7 +1472,7 @@ let timerCaminhaoMapa = null;
 
 // Trajeto real da Rota 14 pelas ruas do Ipiranga (Av. Nazaré -> Rua dos Patriotas -> Rua Silva Bueno -> Rua Bom Pastor)
 const CoordenadasRotaIpiranga = [
-  { lat: -23.5918, lng: -46.6067, trecho: "Av. Nazaré (Próx. Campus São Camilo)" },
+  { lat: -23.5918, lng: -46.6067, trecho: "Av. Nazaré (Ponto de Apoio ao Coletor)" },
   { lat: -23.5892, lng: -46.6072, trecho: "Av. Nazaré, 1100 • Subindo sentido Museu" },
   { lat: -23.5868, lng: -46.6079, trecho: "Esquina Av. Nazaré c/ Rua dos Patriotas" },
   { lat: -23.5864, lng: -46.6058, trecho: "Rua dos Patriotas, 482 • Coleta em andamento" },
@@ -1387,7 +1520,7 @@ const PontosMapaBairro = [
     id: "SPSC-APOIO",
     lat: -23.5918,
     lng: -46.6067,
-    titulo: "Centro Universitário São Camilo (Av. Nazaré, 1501)",
+    titulo: "Unidade de Apoio ao Coletor (Av. Nazaré, 1501)",
     descricao: "Ponto Oficial de Apoio em Saúde e Fisioterapia Ocupacional para os coletores da Rota 14 (Hidratação, Alongamento e Triagem).",
     status: "Apoio Saúde",
     cor: "blue",
@@ -1720,7 +1853,7 @@ function renderizarMensagens() {
 const CatalogoVideosAlongamento = {
   exercicio_gari: {
     titulo: "Ginástica Laboral & Alongamento do Gari",
-    subtitulo: "Fisioterapia São Camilo • Preparação oficial para o turno • 1 min",
+    subtitulo: "Fisioterapia Ocupacional • Preparação oficial para o turno • 1 min",
     categoria: "Ginástica Laboral",
     tempoSegundos: 10,
     videoUrl: "assets/videos/exerciciogari.mp4",
@@ -1762,7 +1895,7 @@ const CatalogoVideosAlongamento = {
   },
   costas: {
     titulo: "Alongamento para Costas e Coluna",
-    subtitulo: "Fisioterapia São Camilo • Alívio de peso e lombar • 5 min",
+    subtitulo: "Fisioterapia Ocupacional • Alívio de peso e lombar • 5 min",
     categoria: "Alongamento Ocupacional",
     tempoSegundos: 30,
     videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
@@ -1807,7 +1940,7 @@ const CatalogoVideosAlongamento = {
   },
   respiracao: {
     titulo: "Respiração e Descompressão Mental",
-    subtitulo: "Psicologia São Camilo • Alívio de estresse e fadiga • 3 min",
+    subtitulo: "Saúde Mental & Bem-Estar • Alívio de estresse e fadiga • 3 min",
     categoria: "Saúde Mental",
     tempoSegundos: 30,
     videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4",
@@ -1822,7 +1955,7 @@ const CatalogoVideosAlongamento = {
   },
   descarte_agulhas: {
     titulo: "Descarte Seguro de Agulhas e Perfurocortantes",
-    subtitulo: "Prevenção SESMT São Camilo • Proteja os Garis • 1 min",
+    subtitulo: "Prevenção de Acidentes SESMT • Proteja os Garis • 1 min",
     categoria: "Segurança do Coletor",
     tempoSegundos: 10,
     videoUrl: "assets/videos/descarte_agulhas_1.mp4",
@@ -2073,7 +2206,7 @@ function salvarNovoVideo() {
   const novoId = "video_" + Date.now();
   CatalogoVideosAlongamento[novoId] = {
     titulo: titulo,
-    subtitulo: `Fisioterapia São Camilo • ${duracao}`,
+    subtitulo: `Fisioterapia Ocupacional • ${duracao}`,
     categoria: "Alongamento Especializado",
     tempoSegundos: 30,
     videoUrl: videoFinalUrl,
@@ -2200,7 +2333,7 @@ async function sincronizarPainelAdmin() {
 }
 
 /* --------------------------------------------------------------------------
-   TABELA CORPORATIVA SESMT DE MONITORAMENTO DOS GARIS (PREFEITURA / SÃO CAMILO)
+   TABELA CORPORATIVA SESMT DE MONITORAMENTO DOS GARIS (GESTÃO MUNICIPAL)
    -------------------------------------------------------------------------- */
 let filtroGravidadeSesmtAtual = 'todos';
 
@@ -2279,7 +2412,7 @@ function renderizarTabelaSesmtGari() {
     const classeDot = status === 'critico' ? 'dot-red' : status === 'atencao' ? 'dot-yellow' : 'dot-green';
 
     const acaoHtml = g.protocoloAcionado
-      ? `<span class="sesmt-protocolo-confirmado">Protocolo São Camilo Ativo</span>`
+      ? `<span class="sesmt-protocolo-confirmado">Protocolo Clínico Ativo</span>`
       : `<button class="btn-sesmt-ambulatorio" onclick="acionarAmbulatorioGari('${g.email}', this)">Acionar Ambulatório</button>`;
 
     return `
@@ -2304,22 +2437,22 @@ function acionarAmbulatorioGari(emailGari, botao) {
   const gari = BancoUsuarios[emailGari];
   if (!gari) return;
 
-  const numProtocolo = "SPSC-" + Math.floor(10000 + Math.random() * 90000);
+  const numProtocolo = "SESMT-" + Math.floor(10000 + Math.random() * 90000);
   gari.protocoloAcionado = true;
   gari.ultimoProtocoloClinico = numProtocolo;
   salvarBancoUsuarios();
 
   if (botao) {
-    botao.outerHTML = `<span class="sesmt-protocolo-confirmado">Protocolo São Camilo Ativo</span>`;
+    botao.outerHTML = `<span class="sesmt-protocolo-confirmado">Protocolo Clínico Ativo</span>`;
   }
 
   alert(
-    `PROTOCOLO CLÍNICO SÃO CAMILO ATIVADO\n\n` +
+    `PROTOCOLO CLÍNICO ATIVADO\n\n` +
     `Protocolo: ${numProtocolo}\n` +
     `Coletor(a): ${gari.nome} (${gari.matricula || 'MAT-1042'})\n` +
     `Lotação: ${gari.rota || 'Rota 14'}\n` +
     `Quadro Clínico: ${gari.queixaClinica || 'Avaliação Ocupacional'}\n\n` +
-    `Encaminhamento registrado junto ao Ambulatório de Saúde Ocupacional e Fisioterapia do Centro Universitário São Camilo.`
+    `Encaminhamento registrado junto ao Ambulatório de Saúde Ocupacional e Fisioterapia.`
   );
 }
 

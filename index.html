@@ -401,16 +401,47 @@
             🏡 <strong>Valorização Mútua:</strong> Quando o morador embala o vidro com segurança e separa o lixo direito, sua aprovação libera pontos para ele ter <strong>desconto na conta de Água, Luz e IPTU!</strong>
           </div>
 
-          <!-- Seleção Automática de Endereço por GPS na Rota -->
+          <!-- Seleção de Endereço por GPS na Rota OU Cadastro Manual pelo Gari -->
           <div class="question-box">
-            <label class="question-title">📍 Endereço na Rota 14 (GPS Ativo):</label>
-            <select id="eval-endereco-select" class="form-input" style="margin-bottom: 8px; font-weight: 600;">
-              <option value="Rua dos Patriotas, 482 - Ipiranga|mariana@elo.com|Mariana Souza">Rua dos Patriotas, 482 (Residência: Mariana Souza)</option>
-              <option value="Rua Silva Bueno, 310 - Ipiranga||Condomínio Edifício Solar">Rua Silva Bueno, 310 (Condomínio Solar)</option>
-              <option value="Av. Nazaré, 1020 - Ipiranga||Residência Família Oliveira">Av. Nazaré, 1020 (Família Oliveira)</option>
-              <option value="Rua Bom Pastor, 740 - Ipiranga||Comércio Padaria Estrela">Rua Bom Pastor, 740 (Padaria Estrela)</option>
-            </select>
-            <p style="font-size: 0.76rem; color: var(--text-muted);">O GPS identifica o número da casa na parada do caminhão.</p>
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
+              <label class="question-title" style="margin-bottom: 0;">📍 Endereço da Coleta:</label>
+              <div style="display: flex; gap: 6px; background: #f1f5f9; padding: 3px; border-radius: 8px;">
+                <button type="button" id="btn-modo-end-gps" onclick="alternarModoEnderecoAvaliacao('gps')" style="border: none; background: #16a34a; color: #fff; font-size: 0.74rem; font-weight: 700; padding: 5px 10px; border-radius: 6px; cursor: pointer;">
+                  🎯 GPS da Rota
+                </button>
+                <button type="button" id="btn-modo-end-manual" onclick="alternarModoEnderecoAvaliacao('manual')" style="border: none; background: transparent; color: #475569; font-size: 0.74rem; font-weight: 700; padding: 5px 10px; border-radius: 6px; cursor: pointer;">
+                  ✏️ Digitar Manual
+                </button>
+              </div>
+            </div>
+
+            <!-- Bloco 1: Seleção via GPS Automático -->
+            <div id="box-eval-endereco-gps">
+              <select id="eval-endereco-select" class="form-input" style="margin-bottom: 8px; font-weight: 600;" onchange="verificarSelecaoManualDropdown(this)">
+                <option value="Rua dos Patriotas, 482 - Ipiranga|mariana@elo.com|Mariana Souza">Rua dos Patriotas, 482 (Residência: Mariana Souza)</option>
+                <option value="Rua Silva Bueno, 310 - Ipiranga||Condomínio Edifício Solar">Rua Silva Bueno, 310 (Condomínio Solar)</option>
+                <option value="Av. Nazaré, 1020 - Ipiranga||Residência Família Oliveira">Av. Nazaré, 1020 (Família Oliveira)</option>
+                <option value="Rua Bom Pastor, 740 - Ipiranga||Comércio Padaria Estrela">Rua Bom Pastor, 740 (Padaria Estrela)</option>
+                <option value="__MANUAL__">➕ Outro endereço (Cadastrar manualmente...)</option>
+              </select>
+              <p style="font-size: 0.76rem; color: var(--text-muted);">O GPS identifica o número da casa na parada do caminhão, ou toque em <strong>Digitar Manual</strong> acima.</p>
+            </div>
+
+            <!-- Bloco 2: Cadastro Manual de Endereço pelo Gari -->
+            <div id="box-eval-endereco-manual" style="display: none; flex-direction: column; gap: 8px; background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px dashed #94a3b8;">
+              <div>
+                <label class="input-label" style="font-size: 0.78rem; margin-bottom: 4px; display: block;">Rua, Número e Bairro: *</label>
+                <input type="text" id="eval-endereco-manual-rua" class="form-input" placeholder="Ex: Rua Cipriano Barata, 1250 - Ipiranga">
+              </div>
+              <div>
+                <label class="input-label" style="font-size: 0.78rem; margin-bottom: 4px; display: block;">Morador / Ponto de Referência (opcional):</label>
+                <input type="text" id="eval-endereco-manual-morador" class="form-input" placeholder="Ex: Casa Portão Branco / Sr. Roberto">
+              </div>
+              <button type="button" class="btn-outline-dashed" onclick="salvarEnderecoManualNaRota()" style="padding: 8px 10px; font-size: 0.78rem; background: #f0fdf4; border-color: #22c55e; color: #15803d;">
+                ➕ Fixar Endereço na Lista da Rota
+              </button>
+              <p style="font-size: 0.73rem; color: var(--text-muted); margin: 0;">Você pode fixar o endereço na lista da rota ou clicar direto em uma das 3 opções de avaliação abaixo.</p>
+            </div>
           </div>
 
           <!-- Botões Semáforo de Avaliação Rápida (1 Toque para o Gari) -->
@@ -728,7 +759,7 @@
             <div class="info-top">
               <div>
                 <h3 id="video-titulo">Alongamento para Costas e Ombros</h3>
-                <p id="video-subtitulo">Equipe de Saúde São Camilo • 5 minutos</p>
+                <p id="video-subtitulo">Fisioterapia Ocupacional • 5 minutos</p>
               </div>
               <div class="timer-box" id="exercise-timer">
                 <span class="timer-number" id="timer-display">30</span>s
@@ -840,9 +871,9 @@
               </div>
             </div>
 
-            <!-- Categoria 1 do Trabalhador: Alimentação, Comércio e Saúde São Camilo -->
+            <!-- Categoria 1 do Trabalhador: Alimentação, Comércio e Consultas de Saúde -->
             <div class="rewards-section" style="margin-top: 16px;">
-              <h3>Créditos em Comércio & Consultas de Saúde (São Camilo):</h3>
+              <h3>Créditos em Comércio & Consultas de Saúde:</h3>
               <div class="rewards-catalog">
                 <div class="reward-card">
                   <div class="reward-icon">🥖</div>
@@ -881,9 +912,9 @@
                   <div class="reward-icon">🏥</div>
                   <div class="reward-details">
                     <h4>Consulta com Fisioterapia</h4>
-                    <p>Clínica Integrada São Camilo • Reabilitação e alívio muscular</p>
+                    <p>Clínica Parceira de Saúde • Reabilitação e alívio muscular</p>
                   </div>
-                  <button class="btn-redeem" onclick="resgatarRecompensa(250, 'Consulta com Fisioterapia', 'Clínica Integrada São Camilo', '🏥')">
+                  <button class="btn-redeem" onclick="resgatarRecompensa(250, 'Consulta com Fisioterapia', 'Clínica Parceira de Saúde', '🏥')">
                     250 ELOs
                   </button>
                 </div>
@@ -892,9 +923,9 @@
                   <div class="reward-icon">🥗</div>
                   <div class="reward-details">
                     <h4>Consulta com Nutricionista</h4>
-                    <p>Clínica São Camilo • Nutrição energética e hidratação p/ coletores</p>
+                    <p>Clínica Parceira de Saúde • Nutrição energética e hidratação p/ coletores</p>
                   </div>
-                  <button class="btn-redeem" onclick="resgatarRecompensa(250, 'Consulta com Nutricionista', 'Clínica Integrada São Camilo', '🥗')">
+                  <button class="btn-redeem" onclick="resgatarRecompensa(250, 'Consulta com Nutricionista', 'Clínica Parceira de Saúde', '🥗')">
                     250 ELOs
                   </button>
                 </div>
@@ -1218,7 +1249,7 @@
         <div class="screen-header">
           <button class="btn-back" onclick="irParaHome()">❮</button>
           <h2>Mapa do Bairro (Ao Vivo)</h2>
-          <button class="btn-voice-inline" onclick="falarTexto('Mapa interativo em tempo real do bairro Ipiranga. Acompanhe o caminhão da coleta na Rota 14, pontos de apoio São Camilo e alertas de vidro quebrado nas ruas.')">🔊</button>
+          <button class="btn-voice-inline" onclick="falarTexto('Mapa interativo em tempo real do bairro Ipiranga. Acompanhe o caminhão da coleta na Rota 14, pontos de apoio de saúde e alertas de vidro quebrado nas ruas.')">🔊</button>
         </div>
 
         <div class="neighborhood-content">
@@ -1247,7 +1278,7 @@
             <!-- Botões Flutuantes sobre o Mapa -->
             <div class="map-floating-controls">
               <button class="map-fab" onclick="centralizarCaminhaoMapa()" title="Focar no Caminhão">🚛 Caminhão</button>
-              <button class="map-fab" onclick="focarPontoSaoCamilo()" title="Clínica São Camilo Ipiranga">🏥 São Camilo</button>
+              <button class="map-fab" onclick="focarPontoSaoCamilo()" title="Ponto de Apoio em Saúde">🏥 Ponto de Apoio</button>
               <button class="map-fab map-fab-alert" onclick="navegarPara('screen-reports')" title="Reportar Caco de Vidro ou Risco">➕ Alerta</button>
             </div>
           </div>
@@ -1286,7 +1317,7 @@
             <ul>
               <li><strong>Segunda, Quarta e Sexta:</strong> Coleta Domiciliar às 19:30</li>
               <li><strong>Terça e Quinta:</strong> Coleta Seletiva Reciclável às 10:00</li>
-              <li><strong>Ponto de Apoio ao Coletor:</strong> Clínica São Camilo (Av. Nazaré, 1501)</li>
+              <li><strong>Ponto de Apoio ao Coletor:</strong> Unidade de Saúde Ocupacional (Av. Nazaré, 1501)</li>
             </ul>
           </div>
         </div>
@@ -1505,7 +1536,7 @@
         </div>
 
         <div class="admin-body">
-          <!-- Linha 1: 4 KPIs Executivos (Negócios, Saúde e ESG) -->
+          <!-- Linha 1: KPIs Executivos de Campo (Saúde, Adesão e Segurança) -->
           <div class="admin-kpi-grid">
             <div class="admin-kpi-card kpi-green">
               <div class="kpi-header">
@@ -1513,7 +1544,6 @@
                 <span class="kpi-icon">💚</span>
               </div>
               <div class="kpi-value" id="admin-kpi-bemestar">89%</div>
-              <div class="kpi-foot">Meta ESG superada • <strong>-34% afastamentos INSS</strong></div>
             </div>
 
             <div class="admin-kpi-card kpi-blue">
@@ -1533,22 +1563,13 @@
               <div class="kpi-value" id="admin-kpi-alertas">7</div>
               <div class="kpi-foot"><strong>Zero acidentes</strong> de corte nas rotas alertadas</div>
             </div>
-
-            <div class="admin-kpi-card kpi-amber">
-              <div class="kpi-header">
-                <span>Economia Estimada (ROI SST)</span>
-                <span class="kpi-icon">💰</span>
-              </div>
-              <div class="kpi-value">R$ 54,2 mil</div>
-              <div class="kpi-foot">Redução de turnover, horas extras e FAP/SAT</div>
-            </div>
           </div>
 
           <!-- Linha 2: Tabela Corporativa SESMT de Monitoramento em Tempo Real dos Garis (Full Width, Sem Emojis) -->
           <div class="admin-panel sesmt-corporate-panel">
             <div class="sesmt-header-bar">
               <div>
-                <span class="sesmt-system-tag">SISTEMA INTEGRADO SESMT • PREFEITURA & SÃO CAMILO</span>
+                <span class="sesmt-system-tag">SISTEMA INTEGRADO SESMT • GESTÃO MUNICIPAL</span>
                 <h3>Monitoramento Ocupacional e Clínico do Efetivo (Tempo Real)</h3>
               </div>
               <div class="sesmt-controls-row">
@@ -1592,13 +1613,13 @@
             </div>
           </div>
 
-          <!-- Linha 3: Duas Colunas Widescreen (Saúde São Camilo vs Operação Mauá) -->
+          <!-- Linha 3: Duas Colunas Widescreen (Saúde Ocupacional vs Operação Urbana) -->
           <div class="admin-main-grid">
             
-            <!-- Coluna Esquerda: Saúde Mental e Ocupacional (São Camilo) -->
+            <!-- Coluna Esquerda: Saúde Mental e Ocupacional -->
             <div class="admin-panel">
               <div class="panel-header">
-                <h3>🏥 Monitoramento Clínico & Psicossocial (São Camilo)</h3>
+                <h3>🏥 Monitoramento Clínico & Psicossocial</h3>
                 <span class="panel-tag">Dados Anonimizados (LGPD)</span>
               </div>
 
@@ -1644,9 +1665,9 @@
                 </div>
               </div>
 
-              <!-- Protocolo de Encaminhamento São Camilo -->
+              <!-- Protocolo de Encaminhamento SESMT -->
               <div class="clinical-alert-box">
-                <div class="alert-badge">🩺 Protocolo Ativo SESMT + São Camilo</div>
+                <div class="alert-badge">🩺 Protocolo Ativo SESMT</div>
                 <p><strong>Rota 14 (Ipiranga):</strong> 2 coletores relataram dores moderadas na lombar após turno chuvoso. Alongamento focado de 5 min enviado automaticamente aos aparelhos e 1 vaga de fisioterapia preventiva liberada via ELOs.</p>
               </div>
             </div>
