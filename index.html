@@ -154,16 +154,45 @@
             </div>
 
             <div class="input-group">
+              <label class="input-label">CPF:</label>
+              <input type="text" id="cad-cpf" class="form-input" placeholder="000.000.000-00" maxlength="14" oninput="formatarMascaraCPF(this)">
+            </div>
+
+            <div class="input-group">
               <label class="input-label">Perfil:</label>
-              <select id="cad-tipo-perfil" class="form-input">
+              <select id="cad-tipo-perfil" class="form-input" onchange="atualizarCamposCadastroPorPerfil()">
                 <option value="trabalhador">Trabalhador da Coleta (Gari)</option>
                 <option value="morador">Morador da Cidade</option>
               </select>
             </div>
 
             <div class="input-group">
-              <label class="input-label">Rota de Coleta ou Bairro:</label>
-              <input type="text" id="cad-rota" class="form-input" placeholder="Ex: Rota 08 - Ipiranga">
+              <label class="input-label" id="lbl-cad-rota-endereco">Rota de Coleta:</label>
+              <input type="text" id="cad-rota" class="form-input" placeholder="Ex: Rota 14 - Ipiranga">
+            </div>
+
+            <!-- Campo Obrigatório Exclusivo para Morador: Comprovante de Endereço (Conta de Água/Luz) -->
+            <div class="input-group" id="grupo-cad-comprovante" style="display: none; background: #f0fdf4; padding: 12px; border-radius: 12px; border: 1.5px dashed #16a34a;">
+              <label class="input-label" style="color: #14532d; margin-bottom: 2px;">
+                📄 Comprovante de Endereço Obrigatório (Conta de Água ou Luz): *
+              </label>
+              <p style="font-size: 0.74rem; color: #166534; margin-bottom: 8px; line-height: 1.35;">
+                Anexe uma foto ou PDF da sua conta de Água (Sabesp), Luz (Enel) ou Gás para vincular seu CPF e endereço aos descontos na fatura.
+              </p>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <label for="cad-comprovante-camera" class="btn-photo-action" style="background:#dcfce7; border-color:#22c55e; color:#14532d;">
+                  📸 Fotografar Conta
+                </label>
+                <input type="file" id="cad-comprovante-camera" accept="image/*" capture="environment" style="display:none;" onchange="selecionarComprovanteCadastro(this)">
+
+                <label for="cad-comprovante-arquivo" class="btn-photo-action" style="background:#ffffff; border-color:#16a34a; color:#166534;">
+                  📎 Anexar Conta (Foto ou PDF)
+                </label>
+                <input type="file" id="cad-comprovante-arquivo" accept="image/*,.pdf" style="display:none;" onchange="selecionarComprovanteCadastro(this)">
+              </div>
+              <span id="status-comprovante-cad" style="display:block; margin-top:8px; font-size:0.75rem; font-weight:700; color:#b91c1c;">
+                ⚠️ Nenhum documento anexado (Obrigatório para Morador)
+              </span>
             </div>
 
             <div class="input-group">

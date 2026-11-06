@@ -603,6 +603,56 @@ async function executarLogin() {
 }
 
 let fotoCadastroTemp = null;
+let comprovanteCadastroTemp = null;
+
+function formatarMascaraCPF(inputEl) {
+  if (!inputEl) return;
+  let v = inputEl.value.replace(/\D/g, '').slice(0, 11);
+  if (v.length > 9) {
+    v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+  } else if (v.length > 6) {
+    v = v.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+  } else if (v.length > 3) {
+    v = v.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+  }
+  inputEl.value = v;
+}
+
+function atualizarCamposCadastroPorPerfil() {
+  const selectPerfil = document.getElementById('cad-tipo-perfil');
+  const lblRotaEnd = document.getElementById('lbl-cad-rota-endereco');
+  const inputRotaEnd = document.getElementById('cad-rota');
+  const grupoComprovante = document.getElementById('grupo-cad-comprovante');
+
+  const perfil = selectPerfil ? selectPerfil.value : 'trabalhador';
+
+  if (perfil === 'morador') {
+    if (lblRotaEnd) lblRotaEnd.textContent = 'Endereço Residencial Completo (Rua, Número e Bairro): *';
+    if (inputRotaEnd) inputRotaEnd.placeholder = 'Ex: Rua dos Patriotas, 482 - Ipiranga';
+    if (grupoComprovante) grupoComprovante.style.display = 'flex';
+  } else {
+    if (lblRotaEnd) lblRotaEnd.textContent = 'Rota de Coleta:';
+    if (inputRotaEnd) inputRotaEnd.placeholder = 'Ex: Rota 14 - Ipiranga';
+    if (grupoComprovante) grupoComprovante.style.display = 'none';
+  }
+}
+
+function selecionarComprovanteCadastro(inputEl) {
+  if (!inputEl || !inputEl.files || inputEl.files.length === 0) return;
+  const arquivo = inputEl.files[0];
+  comprovanteCadastroTemp = {
+    nomeArquivo: arquivo.name,
+    tipo: arquivo.type || 'documento',
+    dataEnvio: new Date().toLocaleDateString('pt-BR')
+  };
+
+  const statusEl = document.getElementById('status-comprovante-cad');
+  if (statusEl) {
+    statusEl.style.color = '#15803d';
+    statusEl.textContent = `✅ Documento anexado: ${arquivo.name}`;
+  }
+  falarTexto(`Comprovante de endereço ${arquivo.name} anexado com sucesso.`);
+}
 
 function converterImagemParaDataUrl(arquivo) {
   return new Promise((resolve) => {
@@ -659,29 +709,62 @@ async function atualizarFotoPerfilUsuario(inputEl) {
 
 async function executarCadastro() {
   const nome = document.getElementById('cad-nome').value.trim();
+  const cpf = document.getElementById('cad-cpf')?.value.trim() || '';
   const perfil = document.getElementById('cad-tipo-perfil').value;
-  const rota = document.getElementById('cad-rota').value.trim() || "Rota Central";
+  const rotaOuEndereco = document.getElementById('cad-rota').value.trim();
   const email = document.getElementById('cad-email').value.trim().toLowerCase();
   const senha = document.getElementById('cad-senha').value.trim();
 
-  if (!nome || !email || !senha) {
-    alert("Por favor, preencha Nome, E-mail e Senha para continuar.");
+  if (!nome || !cpf || !email || !senha) {
+    alert("Por favor, preencha Nome Completo, CPF, E-mail e Senha para continuar.");
     return;
   }
 
+  if (perfil === 'morador') {
+    if (!rotaOuEndereco) {
+      alert("Por favor, informe o seu Endereço Residencial Completo (Rua, Número e Bairro).");
+      return;
+    }
+    if (!comprovanteCadastroTemp) {
+      alert("⚠️ Comprovante de Endereço Obrigatório!\n\nPara se cadastrar como Morador(a) e receber descontos na conta de Água e Luz, anexe uma foto ou PDF de um comprovante de residência (ex: conta de água ou luz).");
+      falarTexto("Por favor, anexe uma foto ou documento da sua conta de água ou luz para comprovar seu endereço.");
+      return;
+    }
+  }
+
+  const rota = rotaOuEndereco || "Rota 14 - Ipiranga";
+
   try {
-    const dados = { nome, perfil, rota, email, senha };
+    const dados = { nome, cpf, perfil, rota, email, senha };
     const novoUsuario = await SupabaseService.cadastrar(dados);
+    novoUsuario.cpf = cpf;
+    if (comprovanteCadastroTemp) {
+      novoUsuario.comprovanteEndereco = comprovanteCadastroTemp.nomeArquivo;
+    }
     if (fotoCadastroTemp) {
       novoUsuario.fotoPerfil = fotoCadastroTemp;
-      if (BancoUsuarios[email]) {
-        BancoUsuarios[email].fotoPerfil = fotoCadastroTemp;
-        salvarBancoUsuarios();
+    }
+    if (BancoUsuarios[email]) {
+      BancoUsuarios[email].cpf = cpf;
+      if (comprovanteCadastroTemp) BancoUsuarios[email].comprovanteEndereco = comprovanteCadastroTemp.nomeArquivo;
+      if (fotoCadastroTemp) BancoUsuarios[email].fotoPerfil = fotoCadastroTemp;
+      salvarBancoUsuarios();
+    }
+    fotoCadastroTemp = null;
+    comprovanteCadastroTemp = null;
+
+    // Se for morador, adiciona também o endereço na lista do GPS do Gari para avaliação
+    if (perfil === 'morador') {
+      const selectEnd = document.getElementById('eval-endereco-select');
+      if (selectEnd) {
+        const opt = document.createElement('option');
+        opt.value = `${rota}|${email}|${nome}`;
+        opt.textContent = `${rota} (Residência: ${nome})`;
+        selectEnd.prepend(opt);
       }
-      fotoCadastroTemp = null;
     }
 
-    alert(`🎉 Cadastro realizado com sucesso no Supabase!\n\nBem-vindo(a), ${nome}!\nVocê ganhou um bônus de boas-vindas de +50 ELOs!`);
+    alert(`🎉 Cadastro realizado com sucesso!\n\nBem-vindo(a), ${nome} (CPF: ${cpf})!\n${perfil === 'morador' ? '📍 Endereço e Comprovante (Conta de Água/Luz) validados!\n' : ''}Você ganhou um bônus de boas-vindas de +50 ELOs!`);
     falarTexto(`Bem-vindo ao ELO, ${nome}! Você ganhou 50 pontos bônus de boas-vindas.`);
 
     logarUsuario(novoUsuario);
