@@ -339,9 +339,239 @@ function renderizarMensagens() {
   `).join('');
 }
 
+/* --------------------------------------------------------------------------
+   8. CATÁLOGO E PLAYER DE VÍDEOS DE ALONGAMENTO (SAÚDE OCUPACIONAL)
+   -------------------------------------------------------------------------- */
+const CatalogoVideosAlongamento = {
+  costas: {
+    titulo: "Alongamento para Costas e Ombros",
+    subtitulo: "Fisioterapia São Camilo • Alívio de peso e lombar • 5 min",
+    categoria: "Alongamento Ocupacional",
+    tempoSegundos: 30,
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    poster: "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=600&q=80",
+    passos: [
+      "Fique em pé com a postura ereta e os pés alinhados com o quadril.",
+      "Puxe o braço direito na frente do peito usando a mão esquerda.",
+      "Segure firme por 20 segundos sem prender a respiração.",
+      "Troque o braço e repita o movimento com calma."
+    ],
+    falaPassos: "Alongamento para costas e ombros. Fique em pé, puxe o braço na frente do peito e segure por 20 segundos respirando fundo."
+  },
+  pernas: {
+    titulo: "Relaxamento de Pernas e Panturrilhas",
+    subtitulo: "Prevenção de câimbras e cansaço pós-corrida • 4 min",
+    categoria: "Membros Inferiores",
+    tempoSegundos: 30,
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+    poster: "https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=600&q=80",
+    passos: [
+      "Apoie as mãos na parede ou na traseira do caminhão.",
+      "Dê um passo largo para trás com uma perna, mantendo o calcanhar todo no chão.",
+      "Sinta a panturrilha alongar e segure por 25 segundos.",
+      "Alterne as pernas devagar."
+    ],
+    falaPassos: "Relaxamento de pernas. Apoie as mãos na parede, estique uma perna para trás com o calcanhar no chão e segure por 25 segundos."
+  },
+  postura: {
+    titulo: "Postura Correta ao Levantar Peso",
+    subtitulo: "Ergonomia prática • Proteja sua coluna vertebral • 3 min",
+    categoria: "Ergonomia no Trabalho",
+    tempoSegundos: 20,
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+    poster: "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=600&q=80",
+    passos: [
+      "Aproxime-se ao máximo do saco ou tambor de resíduos.",
+      "Dobre os joelhos para agachar, mantendo a coluna sempre reta.",
+      "Use a força das coxas para subir, nunca puxe com a lombar curvada.",
+      "Segure o peso junto ao corpo."
+    ],
+    falaPassos: "Postura correta: Dobre sempre os joelhos e nunca curve a coluna. Use a força das pernas para erguer o saco de lixo."
+  },
+  respiracao: {
+    titulo: "Respiração e Descompressão Mental",
+    subtitulo: "Psicologia São Camilo • Alívio de estresse e fadiga • 3 min",
+    categoria: "Saúde Mental",
+    tempoSegundos: 30,
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4",
+    poster: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=600&q=80",
+    passos: [
+      "Sente-se ou fique em pé em um local com sombra.",
+      "Puxe o ar pelo nariz contando até 4.",
+      "Segure o ar nos pulmões por 2 segundos.",
+      "Solte o ar pela boca bem devagar contando até 6."
+    ],
+    falaPassos: "Exercício respiratório: Puxe o ar pelo nariz profundamente, segure dois segundos e solte pela boca bem devagar para relaxar a mente."
+  }
+};
+
+let exercicioAtualId = 'costas';
+let timerInterval = null;
+let timerSegundosRestantes = 30;
+let timerAtivo = false;
+
+function abrirPlayerVideo(idExercicio) {
+  const dados = CatalogoVideosAlongamento[idExercicio];
+  if (!dados) return;
+
+  exercicioAtualId = idExercicio;
+
+  // Atualiza elementos do player
+  document.getElementById('video-titulo').textContent = dados.titulo;
+  document.getElementById('video-subtitulo').textContent = dados.subtitulo;
+  document.getElementById('video-categoria-badge').textContent = dados.categoria;
+  document.getElementById('player-titulo-header').textContent = dados.titulo;
+
+  // Atualiza vídeo
+  const video = document.getElementById('video-element');
+  const source = document.getElementById('video-source');
+  source.src = dados.videoUrl;
+  video.poster = dados.poster;
+  video.load();
+
+  // Atualiza instruções
+  const ol = document.getElementById('video-instrucoes');
+  ol.innerHTML = dados.passos.map(passo => `<li>${passo}</li>`).join('');
+
+  // Reseta Timer
+  pararTimer();
+  timerSegundosRestantes = dados.tempoSegundos;
+  document.getElementById('timer-display').textContent = timerSegundosRestantes;
+
+  navegarPara('screen-video-player');
+
+  // Narração acolhedora inicial
+  falarTexto(`Iniciando vídeo: ${dados.titulo}. Siga as instruções do vídeo ou aperte o botão para ouvir os passos.`);
+}
+
+function fecharPlayerVideo() {
+  const video = document.getElementById('video-element');
+  if (video) video.pause();
+  pararTimer();
+  navegarPara('screen-health');
+}
+
+function alternarTimer() {
+  const btn = document.getElementById('btn-timer-toggle');
+  if (timerAtivo) {
+    pararTimer();
+  } else {
+    iniciarTimer();
+  }
+}
+
+function iniciarTimer() {
+  timerAtivo = true;
+  const btn = document.getElementById('btn-timer-toggle');
+  btn.textContent = "⏸️ Pausar Cronômetro";
+  btn.classList.add('running');
+
+  timerInterval = setInterval(() => {
+    timerSegundosRestantes--;
+    document.getElementById('timer-display').textContent = timerSegundosRestantes;
+
+    if (timerSegundosRestantes <= 0) {
+      pararTimer();
+      falarTexto("Tempo concluído! Muito bem! Respire e relaxe o corpo.");
+      alert("⏱️ Tempo finalizado! Excelente execução!");
+      timerSegundosRestantes = CatalogoVideosAlongamento[exercicioAtualId].tempoSegundos;
+      document.getElementById('timer-display').textContent = timerSegundosRestantes;
+    }
+  }, 1000);
+}
+
+function pararTimer() {
+  timerAtivo = false;
+  if (timerInterval) clearInterval(timerInterval);
+  const btn = document.getElementById('btn-timer-toggle');
+  if (btn) {
+    btn.textContent = "⏱️ Iniciar Cronômetro";
+    btn.classList.remove('running');
+  }
+}
+
+function narrarPassosVideo() {
+  const dados = CatalogoVideosAlongamento[exercicioAtualId];
+  if (dados) {
+    falarTexto(dados.falaPassos);
+  }
+}
+
+function concluirExercicioVideo() {
+  const dados = CatalogoVideosAlongamento[exercicioAtualId];
+  const video = document.getElementById('video-element');
+  if (video) video.pause();
+  pararTimer();
+
+  somarPontos(10, `completar o vídeo de ${dados.titulo}`);
+  alert(`🎉 Parabéns pelo cuidado com sua saúde!\n\nVocê concluiu: ${dados.titulo}\nVocê ganhou +10 ELOs!`);
+  falarTexto(`Parabéns Carlos! Alongamento concluído. Você conquistou mais 10 ELOs.`);
+
+  navegarPara('screen-health');
+}
+
+/* Modal de Novo Vídeo */
+function abrirModalNovoVideo() {
+  document.getElementById('modal-novo-video').style.display = 'flex';
+}
+
+function fecharModalNovoVideo() {
+  document.getElementById('modal-novo-video').style.display = 'none';
+}
+
+function salvarNovoVideo() {
+  const titulo = document.getElementById('novo-video-titulo').value.trim();
+  const duracao = document.getElementById('novo-video-duracao').value.trim() || "4 min";
+  const passos = document.getElementById('novo-video-passos').value.trim() || "Siga a orientação do fisioterapeuta com postura ereta.";
+
+  if (!titulo) {
+    alert("Por favor, digite o título do alongamento.");
+    return;
+  }
+
+  const novoId = "video_" + Date.now();
+  CatalogoVideosAlongamento[novoId] = {
+    titulo: titulo,
+    subtitulo: `Fisioterapia São Camilo • ${duracao}`,
+    categoria: "Alongamento Especializado",
+    tempoSegundos: 30,
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    poster: "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=600&q=80",
+    passos: [passos, "Mantenha a respiração estável durante todo o exercício.", "Repita duas vezes ao dia."],
+    falaPassos: `${titulo}. ${passos}`
+  };
+
+  // Cria card visual na lista
+  const lista = document.getElementById('lista-videos-alongamento');
+  const novoCard = document.createElement('div');
+  novoCard.className = 'exercise-card';
+  novoCard.onclick = () => abrirPlayerVideo(novoId);
+  novoCard.innerHTML = `
+    <div class="exercise-thumb">✨</div>
+    <div class="exercise-details">
+      <h4>${titulo}</h4>
+      <p>Novo vídeo adicionado • <strong>${duracao}</strong></p>
+      <span class="badge-tag">⭐ +10 ELOs</span>
+    </div>
+    <button class="btn-play">▶</button>
+  `;
+  lista.prepend(novoCard);
+
+  fecharModalNovoVideo();
+  alert(`✅ Novo vídeo cadastrado com sucesso: "${titulo}"!`);
+  falarTexto(`Novo vídeo de alongamento cadastrado: ${titulo}.`);
+}
+
+function filtrarVideosSaude(categoria, botao) {
+  document.querySelectorAll('.health-content .tab-btn').forEach(b => b.classList.remove('active'));
+  botao.classList.add('active');
+  falarTexto(`Filtrando lista de exercícios por ${categoria}.`);
+}
+
 // Inicialização ao carregar a página
 document.addEventListener('DOMContentLoaded', () => {
   atualizarDisplaysPontos();
   renderizarMensagens();
   console.log("Sistema ELO pronto. Fases 1, 2 e 3 integradas.");
 });
+
