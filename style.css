@@ -2794,5 +2794,55 @@ body {
   border-radius: var(--radius-full);
 }
 
+/* Foto de Perfil Vazia & Upload (Câmera / Galeria) */
+.avatar-empty-upload {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  border: 2px dashed #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.7rem;
+  color: #475569;
+  overflow: hidden;
+  position: relative;
+}
+
+.avatar-empty-slot {
+  overflow: hidden;
+  position: relative;
+  border: 2px dashed rgba(255, 255, 255, 0.75);
+}
+
+.avatar-user-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+.btn-photo-action {
+  background: #eff6ff;
+  border: 1.5px solid #93c5fd;
+  color: #1e40af;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+}
+
+.btn-photo-action:hover {
+  background: #dbeafe;
+}
+
+
 
 

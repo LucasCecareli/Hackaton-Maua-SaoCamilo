@@ -602,6 +602,61 @@ async function executarLogin() {
   }
 }
 
+let fotoCadastroTemp = null;
+
+function converterImagemParaDataUrl(arquivo) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const tam = 220;
+        canvas.width = tam;
+        canvas.height = tam;
+        const ctx = canvas.getContext('2d');
+        const menorLado = Math.min(img.width, img.height);
+        const sx = (img.width - menorLado) / 2;
+        const sy = (img.height - menorLado) / 2;
+        ctx.drawImage(img, sx, sy, menorLado, menorLado, 0, 0, tam, tam);
+        resolve(canvas.toDataURL('image/jpeg', 0.82));
+      };
+      img.onerror = () => resolve(ev.target.result);
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(arquivo);
+  });
+}
+
+async function selecionarFotoCadastro(inputEl) {
+  if (!inputEl || !inputEl.files || inputEl.files.length === 0) return;
+  const dataUrl = await converterImagemParaDataUrl(inputEl.files[0]);
+  fotoCadastroTemp = dataUrl;
+  const preview = document.getElementById('cad-avatar-preview');
+  if (preview) {
+    preview.innerHTML = `<img src="${dataUrl}" class="avatar-user-img" alt="Foto de Perfil">`;
+  }
+  falarTexto("Foto de perfil selecionada para o cadastro.");
+}
+
+async function atualizarFotoPerfilUsuario(inputEl) {
+  if (!inputEl || !inputEl.files || inputEl.files.length === 0) return;
+  const dataUrl = await converterImagemParaDataUrl(inputEl.files[0]);
+
+  if (EstadoApp.usuarioLogado) {
+    EstadoApp.usuarioLogado.fotoPerfil = dataUrl;
+    if (BancoUsuarios[EstadoApp.usuarioLogado.email]) {
+      BancoUsuarios[EstadoApp.usuarioLogado.email].fotoPerfil = dataUrl;
+      salvarBancoUsuarios();
+    }
+    localStorage.setItem('elo_usuario_sessao', JSON.stringify(EstadoApp.usuarioLogado));
+  }
+
+  atualizarDadosInterfaceUsuario();
+  alert("📸 Sua foto de perfil foi atualizada com sucesso!");
+  falarTexto("Foto de perfil atualizada com sucesso.");
+}
+
 async function executarCadastro() {
   const nome = document.getElementById('cad-nome').value.trim();
   const perfil = document.getElementById('cad-tipo-perfil').value;
@@ -617,6 +672,14 @@ async function executarCadastro() {
   try {
     const dados = { nome, perfil, rota, email, senha };
     const novoUsuario = await SupabaseService.cadastrar(dados);
+    if (fotoCadastroTemp) {
+      novoUsuario.fotoPerfil = fotoCadastroTemp;
+      if (BancoUsuarios[email]) {
+        BancoUsuarios[email].fotoPerfil = fotoCadastroTemp;
+        salvarBancoUsuarios();
+      }
+      fotoCadastroTemp = null;
+    }
 
     alert(`🎉 Cadastro realizado com sucesso no Supabase!\n\nBem-vindo(a), ${nome}!\nVocê ganhou um bônus de boas-vindas de +50 ELOs!`);
     falarTexto(`Bem-vindo ao ELO, ${nome}! Você ganhou 50 pontos bônus de boas-vindas.`);
@@ -631,8 +694,6 @@ async function executarCadastro() {
 function preencherLoginDemo(email, tipo) {
   const usuario = BancoUsuarios[email];
   if (usuario) {
-    document.getElementById('login-email').value = usuario.email;
-    document.getElementById('login-senha').value = usuario.senha;
     logarUsuario(usuario);
   }
 }
@@ -659,9 +720,22 @@ function logarUsuario(usuario) {
 function executarLogout() {
   localStorage.removeItem('elo_usuario_sessao');
   EstadoApp.usuarioLogado = null;
+  const emailInput = document.getElementById('login-email');
+  const senhaInput = document.getElementById('login-senha');
+  if (emailInput) emailInput.value = '';
+  if (senhaInput) senhaInput.value = '';
   alert("Você saiu da sua conta com sucesso!");
   falarTexto("Sessão finalizada. Até logo!");
   navegarPara('screen-splash');
+}
+
+function renderizarAvatarElemento(el, fotoUrl) {
+  if (!el) return;
+  if (fotoUrl) {
+    el.innerHTML = `<img src="${fotoUrl}" class="avatar-user-img" alt="Foto de Perfil">`;
+  } else {
+    el.textContent = '📷';
+  }
 }
 
 function atualizarDadosInterfaceUsuario() {
@@ -673,14 +747,18 @@ function atualizarDadosInterfaceUsuario() {
   // Header Trabalhador
   const hNome = document.getElementById('worker-header-nome');
   const hRota = document.getElementById('worker-header-rota');
+  const hAvatar = document.getElementById('worker-avatar-box');
   if (hNome && u.perfil === 'trabalhador') hNome.textContent = `Olá, ${primeiroNome}!`;
   if (hRota && u.perfil === 'trabalhador') hRota.textContent = `Trabalhador da coleta • ${u.rota} ❯`;
+  if (u.perfil === 'trabalhador') renderizarAvatarElemento(hAvatar, u.fotoPerfil);
 
   // Header Morador
   const mNome = document.getElementById('morador-header-nome');
   const mRota = document.getElementById('morador-header-rota');
+  const mAvatar = document.getElementById('morador-avatar-box');
   if (mNome && u.perfil === 'morador') mNome.textContent = `Olá, ${primeiroNome}!`;
   if (mRota && u.perfil === 'morador') mRota.textContent = `Morador(a) • ${u.rota} ❯`;
+  if (u.perfil === 'morador') renderizarAvatarElemento(mAvatar, u.fotoPerfil);
 
   // Tela de Perfil e Progresso (Adaptada para Trabalhador ou Morador)
   const pAvatar = document.getElementById('perfil-avatar-icone');
@@ -695,7 +773,7 @@ function atualizarDadosInterfaceUsuario() {
   const lblStat2 = document.getElementById('lbl-stat-2');
   const lblStat3 = document.getElementById('lbl-stat-3');
 
-  if (pAvatar) pAvatar.textContent = u.perfil === 'morador' ? '👩🏻' : '👷🏽‍♂️';
+  renderizarAvatarElemento(pAvatar, u.fotoPerfil);
   if (pNome) pNome.textContent = u.nome;
   if (pEmail) pEmail.textContent = u.email;
   if (pRota) pRota.textContent = u.rota;

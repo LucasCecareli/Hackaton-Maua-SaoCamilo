@@ -110,16 +110,16 @@
             <button class="auth-tab" id="tab-auth-register" onclick="alternarAbaAuth('cadastro')">Criar Conta</button>
           </div>
 
-          <!-- Formulário de Login -->
+          <!-- Formulário de Login (Inicia Vazio) -->
           <div id="form-auth-login" class="auth-form">
             <div class="input-group">
               <label class="input-label">E-mail cadastrado:</label>
-              <input type="email" id="login-email" class="form-input" placeholder="carlos@elo.com" value="carlos@elo.com">
+              <input type="email" id="login-email" class="form-input" placeholder="Digite seu e-mail" value="" autocomplete="off">
             </div>
 
             <div class="input-group">
               <label class="input-label">Senha:</label>
-              <input type="password" id="login-senha" class="form-input" placeholder="••••••••" value="123456">
+              <input type="password" id="login-senha" class="form-input" placeholder="Digite sua senha" value="" autocomplete="off">
             </div>
 
             <button class="btn btn-primary" onclick="executarLogin()">
@@ -129,6 +129,25 @@
 
           <!-- Formulário de Cadastro de Novo Trabalhador/Morador -->
           <div id="form-auth-register" class="auth-form" style="display: none;">
+            <!-- Foto de Perfil Vazia para o Usuário Tirar na Hora ou Escolher da Galeria -->
+            <div class="input-group" style="align-items: center; text-align: center; background: #f8fafc; padding: 12px; border-radius: 12px; border: 1.5px dashed #cbd5e1;">
+              <div class="avatar-empty-upload" id="cad-avatar-preview">
+                <span class="avatar-placeholder-icon">📷</span>
+              </div>
+              <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: 600; margin-top: 4px;">Sua Foto de Perfil (Vazia)</span>
+              <div style="display: flex; gap: 8px; margin-top: 8px; justify-content: center; flex-wrap: wrap;">
+                <label for="cad-foto-camera" class="btn-photo-action">
+                  📸 Tirar Foto na Hora
+                </label>
+                <input type="file" id="cad-foto-camera" accept="image/*" capture="user" style="display:none;" onchange="selecionarFotoCadastro(this)">
+
+                <label for="cad-foto-galeria" class="btn-photo-action">
+                  🖼️ Escolher da Galeria
+                </label>
+                <input type="file" id="cad-foto-galeria" accept="image/*" style="display:none;" onchange="selecionarFotoCadastro(this)">
+              </div>
+            </div>
+
             <div class="input-group">
               <label class="input-label">Nome Completo:</label>
               <input type="text" id="cad-nome" class="form-input" placeholder="Ex: Marcos Souza">
@@ -235,8 +254,8 @@
       <!-- TELA 3: HOME DO TRABALHADOR (CARLOS)           -->
       <!-- ============================================== -->
       <section class="screen" id="screen-home-worker">
-        <div class="profile-header worker-theme" onclick="navegarPara('screen-worker-profile')" title="Ver meu progresso e perfil" style="cursor: pointer;">
-          <div class="profile-avatar">👷🏽‍♂️</div>
+        <div class="profile-header worker-theme" onclick="navegarPara('screen-worker-profile')" title="Ver meu progresso, perfil e colocar foto" style="cursor: pointer;">
+          <div class="profile-avatar avatar-empty-slot" id="worker-avatar-box" title="Toque para adicionar sua foto">📷</div>
           <div class="profile-meta">
             <h2 id="worker-header-nome">Olá, Carlos!</h2>
             <p id="worker-header-rota">Trabalhador da coleta • Equipe Rota 14 ❯</p>
@@ -389,9 +408,20 @@
         </div>
 
         <div class="profile-details-content">
-          <!-- Card de Identificação -->
-          <div class="worker-card-id" id="perfil-card-box">
-            <div class="worker-avatar-badge" id="perfil-avatar-icone">👷🏽‍♂️</div>
+          <!-- Card de Identificação com Foto de Perfil Personalizável (Câmera ou Galeria) -->
+          <div class="worker-card-id" id="perfil-card-box" style="flex-direction: column; align-items: center; text-align: center; gap: 10px;">
+            <div class="worker-avatar-badge avatar-empty-slot" id="perfil-avatar-icone" style="width: 76px; height: 76px; font-size: 1.9rem;">📷</div>
+            <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+              <label for="perfil-foto-camera" class="btn-photo-action">
+                📸 Tirar Foto na Hora
+              </label>
+              <input type="file" id="perfil-foto-camera" accept="image/*" capture="user" style="display:none;" onchange="atualizarFotoPerfilUsuario(this)">
+
+              <label for="perfil-foto-galeria" class="btn-photo-action">
+                🖼️ Escolher da Galeria
+              </label>
+              <input type="file" id="perfil-foto-galeria" accept="image/*" style="display:none;" onchange="atualizarFotoPerfilUsuario(this)">
+            </div>
             <div class="worker-id-info">
               <h3 id="perfil-nome">Carlos Silva</h3>
               <p id="perfil-email">carlos@elo.com</p>
@@ -913,8 +943,8 @@
       <!-- TELA 8: HOME DA MORADORA (MARIANA) - FASE 3    -->
       <!-- ============================================== -->
       <section class="screen" id="screen-home-morador">
-        <div class="profile-header resident-theme" onclick="navegarPara('screen-worker-profile')" title="Ver meu perfil, progresso e sair da conta" style="cursor: pointer;">
-          <div class="profile-avatar resident-avatar">👩🏻</div>
+        <div class="profile-header resident-theme" onclick="navegarPara('screen-worker-profile')" title="Ver meu perfil, colocar foto, progresso e sair da conta" style="cursor: pointer;">
+          <div class="profile-avatar resident-avatar avatar-empty-slot" id="morador-avatar-box" title="Toque para adicionar sua foto">📷</div>
           <div class="profile-meta">
             <h2 id="morador-header-nome">Olá, Mariana!</h2>
             <p id="morador-header-rota">Moradora • Bairro Ipiranga ❯</p>
