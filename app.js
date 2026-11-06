@@ -219,7 +219,7 @@ function alternarAbaAuth(aba) {
   }
 }
 
-function executarLogin() {
+async function executarLogin() {
   const email = document.getElementById('login-email').value.trim().toLowerCase();
   const senha = document.getElementById('login-senha').value.trim();
 
@@ -228,25 +228,18 @@ function executarLogin() {
     return;
   }
 
-  const usuario = BancoUsuarios[email];
-
-  if (!usuario) {
-    alert("E-mail não encontrado no sistema. Clique na aba 'Criar Conta' para se cadastrar!");
-    falarTexto("E-mail não cadastrado. Crie uma nova conta.");
-    return;
+  try {
+    // Tenta autenticar pelo Supabase (com fallback local transparente)
+    const usuario = await SupabaseService.login(email, senha);
+    logarUsuario(usuario);
+  } catch (err) {
+    console.warn("Erro no login:", err);
+    alert(err.message || "E-mail ou senha incorretos.");
+    falarTexto("Não foi possível entrar. Verifique os dados.");
   }
-
-  if (usuario.senha !== senha) {
-    alert("Senha incorreta. Tente novamente.");
-    falarTexto("Senha incorreta. Verifique os dados digitados.");
-    return;
-  }
-
-  // Login com Sucesso
-  logarUsuario(usuario);
 }
 
-function executarCadastro() {
+async function executarCadastro() {
   const nome = document.getElementById('cad-nome').value.trim();
   const perfil = document.getElementById('cad-tipo-perfil').value;
   const rota = document.getElementById('cad-rota').value.trim() || "Rota Central";
@@ -258,33 +251,18 @@ function executarCadastro() {
     return;
   }
 
-  if (BancoUsuarios[email]) {
-    alert("Este e-mail já está cadastrado! Faça login com sua senha.");
-    alternarAbaAuth('login');
-    return;
+  try {
+    const dados = { nome, perfil, rota, email, senha };
+    const novoUsuario = await SupabaseService.cadastrar(dados);
+
+    alert(`🎉 Cadastro realizado com sucesso no Supabase!\n\nBem-vindo(a), ${nome}!\nVocê ganhou um bônus de boas-vindas de +50 ELOs!`);
+    falarTexto(`Bem-vindo ao ELO, ${nome}! Você ganhou 50 pontos bônus de boas-vindas.`);
+
+    logarUsuario(novoUsuario);
+  } catch (err) {
+    console.error("Erro no cadastro:", err);
+    alert(err.message || "Erro ao realizar cadastro.");
   }
-
-  // Novo usuário com Bônus de Boas-Vindas
-  const novoUsuario = {
-    nome: nome,
-    email: email,
-    senha: senha,
-    perfil: perfil,
-    rota: rota,
-    pontosElos: 50, // Bônus de cadastro
-    checkins: 0,
-    alongamentos: 0,
-    alertas: 0,
-    vouchers: []
-  };
-
-  BancoUsuarios[email] = novoUsuario;
-  salvarBancoUsuarios();
-
-  alert(`🎉 Cadastro realizado com sucesso!\n\nBem-vindo(a), ${nome}!\nVocê ganhou um bônus de boas-vindas de +50 ELOs!`);
-  falarTexto(`Bem-vindo ao ELO, ${nome}! Você ganhou 50 pontos bônus de boas-vindas.`);
-
-  logarUsuario(novoUsuario);
 }
 
 function preencherLoginDemo(email, tipo) {
@@ -407,6 +385,7 @@ function concluirCheckin() {
 
   if (EstadoApp.usuarioLogado) {
     EstadoApp.usuarioLogado.checkins = (EstadoApp.usuarioLogado.checkins || 0) + 1;
+    SupabaseService.registrarCheckin(EstadoApp.usuarioLogado.email, EstadoApp.checkinDoDia.humor, EstadoApp.checkinDoDia.dor);
   }
 
   somarPontos(10, "fazer o check-in de saúde");
@@ -426,6 +405,7 @@ function somarPontos(quantidade, motivo) {
     BancoUsuarios[EstadoApp.usuarioLogado.email] = EstadoApp.usuarioLogado;
     salvarBancoUsuarios();
     localStorage.setItem('elo_usuario_sessao', JSON.stringify(EstadoApp.usuarioLogado));
+    SupabaseService.atualizarPontos(EstadoApp.usuarioLogado.email, EstadoApp.pontosElos);
   }
 
   localStorage.setItem('elos_saldo', EstadoApp.pontosElos);
@@ -467,6 +447,7 @@ function resgatarRecompensa(custo, itemNome) {
     BancoUsuarios[EstadoApp.usuarioLogado.email] = EstadoApp.usuarioLogado;
     salvarBancoUsuarios();
     localStorage.setItem('elo_usuario_sessao', JSON.stringify(EstadoApp.usuarioLogado));
+    SupabaseService.salvarVoucher(EstadoApp.usuarioLogado.email, novoVoucher);
   }
 
   localStorage.setItem('elos_saldo', EstadoApp.pontosElos);
@@ -515,10 +496,19 @@ function enviarOcorrencia() {
   const tipoProblemaEl = document.querySelector('input[name="tipo-problema"]:checked');
   const tipoProblema = tipoProblemaEl ? tipoProblemaEl.value : "Lixo acumulado";
   const descricao = document.getElementById('input-descricao-denuncia').value.trim();
+  const endereco = document.getElementById('label-endereco')?.textContent || "Rua dos Patriotas - Ipiranga";
 
   const protocolo = "ELO-" + Math.floor(100000 + Math.random() * 900000);
 
-  let mensagemAlerta = `Ocorrência registrada com sucesso!\nProtocolo: ${protocolo}\nProblema: ${tipoProblema}`;
+  // Envia ocorrência para o Supabase PostgreSQL
+  SupabaseService.salvarOcorrencia({
+    protocolo: protocolo,
+    tipoProblema: tipoProblema,
+    endereco: endereco,
+    descricao: descricao
+  });
+
+  let mensagemAlerta = `Ocorrência registrada no Supabase com sucesso!\nProtocolo: ${protocolo}\nProblema: ${tipoProblema}`;
   
   if (tipoProblema.includes("Perigoso") || tipoProblema.includes("Vidro")) {
     mensagemAlerta += `\n\n⚠️ ALERTA DE SEGURANÇA EMITIDO: Os coletores do caminhão da rota receberão aviso imediato de cuidado com perfurocortantes nesta rua!`;
