@@ -21,8 +21,7 @@
     <!-- Barra Superior de Status -->
     <header class="app-header" id="main-header">
       <div class="header-logo" onclick="navegarPara('screen-splash')">
-        <span class="logo-circle"></span>
-        <span class="logo-text">ELO</span>
+        <img src="assets/logo_elo_hd.png" alt="ELO Logo" class="header-logo-img">
       </div>
       <div class="header-actions" style="display: flex; align-items: center; gap: 8px;">
         <!-- Botão de Alternância Rápida para o Painel Web B2B/Prefeitura -->
@@ -31,7 +30,8 @@
         </button>
         <!-- Botão de Acessibilidade de Leitura por Voz -->
         <button class="btn-voice-toggle" id="btn-global-voice" title="Ler tela em voz alta" aria-label="Ouvir tela" onclick="lerTelaAtual()">
-          🔊
+          <span class="voice-icon">🔊</span>
+          <span class="voice-text">Ouvir</span>
         </button>
       </div>
     </header>
@@ -43,31 +43,51 @@
       <!-- TELA 1: SPLASH & BOAS-VINDAS                   -->
       <!-- ============================================== -->
       <section class="screen active" id="screen-splash">
+        <!-- Elementos decorativos de fundo do Figma -->
+        <div class="splash-bg-decorations">
+          <div class="splash-bg-blob"></div>
+          <div class="splash-bg-ring"></div>
+        </div>
+
         <div class="splash-content">
-          <div class="splash-badge">3º Hackathon em Saúde</div>
+          <!-- Tag / Badge Superior -->
+          <div class="splash-badge">
+            <span class="badge-dot"></span>
+            <span>Juntos por uma cidade melhor</span>
+          </div>
           
+          <!-- Seção Hero: Nova Logo Oficial + Título + Subtítulo -->
           <div class="splash-hero">
             <div class="hero-logo-box">
-              <span class="hero-logo">ELO</span>
-              <span class="hero-leaf">🍃</span>
+              <img src="assets/logo_elo_hd.png" alt="ELO - Conectando quem cuida da cidade" class="hero-logo-img">
             </div>
             <h1 class="splash-title">Conectando quem cuida da cidade</h1>
-            <p class="splash-subtitle">Saúde, dignidade e reconhecimento para os trabalhadores da limpeza urbana.</p>
+            <p class="splash-subtitle">Saúde, cuidado e reconhecimento para quem faz a diferença todos os dias.</p>
           </div>
 
-          <div class="splash-illustration">
-            <div class="worker-avatar-large">👷🏽‍♂️</div>
-            <div class="city-skyline">🏙️🌳🏡</div>
+          <!-- Ilustração Central com os cards/pills flutuantes -->
+          <div class="splash-illustration-wrapper">
+            <img src="assets/illustration_hero_hd.png" alt="Ilustração ELO - Conectando quem cuida da cidade" class="splash-hero-illustration">
           </div>
 
+          <!-- Ações e Rodapé -->
           <div class="splash-actions">
-            <button class="btn btn-primary" onclick="navegarPara('screen-auth')">
-              Entrar ou Criar Conta
+            <button class="btn btn-primary btn-comecar" onclick="navegarPara('screen-auth')">
+              <span class="btn-comecar-text">Começar</span>
+              <span class="btn-comecar-circle">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </span>
             </button>
-            <button class="btn-link" onclick="navegarPara('screen-roles')">
-              Continuar como Convidado ❯
-            </button>
-            <p class="splash-subtext">Parceria Centro Universitário São Camilo & IMT</p>
+            <p class="splash-helper-text">É simples, rápido e feito para você.</p>
+            
+            <footer class="splash-footer">
+              <span class="footer-hackathon">3º Hackathon em Saúde</span>
+              <span class="footer-dot">•</span>
+              <span class="footer-partners">São Camilo • Instituto Mauá de Tecnologia</span>
+            </footer>
           </div>
         </div>
       </section>

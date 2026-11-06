@@ -101,7 +101,7 @@ function falarTexto(texto) {
 function lerTelaAtual() {
   const tela = EstadoApp.telaAtual;
   if (tela === 'screen-splash') {
-    falarTexto("Aplicativo ELO: Conectando quem cuida da cidade. Toque no botão Começar Agora.");
+    falarTexto("Aplicativo ELO: Juntos por uma cidade melhor. Conectando quem cuida da cidade. Saúde, cuidado e reconhecimento para quem faz a diferença todos os dias. Toque no botão Começar.");
   } else if (tela === 'screen-roles') {
     falarTexto("Escolha o seu perfil: Sou Morador ou Sou Trabalhador da coleta.");
   } else if (tela === 'screen-home-worker') {
