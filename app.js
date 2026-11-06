@@ -17,7 +17,13 @@ const BancoUsuariosPadrao = {
     email: "carlos@elo.com",
     senha: "123456",
     perfil: "trabalhador",
-    rota: "Rota 14 - Bairro Ipiranga",
+    matricula: "MAT-1042",
+    rota: "Rota 14 - Caminhão COMP-04",
+    statusSaude: "apto",
+    labelStatusSaude: "Apto / Regular",
+    queixaClinica: "Sem queixas álgicas relatadas",
+    horarioCheckin: "07:30",
+    protocoloAcionado: false,
     pontosElos: 340,
     checkins: 12,
     alongamentos: 8,
@@ -26,6 +32,60 @@ const BancoUsuariosPadrao = {
       { titulo: "Café com Pão na Chapa", local: "Padaria Estrela do Ipiranga", codigo: "ELO-7492", status: "Pronto para Usar", icone: "☕" },
       { titulo: "Sessão de Fisioterapia", local: "Clínica Integrada São Camilo", codigo: "SPSC-1104", status: "Agendado", icone: "🏥" }
     ]
+  },
+  "roberto.lima@elo.com": {
+    nome: "Roberto Nascimento Lima",
+    email: "roberto.lima@elo.com",
+    senha: "123456",
+    perfil: "trabalhador",
+    matricula: "MAT-3108",
+    rota: "Rota 14 - Caminhão COMP-04",
+    statusSaude: "critico",
+    labelStatusSaude: "Crítico (EVA 8/10)",
+    queixaClinica: "Dor lombar intensa (EVA 8) e exaustão física pós-turno",
+    horarioCheckin: "13:40",
+    protocoloAcionado: false,
+    pontosElos: 290,
+    checkins: 15,
+    alongamentos: 6,
+    alertas: 5,
+    vouchers: []
+  },
+  "marcos.oliveira@elo.com": {
+    nome: "Marcos Antônio Oliveira",
+    email: "marcos.oliveira@elo.com",
+    senha: "123456",
+    perfil: "trabalhador",
+    matricula: "MAT-2891",
+    rota: "Rota 09 - Caminhão COMP-02",
+    statusSaude: "atencao",
+    labelStatusSaude: "Atenção",
+    queixaClinica: "Dores moderadas em ombros e fadiga muscular",
+    horarioCheckin: "14:05",
+    protocoloAcionado: false,
+    pontosElos: 210,
+    checkins: 9,
+    alongamentos: 4,
+    alertas: 2,
+    vouchers: []
+  },
+  "joao.santos@elo.com": {
+    nome: "João Batista dos Santos",
+    email: "joao.santos@elo.com",
+    senha: "123456",
+    perfil: "trabalhador",
+    matricula: "MAT-4190",
+    rota: "Rota 12 - Caminhão COMP-07",
+    statusSaude: "apto",
+    labelStatusSaude: "Apto / Regular",
+    queixaClinica: "Sem queixas clínicas • Check-in regular",
+    horarioCheckin: "07:50",
+    protocoloAcionado: false,
+    pontosElos: 410,
+    checkins: 18,
+    alongamentos: 11,
+    alertas: 6,
+    vouchers: []
   },
   "mariana@elo.com": {
     nome: "Mariana Souza",
@@ -41,11 +101,36 @@ const BancoUsuariosPadrao = {
       { titulo: "Desconto R$ 15 na Conta de Água", local: "Sabesp • Fatura Residencial", codigo: "SABESP-4829", status: "Pronto para Usar", icone: "💧" },
       { titulo: "Desconto R$ 20 na Conta de Energia", local: "Enel • EcoEnergia Residencial", codigo: "ENEL-9104", status: "Pronto para Usar", icone: "⚡" }
     ]
+  },
+  "gestao@prefeitura.sp.gov.br": {
+    nome: "Gestão Subprefeitura Ipiranga",
+    email: "gestao@prefeitura.sp.gov.br",
+    senha: "123456",
+    tokenGestor: "PREF-IPIRANGA",
+    perfil: "prefeitura",
+    rota: "Subprefeitura Ipiranga • SST & Limpeza Urbana",
+    pontosElos: 0,
+    checkins: 0,
+    alongamentos: 0,
+    alertas: 0,
+    vouchers: []
   }
 };
 
 // Carrega ou inicializa o banco no LocalStorage
 let BancoUsuarios = JSON.parse(localStorage.getItem('elo_banco_usuarios')) || BancoUsuariosPadrao;
+// Garante que todos os perfis padrão e campos SESMT existam no banco carregado
+Object.keys(BancoUsuariosPadrao).forEach(k => {
+  if (!BancoUsuarios[k]) {
+    BancoUsuarios[k] = BancoUsuariosPadrao[k];
+  } else if (BancoUsuariosPadrao[k].perfil === 'trabalhador') {
+    if (!BancoUsuarios[k].matricula) BancoUsuarios[k].matricula = BancoUsuariosPadrao[k].matricula;
+    if (!BancoUsuarios[k].statusSaude) BancoUsuarios[k].statusSaude = BancoUsuariosPadrao[k].statusSaude;
+    if (!BancoUsuarios[k].labelStatusSaude) BancoUsuarios[k].labelStatusSaude = BancoUsuariosPadrao[k].labelStatusSaude;
+    if (!BancoUsuarios[k].queixaClinica) BancoUsuarios[k].queixaClinica = BancoUsuariosPadrao[k].queixaClinica;
+    if (!BancoUsuarios[k].horarioCheckin) BancoUsuarios[k].horarioCheckin = BancoUsuariosPadrao[k].horarioCheckin;
+  }
+});
 if (BancoUsuarios["mariana@elo.com"]) {
   BancoUsuarios["mariana@elo.com"].vouchers = BancoUsuariosPadrao["mariana@elo.com"].vouchers;
   if (BancoUsuarios["mariana@elo.com"].pontosElos < 100) BancoUsuarios["mariana@elo.com"].pontosElos = 180;
@@ -564,21 +649,30 @@ function irParaHome() {
 function alternarAbaAuth(aba) {
   const btnLogin = document.getElementById('tab-auth-login');
   const btnCad = document.getElementById('tab-auth-register');
+  const btnPref = document.getElementById('tab-auth-prefeitura');
   const formLogin = document.getElementById('form-auth-login');
   const formCad = document.getElementById('form-auth-register');
+  const formPref = document.getElementById('form-auth-prefeitura');
+
+  if (btnLogin) btnLogin.classList.remove('active');
+  if (btnCad) btnCad.classList.remove('active');
+  if (btnPref) btnPref.classList.remove('active');
+  if (formLogin) formLogin.style.display = 'none';
+  if (formCad) formCad.style.display = 'none';
+  if (formPref) formPref.style.display = 'none';
 
   if (aba === 'login') {
-    btnLogin.classList.add('active');
-    btnCad.classList.remove('active');
-    formLogin.style.display = 'flex';
-    formCad.style.display = 'none';
+    if (btnLogin) btnLogin.classList.add('active');
+    if (formLogin) formLogin.style.display = 'flex';
     falarTexto("Aba de Login selecionada. Digite seu e-mail e senha cadastrados.");
+  } else if (aba === 'prefeitura') {
+    if (btnPref) btnPref.classList.add('active');
+    if (formPref) formPref.style.display = 'flex';
+    falarTexto("Aba exclusiva da Prefeitura selecionada. Informe o e-mail corporativo, senha e o token institucional.");
   } else {
-    btnCad.classList.add('active');
-    btnLogin.classList.remove('active');
-    formLogin.style.display = 'none';
-    formCad.style.display = 'flex';
-    falarTexto("Aba de Cadastro selecionada. Preencha seu nome, perfil e e-mail.");
+    if (btnCad) btnCad.classList.add('active');
+    if (formCad) formCad.style.display = 'flex';
+    falarTexto("Aba de Cadastro selecionada. Preencha seu nome, CPF, perfil e e-mail.");
   }
 }
 
@@ -591,6 +685,17 @@ async function executarLogin() {
     return;
   }
 
+  // Se tentar usar e-mail da Prefeitura na aba comum, redireciona para a aba restrita que exige o Token Institucional
+  if (email.includes('prefeitura') || (BancoUsuarios[email] && BancoUsuarios[email].perfil === 'prefeitura')) {
+    alternarAbaAuth('prefeitura');
+    const prefEmailEl = document.getElementById('pref-email');
+    const prefSenhaEl = document.getElementById('pref-senha');
+    if (prefEmailEl) prefEmailEl.value = email;
+    if (prefSenhaEl) prefSenhaEl.value = senha;
+    alert("🏛️ Conta Institucional Detectada!\n\nPor segurança, informe também o Código/Token da Subprefeitura (PREF-IPIRANGA) para abrir o Painel Executivo.");
+    return;
+  }
+
   try {
     // Tenta autenticar pelo Supabase (com fallback local transparente)
     const usuario = await SupabaseService.login(email, senha);
@@ -600,6 +705,37 @@ async function executarLogin() {
     alert(err.message || "E-mail ou senha incorretos.");
     falarTexto("Não foi possível entrar. Verifique os dados.");
   }
+}
+
+function executarLoginPrefeitura() {
+  const email = document.getElementById('pref-email')?.value.trim().toLowerCase() || '';
+  const senha = document.getElementById('pref-senha')?.value.trim() || '';
+  const token = document.getElementById('pref-token')?.value.trim().toUpperCase() || '';
+
+  if (!email || !senha || !token) {
+    alert("🔒 Acesso Restrito!\n\nPor favor, preencha o E-mail Corporativo (@prefeitura.sp.gov.br), a Senha e o Token Institucional da Subprefeitura.");
+    return;
+  }
+
+  const gestor = BancoUsuarios["gestao@prefeitura.sp.gov.br"];
+  const emailValido = email === "gestao@prefeitura.sp.gov.br" || email.endsWith("@prefeitura.sp.gov.br");
+  const senhaValida = senha === (gestor?.senha || "123456");
+  const tokenValido = token === "PREF-IPIRANGA" || token === "ELO-PREF";
+
+  if (!emailValido || !senhaValida || !tokenValido) {
+    alert("❌ Credencial Institucional Inválida!\n\nApenas gestores autorizados da Prefeitura com Token válido (PREF-IPIRANGA) têm permissão para visualizar o Painel de Gestão.");
+    falarTexto("Acesso negado. Verifique o e-mail corporativo, senha e token institucional.");
+    return;
+  }
+
+  const usuarioPref = {
+    ...(gestor || BancoUsuariosPadrao["gestao@prefeitura.sp.gov.br"]),
+    email: email,
+    tokenGestor: token,
+    perfil: "prefeitura"
+  };
+
+  logarUsuario(usuarioPref);
 }
 
 let fotoCadastroTemp = null;
@@ -738,6 +874,20 @@ async function executarCadastro() {
     const dados = { nome, cpf, perfil, rota, email, senha };
     const novoUsuario = await SupabaseService.cadastrar(dados);
     novoUsuario.cpf = cpf;
+
+    // Se for Trabalhador (Gari), gera matrícula funcional (ex: MAT-4829) e registra na tabela SESMT em tempo real
+    if (perfil === 'trabalhador') {
+      const matriculaGerada = "MAT-" + Math.floor(1000 + Math.random() * 9000);
+      const agora = new Date();
+      const horaFormatada = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      novoUsuario.matricula = matriculaGerada;
+      novoUsuario.statusSaude = 'apto';
+      novoUsuario.labelStatusSaude = 'Aguardando 1º Check-in';
+      novoUsuario.queixaClinica = 'Cadastro recém-efetuado • Apto / Regular';
+      novoUsuario.horarioCheckin = horaFormatada;
+      novoUsuario.protocoloAcionado = false;
+    }
+
     if (comprovanteCadastroTemp) {
       novoUsuario.comprovanteEndereco = comprovanteCadastroTemp.nomeArquivo;
     }
@@ -745,13 +895,18 @@ async function executarCadastro() {
       novoUsuario.fotoPerfil = fotoCadastroTemp;
     }
     if (BancoUsuarios[email]) {
-      BancoUsuarios[email].cpf = cpf;
-      if (comprovanteCadastroTemp) BancoUsuarios[email].comprovanteEndereco = comprovanteCadastroTemp.nomeArquivo;
-      if (fotoCadastroTemp) BancoUsuarios[email].fotoPerfil = fotoCadastroTemp;
+      BancoUsuarios[email] = { ...BancoUsuarios[email], ...novoUsuario };
+      salvarBancoUsuarios();
+    } else {
+      BancoUsuarios[email] = novoUsuario;
       salvarBancoUsuarios();
     }
     fotoCadastroTemp = null;
     comprovanteCadastroTemp = null;
+
+    if (typeof renderizarTabelaSesmtGari === 'function') {
+      renderizarTabelaSesmtGari();
+    }
 
     // Se for morador, adiciona também o endereço na lista do GPS do Gari para avaliação
     if (perfil === 'morador') {
@@ -784,18 +939,26 @@ function preencherLoginDemo(email, tipo) {
 function logarUsuario(usuario) {
   EstadoApp.usuarioLogado = usuario;
   EstadoApp.perfilAtual = usuario.perfil;
-  EstadoApp.pontosElos = usuario.pontosElos;
+  EstadoApp.pontosElos = usuario.pontosElos || 0;
 
   localStorage.setItem('elo_usuario_sessao', JSON.stringify(usuario));
   localStorage.setItem('elo_perfil', usuario.perfil);
 
   atualizarDadosInterfaceUsuario();
 
-  falarTexto(`Olá ${usuario.nome.split(' ')[0]}! Acesso confirmado. Você tem ${usuario.pontosElos} ELOs acumulados.`);
-
-  if (usuario.perfil === 'trabalhador') {
+  if (usuario.perfil === 'prefeitura') {
+    const sub = document.getElementById('admin-auth-subtitle');
+    if (sub) {
+      sub.textContent = `🔒 Acesso Autenticado: ${usuario.nome} (${usuario.email} • Token: ${usuario.tokenGestor || 'PREF-IPIRANGA'})`;
+    }
+    navegarPara('screen-admin-dashboard');
+    sincronizarPainelAdmin();
+    falarTexto("Credencial da Prefeitura validada. Bem-vindo ao Painel Executivo de Gestão.");
+  } else if (usuario.perfil === 'trabalhador') {
+    falarTexto(`Olá ${usuario.nome.split(' ')[0]}! Acesso confirmado. Você tem ${usuario.pontosElos} ELOs acumulados.`);
     navegarPara('screen-home-worker');
   } else {
+    falarTexto(`Olá ${usuario.nome.split(' ')[0]}! Acesso confirmado. Você tem ${usuario.pontosElos} ELOs acumulados.`);
     navegarPara('screen-home-morador');
   }
 }
@@ -803,10 +966,11 @@ function logarUsuario(usuario) {
 function executarLogout() {
   localStorage.removeItem('elo_usuario_sessao');
   EstadoApp.usuarioLogado = null;
-  const emailInput = document.getElementById('login-email');
-  const senhaInput = document.getElementById('login-senha');
-  if (emailInput) emailInput.value = '';
-  if (senhaInput) senhaInput.value = '';
+  EstadoApp.perfilAtual = null;
+  ['login-email', 'login-senha', 'pref-email', 'pref-senha', 'pref-token'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
   alert("Você saiu da sua conta com sucesso!");
   falarTexto("Sessão finalizada. Até logo!");
   navegarPara('screen-splash');
@@ -931,14 +1095,59 @@ function concluirCheckin() {
     return;
   }
 
+  const humor = EstadoApp.checkinDoDia.humor || 'Bem';
+  const dor = EstadoApp.checkinDoDia.dor || 'Sem dores';
+  const agora = new Date();
+  const horarioAtual = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+  // Classificação Clínica Automática para a Tabela SESMT da Prefeitura:
+  // Vermelho (Crítico): Dor intensa (EVA >= 7) ou exaustão/tristeza intensa
+  // Amarelo (Atenção): Cansaço moderado ("Mais ou menos") ou dores leves/moderadas
+  // Verde (Apto): Sem queixas ("Sem dores" e "Muito bem" / "Bem")
+  let novoStatusSaude = 'apto';
+  let novoLabelStatus = 'Apto / Regular';
+  let novaQueixaClinica = `Sem queixas álgicas • Estado: ${humor}`;
+
+  if (dor === 'Dores intensas' || humor === 'Muito cansado' || humor === 'Triste') {
+    novoStatusSaude = 'critico';
+    novoLabelStatus = dor === 'Dores intensas' ? 'Crítico (EVA ≥ 7)' : 'Crítico (Exaustão)';
+    novaQueixaClinica = `${dor} • Estado emocional: ${humor}`;
+  } else if (dor === 'Dores moderadas' || dor === 'Pequeno desconforto' || humor === 'Mais ou menos') {
+    novoStatusSaude = 'atencao';
+    novoLabelStatus = 'Atenção';
+    novaQueixaClinica = `${dor} • Estado emocional: ${humor}`;
+  }
+
   if (EstadoApp.usuarioLogado) {
     EstadoApp.usuarioLogado.checkins = (EstadoApp.usuarioLogado.checkins || 0) + 1;
+    EstadoApp.usuarioLogado.statusSaude = novoStatusSaude;
+    EstadoApp.usuarioLogado.labelStatusSaude = novoLabelStatus;
+    EstadoApp.usuarioLogado.queixaClinica = novaQueixaClinica;
+    EstadoApp.usuarioLogado.horarioCheckin = horarioAtual;
+    EstadoApp.usuarioLogado.protocoloAcionado = false;
+
+    if (!EstadoApp.usuarioLogado.matricula) {
+      EstadoApp.usuarioLogado.matricula = "MAT-1042";
+    }
+
+    if (BancoUsuarios[EstadoApp.usuarioLogado.email]) {
+      BancoUsuarios[EstadoApp.usuarioLogado.email] = {
+        ...BancoUsuarios[EstadoApp.usuarioLogado.email],
+        ...EstadoApp.usuarioLogado
+      };
+      salvarBancoUsuarios();
+    }
+
     SupabaseService.registrarCheckin(
       EstadoApp.usuarioLogado.email,
-      EstadoApp.checkinDoDia.humor,
-      EstadoApp.checkinDoDia.dor,
+      humor,
+      dor,
       EstadoApp.usuarioLogado.checkins
     );
+  }
+
+  if (typeof renderizarTabelaSesmtGari === 'function') {
+    renderizarTabelaSesmtGari();
   }
 
   somarPontos(10, "fazer o check-in de saúde");
@@ -1811,6 +2020,14 @@ function filtrarVideosSaude(categoria, botao) {
    9. FASE 4: PAINEL WEB DA CONCESSIONÁRIA / PREFEITURA (B2B & ESG)
    -------------------------------------------------------------------------- */
 function abrirPainelGestor() {
+  // Bloqueia acesso se o usuário não estiver autenticado com perfil exclusivo da Prefeitura
+  if (!EstadoApp.usuarioLogado || EstadoApp.usuarioLogado.perfil !== 'prefeitura') {
+    alert("🔒 Acesso Restrito à Prefeitura!\n\nApenas gestores autenticados com E-mail Corporativo (@prefeitura.sp.gov.br) e Token Institucional (PREF-IPIRANGA) podem visualizar o Painel Executivo.");
+    navegarPara('screen-auth');
+    alternarAbaAuth('prefeitura');
+    return;
+  }
+
   navegarPara('screen-admin-dashboard');
   sincronizarPainelAdmin();
   falarTexto("Painel executivo da Concessionária e Prefeitura aberto. Dados sincronizados com o Supabase PostgreSQL.");
@@ -1833,14 +2050,27 @@ async function sincronizarPainelAdmin() {
         .order('pontos_elos', { ascending: false });
 
       if (perfisNuvem && perfisNuvem.length > 0) {
-        listaPerfis = perfisNuvem.map(p => ({
-          nome: p.nome,
-          email: p.email,
-          perfil: p.perfil,
-          rota: p.rota_ou_bairro || 'Ipiranga',
-          pontosElos: p.pontos_elos,
-          checkins: p.total_checkins || 0
-        }));
+        perfisNuvem.forEach(p => {
+          if (p.perfil === 'trabalhador' && !BancoUsuarios[p.email]) {
+            const hashNum = Math.abs(p.email.split('').reduce((a, c) => a + c.charCodeAt(0), 0) % 8999) + 1000;
+            BancoUsuarios[p.email] = {
+              nome: p.nome,
+              email: p.email,
+              perfil: 'trabalhador',
+              matricula: `MAT-${hashNum}`,
+              rota: p.rota_ou_bairro || 'Rota 14 - Ipiranga',
+              statusSaude: 'apto',
+              labelStatusSaude: (p.total_checkins || 0) > 0 ? 'Apto / Regular' : 'Aguardando 1º Check-in',
+              queixaClinica: (p.total_checkins || 0) > 0 ? 'Sem queixas clínicas relatadas' : 'Aguardando 1º Check-in no app',
+              horarioCheckin: '08:00',
+              protocoloAcionado: false,
+              pontosElos: p.pontos_elos || 50,
+              checkins: p.total_checkins || 0
+            };
+          }
+        });
+        salvarBancoUsuarios();
+        listaPerfis = Object.values(BancoUsuarios);
       }
 
       // 2. Busca ocorrências reais salvas na nuvem
@@ -1872,6 +2102,134 @@ async function sincronizarPainelAdmin() {
       </div>
     `).join('');
   }
+
+  // Atualiza a Tabela Corporativa SESMT de Monitoramento dos Garis
+  renderizarTabelaSesmtGari();
+}
+
+/* --------------------------------------------------------------------------
+   TABELA CORPORATIVA SESMT DE MONITORAMENTO DOS GARIS (PREFEITURA / SÃO CAMILO)
+   -------------------------------------------------------------------------- */
+let filtroGravidadeSesmtAtual = 'todos';
+
+function definirFiltroGravidadeSesmt(filtro, botao) {
+  filtroGravidadeSesmtAtual = filtro;
+  document.querySelectorAll('#sesmt-filter-tabs .sesmt-tab').forEach(btn => btn.classList.remove('active'));
+  if (botao) botao.classList.add('active');
+  renderizarTabelaSesmtGari();
+}
+
+function renderizarTabelaSesmtGari() {
+  const tbody = document.getElementById('admin-sesmt-tbody');
+  if (!tbody) return;
+
+  const termoBusca = (document.getElementById('input-busca-sesmt')?.value || '').trim().toLowerCase();
+
+  // Filtra apenas os trabalhadores (garis) cadastrados no sistema
+  const todosGaris = Object.values(BancoUsuarios).filter(u => u && u.perfil === 'trabalhador');
+
+  // Ordena por gravidade clínica: Crítico (1º) -> Atenção (2º) -> Apto (3º)
+  const pesoGravidade = { critico: 0, atencao: 1, apto: 2 };
+  todosGaris.sort((a, b) => {
+    const pa = pesoGravidade[a.statusSaude || 'apto'] ?? 2;
+    const pb = pesoGravidade[b.statusSaude || 'apto'] ?? 2;
+    return pa - pb;
+  });
+
+  // Atualiza contadores das abas de filtro
+  const countTodos = todosGaris.length;
+  const countCritico = todosGaris.filter(g => g.statusSaude === 'critico').length;
+  const countAtencao = todosGaris.filter(g => g.statusSaude === 'atencao').length;
+  const countApto = todosGaris.filter(g => (g.statusSaude || 'apto') === 'apto').length;
+
+  const elTodos = document.getElementById('count-sesmt-todos');
+  const elCrit = document.getElementById('count-sesmt-critico');
+  const elAten = document.getElementById('count-sesmt-atencao');
+  const elApto = document.getElementById('count-sesmt-apto');
+  if (elTodos) elTodos.textContent = countTodos;
+  if (elCrit) elCrit.textContent = countCritico;
+  if (elAten) elAten.textContent = countAtencao;
+  if (elApto) elApto.textContent = countApto;
+
+  // Aplica filtro de aba (Críticos / Atenção / Aptos / Todos) e busca textual
+  const garisFiltrados = todosGaris.filter(g => {
+    const status = g.statusSaude || 'apto';
+    if (filtroGravidadeSesmtAtual !== 'todos' && status !== filtroGravidadeSesmtAtual) {
+      return false;
+    }
+    if (termoBusca) {
+      const textoAlvo = `${g.nome || ''} ${g.matricula || ''} ${g.rota || ''} ${g.queixaClinica || ''}`.toLowerCase();
+      return textoAlvo.includes(termoBusca);
+    }
+    return true;
+  });
+
+  if (garisFiltrados.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" style="text-align:center; padding:18px; color:#64748b; font-weight:600;">
+          Nenhum coletor encontrado para o filtro ou termo pesquisado.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = garisFiltrados.map(g => {
+    const status = g.statusSaude || 'apto';
+    const matricula = g.matricula || 'MAT-1042';
+    const rota = g.rota || 'Rota 14 - Caminhão COMP-04';
+    const labelStatus = g.labelStatusSaude || (status === 'critico' ? 'Crítico (EVA ≥ 7)' : status === 'atencao' ? 'Atenção' : 'Apto / Regular');
+    const queixa = g.queixaClinica || 'Sem queixas clínicas relatadas';
+    const horario = g.horarioCheckin || '08:00';
+
+    const classePill = status === 'critico' ? 'st-critico' : status === 'atencao' ? 'st-atencao' : 'st-apto';
+    const classeDot = status === 'critico' ? 'dot-red' : status === 'atencao' ? 'dot-yellow' : 'dot-green';
+
+    const acaoHtml = g.protocoloAcionado
+      ? `<span class="sesmt-protocolo-confirmado">Protocolo São Camilo Ativo</span>`
+      : `<button class="btn-sesmt-ambulatorio" onclick="acionarAmbulatorioGari('${g.email}', this)">Acionar Ambulatório</button>`;
+
+    return `
+      <tr data-email="${g.email}" data-matricula="${matricula}" data-status="${status}">
+        <td><strong>${g.nome}</strong></td>
+        <td><span class="sesmt-matricula-code">${matricula}</span></td>
+        <td>${rota}</td>
+        <td>
+          <span class="sesmt-status-pill ${classePill}">
+            <span class="dot-indicator ${classeDot}"></span>${labelStatus}
+          </span>
+        </td>
+        <td>${queixa}</td>
+        <td>${horario}</td>
+        <td>${acaoHtml}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function acionarAmbulatorioGari(emailGari, botao) {
+  const gari = BancoUsuarios[emailGari];
+  if (!gari) return;
+
+  const numProtocolo = "SPSC-" + Math.floor(10000 + Math.random() * 90000);
+  gari.protocoloAcionado = true;
+  gari.ultimoProtocoloClinico = numProtocolo;
+  salvarBancoUsuarios();
+
+  if (botao) {
+    botao.outerHTML = `<span class="sesmt-protocolo-confirmado">Protocolo São Camilo Ativo</span>`;
+  }
+
+  alert(
+    `PROTOCOLO CLÍNICO SÃO CAMILO ATIVADO\n\n` +
+    `Protocolo: ${numProtocolo}\n` +
+    `Coletor(a): ${gari.nome} (${gari.matricula || 'MAT-1042'})\n` +
+    `Lotação: ${gari.rota || 'Rota 14'}\n` +
+    `Quadro Clínico: ${gari.queixaClinica || 'Avaliação Ocupacional'}\n\n` +
+    `Encaminhamento registrado junto ao Ambulatório de Saúde Ocupacional e Fisioterapia do Centro Universitário São Camilo.`
+  );
+  falarTexto(`Protocolo clínico São Camilo ativado para o coletor ${gari.nome}.`);
 }
 
 function renderizarTabelaOcorrenciasAdmin(ocorrencias) {
@@ -1967,6 +2325,7 @@ document.addEventListener('DOMContentLoaded', () => {
   atualizarDadosInterfaceUsuario();
   atualizarDisplaysPontos();
   renderizarMensagens();
+  renderizarTabelaSesmtGari();
   console.log("Sistema ELO completo (Fases 1 a 4 + Supabase PostgreSQL) inicializado.");
 });
 

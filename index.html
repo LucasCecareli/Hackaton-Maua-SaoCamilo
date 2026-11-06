@@ -108,6 +108,7 @@
           <div class="auth-tabs">
             <button class="auth-tab active" id="tab-auth-login" onclick="alternarAbaAuth('login')">Entrar</button>
             <button class="auth-tab" id="tab-auth-register" onclick="alternarAbaAuth('cadastro')">Criar Conta</button>
+            <button class="auth-tab" id="tab-auth-prefeitura" onclick="alternarAbaAuth('prefeitura')">🏛️ Prefeitura</button>
           </div>
 
           <!-- Formulário de Login (Inicia Vazio) -->
@@ -210,6 +211,37 @@
             </button>
           </div>
 
+          <!-- Formulário Restrito Exclusivo da Prefeitura / Concessionária -->
+          <div id="form-auth-prefeitura" class="auth-form" style="display: none;">
+            <div style="background: #eff6ff; border: 1.5px solid #93c5fd; border-radius: 12px; padding: 12px; font-size: 0.78rem; color: #1e3a8a; line-height: 1.4;">
+              🔒 <strong>Acesso Restrito (B2G / B2B):</strong> O Painel Executivo Web é exclusivo para gestores autorizados da Prefeitura e Concessionária mediante E-mail Corporativo e Token Institucional.
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">E-mail Corporativo Institucional:</label>
+              <input type="email" id="pref-email" class="form-input" placeholder="gestao@prefeitura.sp.gov.br" value="" autocomplete="off">
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">Senha do Gestor:</label>
+              <input type="password" id="pref-senha" class="form-input" placeholder="Digite sua senha institucional" value="" autocomplete="off">
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">🔑 Código / Token da Subprefeitura:</label>
+              <input type="text" id="pref-token" class="form-input" placeholder="Ex: PREF-IPIRANGA" value="" autocomplete="off" style="text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+            </div>
+
+            <div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 8px 10px; font-size: 0.72rem; color: #475569;">
+              💡 <strong>Credencial Homologada:</strong><br>
+              E-mail: <code>gestao@prefeitura.sp.gov.br</code> • Senha: <code>123456</code> • Token: <code>PREF-IPIRANGA</code>
+            </div>
+
+            <button class="btn btn-primary" style="background: #1e3a8a;" onclick="executarLoginPrefeitura()">
+              🔐 Autenticar Gestor e Abrir Painel Web
+            </button>
+          </div>
+
           <!-- Acesso Rápido para a Banca do Hackathon -->
           <div class="demo-quick-access">
             <span class="quick-title">⚡ Acesso Rápido para Demonstração:</span>
@@ -220,8 +252,8 @@
               <button class="btn-demo-chip" onclick="preencherLoginDemo('mariana@elo.com', 'morador')">
                 👩🏻 Mariana (Moradora)
               </button>
-              <button class="btn-demo-chip" onclick="abrirPainelGestor()">
-                📊 Painel Web Concessionária / Prefeitura (B2B & ESG)
+              <button class="btn-demo-chip" onclick="preencherLoginDemo('gestao@prefeitura.sp.gov.br', 'prefeitura')">
+                🏛️ Prefeitura (Login Gestor • Token PREF-IPIRANGA)
               </button>
             </div>
           </div>
@@ -779,7 +811,11 @@
               <h3>Como conquistar mais ELOs na Rota:</h3>
               <div class="tasks-list">
                 <div class="task-item">
-                  <span>📹 Assistir a um vídeo de alongamento</span>
+                  <span>🏠 Avaliar descarte dos endereços na rota</span>
+                  <strong class="points-gain">+15</strong>
+                </div>
+                <div class="task-item">
+                  <span>📹 Assistir e praticar vídeo de alongamento</span>
                   <strong class="points-gain">+10</strong>
                 </div>
                 <div class="task-item">
@@ -787,60 +823,118 @@
                   <strong class="points-gain">+10</strong>
                 </div>
                 <div class="task-item">
-                  <span>⚠️ Confirmar alerta de vidro na rota</span>
-                  <strong class="points-gain">+20</strong>
-                </div>
-                <div class="task-item">
-                  <span>🤝 Bônus de segurança da equipe do mês</span>
+                  <span>🤝 Bônus mensal de segurança da equipe</span>
                   <strong class="points-gain">+50</strong>
                 </div>
               </div>
             </div>
 
+            <!-- Categoria 1 do Trabalhador: Alimentação, Comércio e Saúde São Camilo -->
             <div class="rewards-section" style="margin-top: 16px;">
-              <h3>Troque seus ELOs por benefícios:</h3>
+              <h3>Créditos em Comércio & Consultas de Saúde (São Camilo):</h3>
               <div class="rewards-catalog">
                 <div class="reward-card">
-                  <div class="reward-icon">☕</div>
+                  <div class="reward-icon">🥖</div>
                   <div class="reward-details">
-                    <h4>Café com Pão na Chapa</h4>
-                    <p>Padaria parceira da sua rota de coleta</p>
+                    <h4>Crédito em Padaria (R$ 15)</h4>
+                    <p>Café reforçado e lanche nas padarias parceiras da rota</p>
                   </div>
-                  <button class="btn-redeem" onclick="resgatarRecompensa(100, 'Café com Pão na Chapa', 'Padaria Estrela do Ipiranga', '☕')">
-                    100 ELOs
+                  <button class="btn-redeem" onclick="resgatarRecompensa(80, 'Crédito em Padaria (R$ 15)', 'Padaria Estrela do Ipiranga', '🥖')">
+                    80 ELOs
                   </button>
                 </div>
 
                 <div class="reward-card">
-                  <div class="reward-icon">📱</div>
+                  <div class="reward-icon">💊</div>
                   <div class="reward-details">
-                    <h4>Recarga de Celular R$ 15</h4>
-                    <p>Créditos para Claro, Vivo ou TIM</p>
+                    <h4>Crédito em Farmácia (R$ 25)</h4>
+                    <p>Desconto em medicamentos, protetor solar e itens de higiene</p>
                   </div>
-                  <button class="btn-redeem" onclick="resgatarRecompensa(200, 'Recarga de Celular R$ 15', 'Operadoras Móveis', '📱')">
-                    200 ELOs
+                  <button class="btn-redeem" onclick="resgatarRecompensa(120, 'Crédito em Farmácia (R$ 25)', 'Rede Farmácias Parceiras', '💊')">
+                    120 ELOs
+                  </button>
+                </div>
+
+                <div class="reward-card">
+                  <div class="reward-icon">🛒</div>
+                  <div class="reward-details">
+                    <h4>Crédito em Mercado (R$ 40)</h4>
+                    <p>Vale-compras para alimentação e mercado da família</p>
+                  </div>
+                  <button class="btn-redeem" onclick="resgatarRecompensa(180, 'Crédito em Mercado (R$ 40)', 'Supermercados Parceiros do Bairro', '🛒')">
+                    180 ELOs
                   </button>
                 </div>
 
                 <div class="reward-card highlight">
                   <div class="reward-icon">🏥</div>
                   <div class="reward-details">
-                    <h4>Sessão de Fisioterapia</h4>
-                    <p>Clínica São Camilo para alívio da coluna</p>
+                    <h4>Consulta com Fisioterapia</h4>
+                    <p>Clínica Integrada São Camilo • Reabilitação e alívio muscular</p>
                   </div>
-                  <button class="btn-redeem" onclick="resgatarRecompensa(500, 'Sessão de Fisioterapia', 'Clínica Integrada São Camilo', '🏥')">
-                    500 ELOs
+                  <button class="btn-redeem" onclick="resgatarRecompensa(250, 'Consulta com Fisioterapia', 'Clínica Integrada São Camilo', '🏥')">
+                    250 ELOs
                   </button>
                 </div>
 
                 <div class="reward-card highlight">
-                  <div class="reward-icon">🧠</div>
+                  <div class="reward-icon">🥗</div>
                   <div class="reward-details">
-                    <h4>Acolhimento Psicológico</h4>
-                    <p>Conversa sigilosa com profissional de saúde</p>
+                    <h4>Consulta com Nutricionista</h4>
+                    <p>Clínica São Camilo • Nutrição energética e hidratação p/ coletores</p>
                   </div>
-                  <button class="btn-redeem" onclick="resgatarRecompensa(600, 'Acolhimento Psicológico', 'Clínica São Camilo', '🧠')">
-                    600 ELOs
+                  <button class="btn-redeem" onclick="resgatarRecompensa(250, 'Consulta com Nutricionista', 'Clínica Integrada São Camilo', '🥗')">
+                    250 ELOs
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Categoria 2 do Trabalhador: Descontos nas Contas Fixas da Casa (Igual ao Morador) -->
+            <div class="rewards-section" style="margin-top: 18px;">
+              <h3>Descontos nas Contas Fixas da Sua Casa (Água, Luz, Gás e IPTU):</h3>
+              <div class="rewards-catalog">
+                <div class="reward-card highlight">
+                  <div class="reward-icon">💧</div>
+                  <div class="reward-details">
+                    <h4>Desconto R$ 15 na Conta de Água</h4>
+                    <p>Sabesp • Abatimento direto na fatura residencial do trabalhador</p>
+                  </div>
+                  <button class="btn-redeem" onclick="resgatarRecompensa(100, 'Desconto R$ 15 na Conta de Água', 'Sabesp • Fatura Residencial', '💧')">
+                    100 ELOs
+                  </button>
+                </div>
+
+                <div class="reward-card highlight">
+                  <div class="reward-icon">⚡</div>
+                  <div class="reward-details">
+                    <h4>Desconto R$ 20 na Conta de Luz / Energia</h4>
+                    <p>Enel • Crédito EcoEnergia na conta de luz da sua residência</p>
+                  </div>
+                  <button class="btn-redeem" onclick="resgatarRecompensa(150, 'Desconto R$ 20 na Conta de Energia', 'Enel • EcoEnergia Residencial', '⚡')">
+                    150 ELOs
+                  </button>
+                </div>
+
+                <div class="reward-card">
+                  <div class="reward-icon">🔥</div>
+                  <div class="reward-details">
+                    <h4>Desconto R$ 25 na Conta de Gás</h4>
+                    <p>Comgás / Vale-Gás • Auxílio gás para a casa do trabalhador</p>
+                  </div>
+                  <button class="btn-redeem" onclick="resgatarRecompensa(200, 'Desconto R$ 25 na Conta de Gás', 'Comgás / Auxílio Gás', '🔥')">
+                    200 ELOs
+                  </button>
+                </div>
+
+                <div class="reward-card">
+                  <div class="reward-icon">🏡</div>
+                  <div class="reward-details">
+                    <h4>Abatimento R$ 40 no IPTU</h4>
+                    <p>Prefeitura de SP • Desconto no IPTU da residência do coletor</p>
+                  </div>
+                  <button class="btn-redeem" onclick="resgatarRecompensa(300, 'Abatimento R$ 40 no IPTU', 'Prefeitura de São Paulo', '🏡')">
+                    300 ELOs
                   </button>
                 </div>
               </div>
@@ -1351,18 +1445,15 @@
             <span class="admin-badge-live">🟢 SUPABASE LIVE</span>
             <div>
               <h2>Central ELO • Gestão Ocupacional (SST) & Limpeza Urbana</h2>
-              <p>Painel Executivo B2B/B2G • Concessionária & Prefeitura de São Paulo (Subprefeitura Ipiranga)</p>
+              <p id="admin-auth-subtitle">🔒 Acesso Autenticado: Subprefeitura Ipiranga (gestao@prefeitura.sp.gov.br • Token: PREF-IPIRANGA)</p>
             </div>
           </div>
           <div class="admin-actions">
-            <button class="btn-voice-toggle voice-stopped" id="btn-admin-voice" title="Ligar ou desligar áudio" onclick="alternarSomGlobal()">
-              <span class="voice-icon">🔇</span>
-            </button>
             <button class="btn-admin-action" onclick="sincronizarPainelAdmin()">
               🔄 Atualizar Dados da Nuvem
             </button>
-            <button class="btn-admin-mobile" onclick="fecharPainelGestor()">
-              📱 Voltar para Visão App Mobile
+            <button class="btn-admin-mobile" style="background: #dc2626;" onclick="executarLogout()">
+              🚪 Sair do Painel (Logout)
             </button>
           </div>
         </div>
@@ -1407,7 +1498,55 @@
             </div>
           </div>
 
-          <!-- Linha 2: Duas Colunas Widescreen (Saúde São Camilo vs Operação Mauá) -->
+          <!-- Linha 2: Tabela Corporativa SESMT de Monitoramento em Tempo Real dos Garis (Full Width, Sem Emojis) -->
+          <div class="admin-panel sesmt-corporate-panel">
+            <div class="sesmt-header-bar">
+              <div>
+                <span class="sesmt-system-tag">SISTEMA INTEGRADO SESMT • PREFEITURA & SÃO CAMILO</span>
+                <h3>Monitoramento Ocupacional e Clínico do Efetivo (Tempo Real)</h3>
+              </div>
+              <div class="sesmt-controls-row">
+                <div class="sesmt-filter-tabs" id="sesmt-filter-tabs">
+                  <button class="sesmt-tab active" data-filtro="todos" onclick="definirFiltroGravidadeSesmt('todos', this)">
+                    Todos (<span id="count-sesmt-todos">0</span>)
+                  </button>
+                  <button class="sesmt-tab tab-critico" data-filtro="critico" onclick="definirFiltroGravidadeSesmt('critico', this)">
+                    <span class="dot-indicator dot-red"></span>Críticos (<span id="count-sesmt-critico">0</span>)
+                  </button>
+                  <button class="sesmt-tab tab-atencao" data-filtro="atencao" onclick="definirFiltroGravidadeSesmt('atencao', this)">
+                    <span class="dot-indicator dot-yellow"></span>Atenção (<span id="count-sesmt-atencao">0</span>)
+                  </button>
+                  <button class="sesmt-tab tab-apto" data-filtro="apto" onclick="definirFiltroGravidadeSesmt('apto', this)">
+                    <span class="dot-indicator dot-green"></span>Aptos (<span id="count-sesmt-apto">0</span>)
+                  </button>
+                </div>
+                <div class="sesmt-search-box">
+                  <input type="text" id="input-busca-sesmt" class="sesmt-search-input" placeholder="Buscar por nome, matrícula ou rota..." oninput="renderizarTabelaSesmtGari()">
+                </div>
+              </div>
+            </div>
+
+            <div class="admin-table-wrapper sesmt-table-container">
+              <table class="admin-table sesmt-corporate-table" id="admin-sesmt-table">
+                <thead>
+                  <tr>
+                    <th>Nome do Gari</th>
+                    <th>Matrícula</th>
+                    <th>Rota / Caminhão</th>
+                    <th>Status de Saúde</th>
+                    <th>Queixa Clínica</th>
+                    <th>Horário</th>
+                    <th>Ação</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-sesmt-tbody">
+                  <!-- Preenchido em tempo real via JavaScript (Cadastros + Check-ins Diários) -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Linha 3: Duas Colunas Widescreen (Saúde São Camilo vs Operação Mauá) -->
           <div class="admin-main-grid">
             
             <!-- Coluna Esquerda: Saúde Mental e Ocupacional (São Camilo) -->
