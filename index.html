@@ -308,19 +308,19 @@
       </section>
 
       <!-- ============================================== -->
-      <!-- TELA: MEU PERFIL & PROGRESSO DO TRABALHADOR    -->
+      <!-- TELA: MEU PERFIL & PROGRESSO (TRABALHADOR/MORADOR) -->
       <!-- ============================================== -->
       <section class="screen" id="screen-worker-profile">
         <div class="screen-header">
-          <button class="btn-back" onclick="navegarPara('screen-home-worker')">❮</button>
+          <button class="btn-back" onclick="irParaHome()">❮</button>
           <h2>Meu Progresso & Perfil</h2>
-          <button class="btn-voice-inline" onclick="falarTexto('Seu perfil e progresso no ELO. Veja seus pontos acumulados, check-ins e recompensas ativas.')">🔊</button>
+          <button class="btn-voice-inline" onclick="lerTelaAtual()" title="Ouvir ou parar áudio">🔊</button>
         </div>
 
         <div class="profile-details-content">
           <!-- Card de Identificação -->
-          <div class="worker-card-id">
-            <div class="worker-avatar-badge">👷🏽‍♂️</div>
+          <div class="worker-card-id" id="perfil-card-box">
+            <div class="worker-avatar-badge" id="perfil-avatar-icone">👷🏽‍♂️</div>
             <div class="worker-id-info">
               <h3 id="perfil-nome">Carlos Silva</h3>
               <p id="perfil-email">carlos@elo.com</p>
@@ -328,7 +328,7 @@
             </div>
           </div>
 
-          <!-- Estatísticas de Progresso do Gari -->
+          <!-- Estatísticas de Progresso (Adaptadas para Trabalhador ou Morador) -->
           <div class="stats-overview">
             <div class="stat-card">
               <span class="stat-val valor-elos">340</span>
@@ -336,15 +336,15 @@
             </div>
             <div class="stat-card">
               <span class="stat-val" id="perfil-checkins">12</span>
-              <span class="stat-lbl">Check-ins Feitos</span>
+              <span class="stat-lbl" id="lbl-stat-1">Check-ins Feitos</span>
             </div>
             <div class="stat-card">
               <span class="stat-val" id="perfil-alongamentos">8</span>
-              <span class="stat-lbl">Alongamentos</span>
+              <span class="stat-lbl" id="lbl-stat-2">Alongamentos</span>
             </div>
             <div class="stat-card">
               <span class="stat-val" id="perfil-alertas">4</span>
-              <span class="stat-lbl">Alertas de Vidro</span>
+              <span class="stat-lbl" id="lbl-stat-3">Alertas de Vidro</span>
             </div>
           </div>
 
@@ -352,23 +352,7 @@
           <div class="vouchers-section">
             <h4>🎟️ Suas Recompensas Ativas:</h4>
             <div class="vouchers-list" id="perfil-vouchers-list">
-              <div class="voucher-card">
-                <div class="voucher-icon">☕</div>
-                <div class="voucher-info">
-                  <h5>Café com Pão na Chapa</h5>
-                  <p>Padaria Estrela do Ipiranga • Código: <strong>ELO-7492</strong></p>
-                </div>
-                <span class="badge-voucher-status">Pronto para Usar</span>
-              </div>
-
-              <div class="voucher-card">
-                <div class="voucher-icon">🏥</div>
-                <div class="voucher-info">
-                  <h5>Sessão de Fisioterapia</h5>
-                  <p>Clínica Integrada São Camilo • Código: <strong>SPSC-1104</strong></p>
-                </div>
-                <span class="badge-voucher-status agendado">Agendado</span>
-              </div>
+              <!-- Preenchido dinamicamente conforme o perfil logado -->
             </div>
           </div>
 
@@ -636,13 +620,13 @@
       </div>
 
       <!-- ============================================== -->
-      <!-- TELA 6: MEUS ELOS & RECOMPENSAS                -->
+      <!-- TELA 6: MEUS ELOS & RECOMPENSAS (POR PERFIL)   -->
       <!-- ============================================== -->
       <section class="screen" id="screen-rewards">
         <div class="screen-header">
-          <button class="btn-back" onclick="navegarPara('screen-home-worker')">❮</button>
+          <button class="btn-back" onclick="irParaHome()">❮</button>
           <h2>Meus ELOs</h2>
-          <button class="btn-voice-inline" onclick="falarTexto('Seu saldo de pontos e recompensas disponíveis.')">🔊</button>
+          <button class="btn-voice-inline" onclick="lerTelaAtual()" title="Ouvir ou parar áudio">🔊</button>
         </div>
 
         <div class="rewards-content">
@@ -650,77 +634,154 @@
             <span class="balance-coins">🪙</span>
             <div class="balance-info">
               <span class="balance-value"><span class="valor-elos">340</span> ELOs</span>
-              <p>Continue cuidando da sua saúde para conquistar mais benefícios!</p>
+              <p id="rewards-subtitle-text">Continue participando para conquistar mais benefícios!</p>
             </div>
           </div>
 
-          <div class="rewards-section">
-            <h3>Conquiste mais ELOs:</h3>
-            <div class="tasks-list">
-              <div class="task-item">
-                <span>📹 Assistir a um vídeo de alongamento</span>
-                <strong class="points-gain">+10</strong>
+          <!-- VISÃO 1: RECOMPENSAS E METAS DO TRABALHADOR (GARI) -->
+          <div id="rewards-view-trabalhador">
+            <div class="rewards-section">
+              <h3>Como conquistar mais ELOs na Rota:</h3>
+              <div class="tasks-list">
+                <div class="task-item">
+                  <span>📹 Assistir a um vídeo de alongamento</span>
+                  <strong class="points-gain">+10</strong>
+                </div>
+                <div class="task-item">
+                  <span>💬 Fazer o check-in diário de saúde</span>
+                  <strong class="points-gain">+10</strong>
+                </div>
+                <div class="task-item">
+                  <span>⚠️ Confirmar alerta de vidro na rota</span>
+                  <strong class="points-gain">+20</strong>
+                </div>
+                <div class="task-item">
+                  <span>🤝 Bônus de segurança da equipe do mês</span>
+                  <strong class="points-gain">+50</strong>
+                </div>
               </div>
-              <div class="task-item">
-                <span>💬 Fazer o check-in diário de saúde</span>
-                <strong class="points-gain">+10</strong>
-              </div>
-              <div class="task-item">
-                <span>⚠️ Avisar sobre caco de vidro na rota</span>
-                <strong class="points-gain">+20</strong>
-              </div>
-              <div class="task-item">
-                <span>🤝 Bônus de segurança da equipe do mês</span>
-                <strong class="points-gain">+50</strong>
+            </div>
+
+            <div class="rewards-section" style="margin-top: 16px;">
+              <h3>Troque seus ELOs por benefícios:</h3>
+              <div class="rewards-catalog">
+                <div class="reward-card">
+                  <div class="reward-icon">☕</div>
+                  <div class="reward-details">
+                    <h4>Café com Pão na Chapa</h4>
+                    <p>Padaria parceira da sua rota de coleta</p>
+                  </div>
+                  <button class="btn-redeem" onclick="resgatarRecompensa(100, 'Café com Pão na Chapa', 'Padaria Estrela do Ipiranga', '☕')">
+                    100 ELOs
+                  </button>
+                </div>
+
+                <div class="reward-card">
+                  <div class="reward-icon">📱</div>
+                  <div class="reward-details">
+                    <h4>Recarga de Celular R$ 15</h4>
+                    <p>Créditos para Claro, Vivo ou TIM</p>
+                  </div>
+                  <button class="btn-redeem" onclick="resgatarRecompensa(200, 'Recarga de Celular R$ 15', 'Operadoras Móveis', '📱')">
+                    200 ELOs
+                  </button>
+                </div>
+
+                <div class="reward-card highlight">
+                  <div class="reward-icon">🏥</div>
+                  <div class="reward-details">
+                    <h4>Sessão de Fisioterapia</h4>
+                    <p>Clínica São Camilo para alívio da coluna</p>
+                  </div>
+                  <button class="btn-redeem" onclick="resgatarRecompensa(500, 'Sessão de Fisioterapia', 'Clínica Integrada São Camilo', '🏥')">
+                    500 ELOs
+                  </button>
+                </div>
+
+                <div class="reward-card highlight">
+                  <div class="reward-icon">🧠</div>
+                  <div class="reward-details">
+                    <h4>Acolhimento Psicológico</h4>
+                    <p>Conversa sigilosa com profissional de saúde</p>
+                  </div>
+                  <button class="btn-redeem" onclick="resgatarRecompensa(600, 'Acolhimento Psicológico', 'Clínica São Camilo', '🧠')">
+                    600 ELOs
+                  </button>
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="rewards-section">
-            <h3>Troque seus ELOs por benefícios:</h3>
-            <div class="rewards-catalog">
-              <div class="reward-card">
-                <div class="reward-icon">☕</div>
-                <div class="reward-details">
-                  <h4>Café com Pão na Chapa</h4>
-                  <p>Padaria parceira da sua rota de coleta</p>
+          <!-- VISÃO 2: RECOMPENSAS E METAS DO MORADOR (CIDADÃO CONSCIENTE) -->
+          <div id="rewards-view-morador" style="display: none;">
+            <div class="rewards-section">
+              <h3>Como você ganha ELOs cuidando do bairro:</h3>
+              <div class="tasks-list">
+                <div class="task-item" onclick="navegarPara('screen-learn')" style="cursor:pointer;">
+                  <span>📖 Aprender sobre doenças e descarte correto</span>
+                  <strong class="points-gain">+10</strong>
                 </div>
-                <button class="btn-redeem" onclick="resgatarRecompensa(100, 'Café com pão na chapa na padaria')">
-                  100 ELOs
-                </button>
+                <div class="task-item" onclick="navegarPara('screen-appreciate')" style="cursor:pointer;">
+                  <span>💜 Valorizar os coletores enviando recado no Mural</span>
+                  <strong class="points-gain">+15</strong>
+                </div>
+                <div class="task-item" onclick="navegarPara('screen-reports')" style="cursor:pointer;">
+                  <span>📢 Alertar sobre vidro quebrado ou lixo na rua</span>
+                  <strong class="points-gain">+20</strong>
+                </div>
+                <div class="task-item">
+                  <span>♻️ Descartar vidros embalados com aviso de segurança</span>
+                  <strong class="points-gain">+30</strong>
+                </div>
               </div>
+            </div>
 
-              <div class="reward-card">
-                <div class="reward-icon">📱</div>
-                <div class="reward-details">
-                  <h4>Recarga de Celular R$ 15</h4>
-                  <p>Créditos para Claro, Vivo ou TIM</p>
+            <div class="rewards-section" style="margin-top: 16px;">
+              <h3>Benefícios para o Morador Consciente:</h3>
+              <div class="rewards-catalog">
+                <div class="reward-card">
+                  <div class="reward-icon">🌱</div>
+                  <div class="reward-details">
+                    <h4>Muda de Planta + Adubo Orgânico</h4>
+                    <p>Retirada no Viveiro / Horta Municipal do Ipiranga</p>
+                  </div>
+                  <button class="btn-redeem" onclick="resgatarRecompensa(50, 'Muda de Planta + Adubo Orgânico', 'Viveiro Municipal Ipiranga', '🌱')">
+                    50 ELOs
+                  </button>
                 </div>
-                <button class="btn-redeem" onclick="resgatarRecompensa(200, 'Recarga de celular de 15 reais')">
-                  200 ELOs
-                </button>
-              </div>
 
-              <div class="reward-card highlight">
-                <div class="reward-icon">🏥</div>
-                <div class="reward-details">
-                  <h4>Sessão de Fisioterapia</h4>
-                  <p>Clínica São Camilo para alívio da coluna</p>
+                <div class="reward-card">
+                  <div class="reward-icon">🎟️</div>
+                  <div class="reward-details">
+                    <h4>Ingresso Cultural / Museu do Ipiranga</h4>
+                    <p>Meia-entrada ou cortesia em parceiros culturais</p>
+                  </div>
+                  <button class="btn-redeem" onclick="resgatarRecompensa(100, 'Ingresso Cultural Ipiranga', 'Parceiros Culturais do Bairro', '🎟️')">
+                    100 ELOs
+                  </button>
                 </div>
-                <button class="btn-redeem" onclick="resgatarRecompensa(500, 'Sessão de fisioterapia na São Camilo')">
-                  500 ELOs
-                </button>
-              </div>
 
-              <div class="reward-card highlight">
-                <div class="reward-icon">🧠</div>
-                <div class="reward-details">
-                  <h4>Acolhimento Psicológico</h4>
-                  <p>Conversa sigilosa com profissional de saúde</p>
+                <div class="reward-card highlight">
+                  <div class="reward-icon">🍎</div>
+                  <div class="reward-details">
+                    <h4>Vale R$ 15 na Feira Livre / Padaria</h4>
+                    <p>Desconto em feiras orgânicas e comércios do Ipiranga</p>
+                  </div>
+                  <button class="btn-redeem" onclick="resgatarRecompensa(150, 'Vale R$ 15 Feira Livre', 'Comércio Parceiro Ipiranga', '🍎')">
+                    150 ELOs
+                  </button>
                 </div>
-                <button class="btn-redeem" onclick="resgatarRecompensa(600, 'Atendimento psicológico sigiloso')">
-                  600 ELOs
-                </button>
+
+                <div class="reward-card highlight">
+                  <div class="reward-icon">🏡</div>
+                  <div class="reward-details">
+                    <h4>Crédito IPTU Verde / Taxa Ambiental</h4>
+                    <p>Abatimento para cidadãos que protegem os coletores</p>
+                  </div>
+                  <button class="btn-redeem" onclick="resgatarRecompensa(300, 'Crédito IPTU Verde', 'Prefeitura de São Paulo', '🏡')">
+                    300 ELOs
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -776,16 +837,16 @@
       <!-- TELA 8: HOME DA MORADORA (MARIANA) - FASE 3    -->
       <!-- ============================================== -->
       <section class="screen" id="screen-home-morador">
-        <div class="profile-header resident-theme">
+        <div class="profile-header resident-theme" onclick="navegarPara('screen-worker-profile')" title="Ver meu perfil, progresso e sair da conta" style="cursor: pointer;">
           <div class="profile-avatar resident-avatar">👩🏻</div>
           <div class="profile-meta">
-            <h2>Olá, Mariana!</h2>
-            <p>Moradora • Bairro Ipiranga</p>
+            <h2 id="morador-header-nome">Olá, Mariana!</h2>
+            <p id="morador-header-rota">Moradora • Bairro Ipiranga ❯</p>
           </div>
-          <button class="btn-profile-switch" onclick="navegarPara('screen-roles')" title="Trocar Perfil">
-            🔄 Trocar
-          </button>
-          <button class="btn-voice-inline" onclick="lerTelaAtual()" title="Ouvir ou parar áudio">🔊</button>
+          <div class="badge-elos-mini" onclick="event.stopPropagation(); navegarPara('screen-rewards');" title="Ver meus ELOs e Recompensas">
+            ⭐ <span class="valor-elos">180</span> ELOs
+          </div>
+          <button class="btn-voice-inline" onclick="event.stopPropagation(); lerTelaAtual();" title="Ouvir ou parar áudio">🔊</button>
         </div>
 
         <div class="dashboard-grid">
@@ -1343,27 +1404,19 @@
         </button>
       </div>
 
-      <!-- Menu Inferior Exclusivo do MORADOR (Sem aba de Saúde/Bem-Estar do Gari) -->
+      <!-- Menu Inferior Exclusivo do MORADOR (Exatamente 3 botões: Início, ELOs e Mural) -->
       <div class="bottom-nav-group" id="nav-group-morador" style="display: none; width: 100%; justify-content: space-around;">
         <button class="nav-item active" id="nav-inicio-morador" onclick="irParaHome()">
           <span class="nav-icon">🏠</span>
           <span class="nav-label">Início</span>
         </button>
-        <button class="nav-item" id="nav-mapa-morador" onclick="navegarPara('screen-neighborhood')">
-          <span class="nav-icon">📍</span>
-          <span class="nav-label">Mapa</span>
+        <button class="nav-item" id="nav-elos-morador" onclick="navegarPara('screen-rewards')">
+          <span class="nav-icon">⭐</span>
+          <span class="nav-label">ELOs</span>
         </button>
-        <button class="nav-item" id="nav-denuncias-morador" onclick="navegarPara('screen-reports')">
-          <span class="nav-icon">📢</span>
-          <span class="nav-label">Denúncias</span>
-        </button>
-        <button class="nav-item" id="nav-aprenda-morador" onclick="navegarPara('screen-learn')">
-          <span class="nav-icon">📖</span>
-          <span class="nav-label">Aprenda</span>
-        </button>
-        <button class="nav-item" id="nav-valorize-morador" onclick="navegarPara('screen-appreciate')">
-          <span class="nav-icon">💜</span>
-          <span class="nav-label">Valorize</span>
+        <button class="nav-item" id="nav-mural-morador" onclick="navegarPara('screen-community')">
+          <span class="nav-icon">👥</span>
+          <span class="nav-label">Mural</span>
         </button>
       </div>
     </nav>

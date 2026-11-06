@@ -33,16 +33,23 @@ const BancoUsuariosPadrao = {
     senha: "123456",
     perfil: "morador",
     rota: "Rua dos Patriotas - Ipiranga",
-    pontosElos: 80,
-    checkins: 4,
-    alongamentos: 2,
+    pontosElos: 180,
+    checkins: 6,
+    alongamentos: 5,
     alertas: 3,
-    vouchers: []
+    vouchers: [
+      { titulo: "Vale R$ 15 na Feira Livre", local: "Feira Orgânica do Ipiranga", codigo: "ELO-3921", status: "Pronto para Usar", icone: "🍎" },
+      { titulo: "Muda de Planta + Adubo Orgânico", local: "Viveiro Municipal Ipiranga", codigo: "VMI-8802", status: "Pronto para Usar", icone: "🌱" }
+    ]
   }
 };
 
 // Carrega ou inicializa o banco no LocalStorage
 let BancoUsuarios = JSON.parse(localStorage.getItem('elo_banco_usuarios')) || BancoUsuariosPadrao;
+if (BancoUsuarios["mariana@elo.com"] && (!BancoUsuarios["mariana@elo.com"].vouchers || BancoUsuarios["mariana@elo.com"].vouchers.length === 0)) {
+  BancoUsuarios["mariana@elo.com"].vouchers = BancoUsuariosPadrao["mariana@elo.com"].vouchers;
+  if (BancoUsuarios["mariana@elo.com"].pontosElos < 100) BancoUsuarios["mariana@elo.com"].pontosElos = 180;
+}
 
 function salvarBancoUsuarios() {
   localStorage.setItem('elo_banco_usuarios', JSON.stringify(BancoUsuarios));
@@ -326,19 +333,40 @@ function atualizarItensNav(idTela) {
   // Detecta se deve exibir a barra inferior do Morador ou do Trabalhador
   const navTrab = document.getElementById('nav-group-trabalhador');
   const navMorador = document.getElementById('nav-group-morador');
+  const btnHeaderAdmin = document.getElementById('btn-header-admin');
 
   if (idTela === 'screen-home-morador' || idTela === 'screen-reports' || idTela === 'screen-appreciate') {
     EstadoApp.perfilAtual = 'morador';
-  } else if (idTela === 'screen-home-worker' || idTela === 'screen-wellbeing' || idTela === 'screen-health' || idTela === 'screen-rewards' || idTela === 'screen-worker-profile') {
+  } else if (idTela === 'screen-home-worker' || idTela === 'screen-wellbeing' || idTela === 'screen-health') {
     EstadoApp.perfilAtual = 'trabalhador';
   }
+
+  // Oculta o botão "Gestão Web" na visão de Morador
+  if (btnHeaderAdmin) {
+    if (EstadoApp.perfilAtual === 'morador') {
+      btnHeaderAdmin.style.display = 'none';
+    } else {
+      btnHeaderAdmin.style.display = 'inline-flex';
+    }
+  }
+
+  // Alterna visão da tela de ELOs (Trabalhador vs Morador)
+  const rewardsTrab = document.getElementById('rewards-view-trabalhador');
+  const rewardsMorador = document.getElementById('rewards-view-morador');
+  const rewardsSub = document.getElementById('rewards-subtitle-text');
 
   if (EstadoApp.perfilAtual === 'morador') {
     if (navTrab) navTrab.style.display = 'none';
     if (navMorador) navMorador.style.display = 'flex';
+    if (rewardsTrab) rewardsTrab.style.display = 'none';
+    if (rewardsMorador) rewardsMorador.style.display = 'block';
+    if (rewardsSub) rewardsSub.textContent = 'Ganhe ELOs aprendendo, valorizando os garis e protegendo sua rua!';
   } else {
     if (navTrab) navTrab.style.display = 'flex';
     if (navMorador) navMorador.style.display = 'none';
+    if (rewardsTrab) rewardsTrab.style.display = 'block';
+    if (rewardsMorador) rewardsMorador.style.display = 'none';
+    if (rewardsSub) rewardsSub.textContent = 'Continue cuidando da sua saúde para conquistar mais benefícios!';
   }
 
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
@@ -354,23 +382,34 @@ function atualizarItensNav(idTela) {
     document.getElementById('nav-comunidade')?.classList.add('active');
   }
 
-  // Marca aba ativa do Morador
-  if (idTela === 'screen-home-morador') {
+  // Marca aba ativa do Morador (Exatamente 3 abas: Início, ELOs e Mural)
+  if (
+    idTela === 'screen-home-morador' ||
+    idTela === 'screen-neighborhood' ||
+    idTela === 'screen-reports' ||
+    idTela === 'screen-learn' ||
+    idTela === 'screen-appreciate' ||
+    idTela === 'screen-worker-profile'
+  ) {
     document.getElementById('nav-inicio-morador')?.classList.add('active');
-  } else if (idTela === 'screen-neighborhood') {
-    document.getElementById('nav-mapa-morador')?.classList.add('active');
-  } else if (idTela === 'screen-reports') {
-    document.getElementById('nav-denuncias-morador')?.classList.add('active');
-  } else if (idTela === 'screen-learn') {
-    document.getElementById('nav-aprenda-morador')?.classList.add('active');
-  } else if (idTela === 'screen-appreciate') {
-    document.getElementById('nav-valorize-morador')?.classList.add('active');
+  } else if (idTela === 'screen-rewards') {
+    document.getElementById('nav-elos-morador')?.classList.add('active');
+  } else if (idTela === 'screen-community') {
+    document.getElementById('nav-mural-morador')?.classList.add('active');
   }
 }
 
 function alternarDetalheAprendizado(cardEl, textoFala) {
   if (cardEl) {
     cardEl.classList.toggle('expanded');
+    // Recompensa o morador/usuário com +10 ELOs na primeira vez que estuda cada guia
+    if (!cardEl.dataset.aprendido) {
+      cardEl.dataset.aprendido = 'true';
+      if (EstadoApp.usuarioLogado) {
+        EstadoApp.usuarioLogado.checkins = (EstadoApp.usuarioLogado.checkins || 0) + 1;
+      }
+      somarPontos(10, "estudar o guia de prevenção e descarte correto", true);
+    }
   }
   if (textoFala) {
     falarTexto(textoFala);
@@ -510,13 +549,22 @@ function atualizarDadosInterfaceUsuario() {
   const u = EstadoApp.usuarioLogado;
   if (!u) return;
 
+  const primeiroNome = u.nome.split(' ')[0];
+
   // Header Trabalhador
   const hNome = document.getElementById('worker-header-nome');
   const hRota = document.getElementById('worker-header-rota');
-  if (hNome) hNome.textContent = `Olá, ${u.nome.split(' ')[0]}!`;
-  if (hRota) hRota.textContent = `Trabalhador da coleta • ${u.rota} ❯`;
+  if (hNome && u.perfil === 'trabalhador') hNome.textContent = `Olá, ${primeiroNome}!`;
+  if (hRota && u.perfil === 'trabalhador') hRota.textContent = `Trabalhador da coleta • ${u.rota} ❯`;
 
-  // Tela de Perfil e Progresso
+  // Header Morador
+  const mNome = document.getElementById('morador-header-nome');
+  const mRota = document.getElementById('morador-header-rota');
+  if (mNome && u.perfil === 'morador') mNome.textContent = `Olá, ${primeiroNome}!`;
+  if (mRota && u.perfil === 'morador') mRota.textContent = `Morador(a) • ${u.rota} ❯`;
+
+  // Tela de Perfil e Progresso (Adaptada para Trabalhador ou Morador)
+  const pAvatar = document.getElementById('perfil-avatar-icone');
   const pNome = document.getElementById('perfil-nome');
   const pEmail = document.getElementById('perfil-email');
   const pRota = document.getElementById('perfil-rota');
@@ -524,12 +572,27 @@ function atualizarDadosInterfaceUsuario() {
   const pAlongamentos = document.getElementById('perfil-alongamentos');
   const pAlertas = document.getElementById('perfil-alertas');
 
+  const lblStat1 = document.getElementById('lbl-stat-1');
+  const lblStat2 = document.getElementById('lbl-stat-2');
+  const lblStat3 = document.getElementById('lbl-stat-3');
+
+  if (pAvatar) pAvatar.textContent = u.perfil === 'morador' ? '👩🏻' : '👷🏽‍♂️';
   if (pNome) pNome.textContent = u.nome;
   if (pEmail) pEmail.textContent = u.email;
   if (pRota) pRota.textContent = u.rota;
   if (pCheckins) pCheckins.textContent = u.checkins || 0;
   if (pAlongamentos) pAlongamentos.textContent = u.alongamentos || 0;
   if (pAlertas) pAlertas.textContent = u.alertas || 0;
+
+  if (u.perfil === 'morador') {
+    if (lblStat1) lblStat1.textContent = 'Guias Lidos';
+    if (lblStat2) lblStat2.textContent = 'Valorizações';
+    if (lblStat3) lblStat3.textContent = 'Alertas Enviados';
+  } else {
+    if (lblStat1) lblStat1.textContent = 'Check-ins Feitos';
+    if (lblStat2) lblStat2.textContent = 'Alongamentos';
+    if (lblStat3) lblStat3.textContent = 'Alertas de Vidro';
+  }
 
   // Renderizar Vouchers do Usuário
   renderizarVouchersUsuario();
@@ -606,7 +669,7 @@ function concluirCheckin() {
 /* --------------------------------------------------------------------------
    5. MEUS ELOS & RECOMPENSAS
    -------------------------------------------------------------------------- */
-function somarPontos(quantidade, motivo) {
+function somarPontos(quantidade, motivo, silencioso = false) {
   EstadoApp.pontosElos += quantidade;
   
   // Salva no perfil do usuário logado
@@ -620,7 +683,10 @@ function somarPontos(quantidade, motivo) {
 
   localStorage.setItem('elos_saldo', EstadoApp.pontosElos);
   atualizarDisplaysPontos();
-  falarTexto(`Parabéns! Você ganhou ${quantidade} ELOs por ${motivo}. Seu saldo é de ${EstadoApp.pontosElos} pontos.`);
+  atualizarDadosInterfaceUsuario();
+  if (!silencioso) {
+    falarTexto(`Parabéns! Você ganhou ${quantidade} ELOs por ${motivo}. Seu saldo é de ${EstadoApp.pontosElos} pontos.`);
+  }
 }
 
 function atualizarDisplaysPontos() {
@@ -629,7 +695,7 @@ function atualizarDisplaysPontos() {
   });
 }
 
-function resgatarRecompensa(custo, itemNome) {
+function resgatarRecompensa(custo, itemNome, localParceiro, iconeCustom) {
   if (EstadoApp.pontosElos < custo) {
     const falta = custo - EstadoApp.pontosElos;
     alert(`Você precisa de mais ${falta} ELOs para resgatar: ${itemNome}`);
@@ -641,12 +707,15 @@ function resgatarRecompensa(custo, itemNome) {
   
   // Gera código único de voucher
   const codigoVoucher = "ELO-" + Math.floor(1000 + Math.random() * 9000);
+  const localFinal = localParceiro || (itemNome.includes("Fisioterapia") || itemNome.includes("psicológico") ? "Clínica São Camilo" : "Parceiro do Bairro");
+  const iconeFinal = iconeCustom || (itemNome.includes("Café") ? "☕" : itemNome.includes("Celular") ? "📱" : "🎟️");
+
   const novoVoucher = {
     titulo: itemNome,
-    local: itemNome.includes("Fisioterapia") || itemNome.includes("psicológico") ? "Clínica São Camilo" : "Parceiro da Rota",
+    local: localFinal,
     codigo: codigoVoucher,
     status: itemNome.includes("Fisioterapia") ? "Agendado" : "Pronto para Usar",
-    icone: itemNome.includes("Café") ? "☕" : itemNome.includes("Celular") ? "📱" : "🏥"
+    icone: iconeFinal
   };
 
   if (EstadoApp.usuarioLogado) {
@@ -734,7 +803,13 @@ function enviarOcorrencia() {
   PontosMapaBairro.unshift(novoPontoMapa);
   ultimoPontoSelecionadoMapa = novoPontoMapa;
 
-  let mensagemAlerta = `Ocorrência registrada no Supabase com sucesso!\nProtocolo: ${protocolo}\nProblema: ${tipoProblema}`;
+  // Recompensa o morador com +20 ELOs por alertar a equipe sobre riscos ou ocorrências
+  if (EstadoApp.usuarioLogado) {
+    EstadoApp.usuarioLogado.alertas = (EstadoApp.usuarioLogado.alertas || 0) + 1;
+  }
+  somarPontos(20, "alertar sobre ocorrência na via", true);
+
+  let mensagemAlerta = `Ocorrência registrada com sucesso (+20 ELOs)!\nProtocolo: ${protocolo}\nProblema: ${tipoProblema}`;
   
   if (ehPerigoso) {
     mensagemAlerta += `\n\n⚠️ ALERTA DE SEGURANÇA EMITIDO: Os coletores do caminhão da rota receberão aviso imediato no mapa GPS sobre perfurocortantes nesta rua!`;
@@ -1103,8 +1178,14 @@ function enviarMensagemMorador() {
   SupabaseService.salvarMensagemMural(novaMsg.autor, novaMsg.texto);
   renderizarMensagens();
 
-  alert("💌 Mensagem enviada com sucesso ao Mural dos Trabalhadores!\nEles poderão ouvir seu recado em voz alta.");
-  falarTexto("Sua mensagem de carinho foi enviada ao mural da equipe com sucesso!");
+  // Recompensa o morador com +15 ELOs por valorizar os profissionais da coleta
+  if (EstadoApp.usuarioLogado) {
+    EstadoApp.usuarioLogado.alongamentos = (EstadoApp.usuarioLogado.alongamentos || 0) + 1;
+  }
+  somarPontos(15, "valorizar os profissionais da coleta", true);
+
+  alert("💌 Mensagem enviada com sucesso ao Mural dos Trabalhadores! (+15 ELOs)\nEles poderão ouvir seu recado em voz alta.");
+  falarTexto("Sua mensagem de carinho foi enviada ao mural da equipe e você ganhou 15 ELOs!");
 
   textarea.value = '';
   navegarPara('screen-community');
